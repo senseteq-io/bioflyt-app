@@ -1,5 +1,0 @@
-export { default as GroupAll } from './GroupAll'
-export { default as GroupShow } from './GroupShow'
-export { default as GroupEdit } from './GroupEdit'
-export { default as GroupCreate } from './GroupCreate'
-export { default as GroupsAll } from './GroupsAll'
