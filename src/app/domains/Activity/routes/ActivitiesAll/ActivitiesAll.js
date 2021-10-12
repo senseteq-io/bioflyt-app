@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react'
   in this file.
 */
 
-function GroupsAll(props) {
+function ActivitiesAll(props) {
   // const { WRITE_PROPS_HERE } = props
   // const { ADDITIONAL_DESTRUCTURING_HERE } = user
 
@@ -41,9 +41,9 @@ function GroupsAll(props) {
     }
   }, [])
 
-  return <>GroupsAll</>
+  return <>ActivitiesAll</>
 }
 
-GroupsAll.propTypes = {}
+ActivitiesAll.propTypes = {}
 
-export default GroupsAll
+export default ActivitiesAll
