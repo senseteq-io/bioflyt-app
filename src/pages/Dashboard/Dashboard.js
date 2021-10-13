@@ -14,15 +14,16 @@ import {
   Redirect,
   matchPath
 } from 'react-router-dom'
+import { useTranslations } from '../../contexts/Translation'
 import { AdminGroupRoutes } from '../../pages/Group'
 import { AdminActivityRoutes } from '../../pages/Activity'
 import { AdminSettingRoutes } from '../../pages/Settings'
 
-function Dashboard(props) {
+function Dashboard() {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const location = useLocation()
-
+  const t = useTranslations()
   // [COMPUTED PROPERTIES]
   const routes = [
     ...AdminGroupRoutes,
@@ -38,9 +39,6 @@ function Dashboard(props) {
   function onChange(key) {
     history.push(key)
   }
-
-  // TODO replace to translation function
-  const t = (text) => text
 
   return (
     <PageWrapper firstLevelHidden isBottomSticky>
