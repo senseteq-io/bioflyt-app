@@ -1,13 +1,12 @@
-import { CLINICS_MODEL_NAME } from 'app/constants/models'
 import React, { useMemo } from 'react'
 import firebase from 'firebase'
 import moment from 'moment'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
+import { useTranslations } from '@qonsoll/translation'
 import { Select } from 'antd'
-import { useTranslations } from 'app/contexts'
 import { useService } from 'bioflyt/contexts/Service'
 
-function DisorderSelect({ placeholder, ...args }) {
+function ClinicSelect({ placeholder, ...args }) {
   // [ADDITIONAL HOOKS
   const { t } = useTranslations()
   const { CLINICS_MODEL_NAME } = useService()
@@ -28,7 +27,7 @@ function DisorderSelect({ placeholder, ...args }) {
   }, [list])
 
   return (
-    <Select {...args} placeholder={placeholder || t('Disorder')}>
+    <Select {...args} placeholder={placeholder || t('Clinic')}>
       {sortedList.map(({ name, _id }) => (
         <Select.Option key={_id} value={_id}>
           {name}
@@ -38,6 +37,4 @@ function DisorderSelect({ placeholder, ...args }) {
   )
 }
 
-DisorderSelect.propTypes = {}
-
-export default DisorderSelect
+export default ClinicSelect
