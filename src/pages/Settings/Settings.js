@@ -6,7 +6,7 @@ import {
   BIOFLOW_ADMIN_THERAPISTS_PATH,
   BIOFLOW_ADMIN_NOTIFICATIONS_PATH,
   BIOFLOW_ADMIN_SETTINGS_PATH
-} from 'modules/bioflyt-app/src/constants/paths'
+} from 'bioflow/constants/paths'
 import {
   Route,
   useHistory,

@@ -4,7 +4,7 @@ import moment from 'moment'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useTranslations } from '@qonsoll/translation'
 import { Select } from 'antd'
-import { useService } from 'bioflyt/contexts/Service'
+import { useService } from 'bioflow/contexts/Service'
 
 function ClinicSelect({ placeholder, ...args }) {
   // [ADDITIONAL HOOKS

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslations } from '@qonsoll/translation'
 import { PageWrapper } from '@qonsoll/react-design'
-import { PatientsList } from 'bioflyt/domains/Patient/components'
+import { PatientsList } from 'bioflow/domains/Patient/components'
 
 function PatientsAll() {
   // [ADDITIONAL HOOKS]

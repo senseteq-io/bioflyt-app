@@ -6,8 +6,8 @@ import { useTranslations } from '@qonsoll/translation'
 import { Form } from 'antd'
 import { Button, Col, Input, Row, Text, Title } from '@qonsoll/react-design'
 import { DisorderSelect } from 'app/domains/Disorder/components'
-import { ClinicSelect } from 'bioflyt/domains/Clinic/components'
-import { TherapistInviteForm } from 'bioflyt/domains/Therapist/components'
+import { ClinicSelect } from 'bioflow/domains/Clinic/components'
+import { TherapistInviteForm } from 'bioflow/domains/Therapist/components'
 
 function GroupSimpleForm(props) {
   const { loading } = props

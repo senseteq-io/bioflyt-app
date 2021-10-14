@@ -1,8 +1,8 @@
 import {
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
   BIOFLOW_GROUP_SHOW_PATH
-} from 'bioflyt/constants/paths'
-import { useBioflowAccess } from 'bioflyt/hooks'
+} from 'bioflow/constants/paths'
+import { useBioflowAccess } from 'bioflow/hooks'
 import React from 'react'
 import PropTypes from 'prop-types'
 import firebase from 'firebase'
@@ -10,7 +10,7 @@ import { useHistory, generatePath } from 'react-router-dom'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { Box, Card, Col, Row, Text, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
-import { useService } from 'bioflyt/contexts/Service'
+import { useService } from 'bioflow/contexts/Service'
 
 function GroupAdvancedView(props) {
   const {

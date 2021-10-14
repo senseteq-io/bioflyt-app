@@ -1,14 +1,14 @@
-import { GroupAdvancedView } from 'bioflyt/domains/Group/components'
+import { GroupAdvancedView } from 'bioflow/domains/Group/components'
 import React from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { ListWithCreate } from 'app/components'
-import { GROUPS } from 'bioflyt/constants/collections'
-import { useBioflowAccess } from 'bioflyt/hooks'
+import { GROUPS } from 'bioflow/constants/collections'
+import { useBioflowAccess } from 'bioflow/hooks'
 import {
   BIOFLOW_ADMIN_GROUP_CREATE_PATH,
   BIOFLOW_GROUP_CREATE_PATH
-} from 'bioflyt/constants/paths'
+} from 'bioflow/constants/paths'
 
 const MOCK_GROUPS = [
   {

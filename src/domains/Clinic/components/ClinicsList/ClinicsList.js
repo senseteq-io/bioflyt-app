@@ -2,7 +2,7 @@ import React from 'react'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { List } from 'antd'
 import { ClinicSimpleView } from '..'
-import { useService } from 'bioflyt/contexts/Service'
+import { useService } from 'bioflow/contexts/Service'
 import firebase from 'firebase'
 
 function ClinicsList(props) {

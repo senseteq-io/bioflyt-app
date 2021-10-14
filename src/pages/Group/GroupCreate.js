@@ -2,7 +2,7 @@ import React from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
-import { GroupSimpleForm } from 'bioflyt/domains/Group/components'
+import { GroupSimpleForm } from 'bioflow/domains/Group/components'
 
 function GroupCreate() {
   // [ADDITIONAL HOOKS]

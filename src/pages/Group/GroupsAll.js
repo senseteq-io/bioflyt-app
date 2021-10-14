@@ -1,7 +1,7 @@
 import { PageWrapper } from '@qonsoll/react-design'
 import React from 'react'
 import { useTranslations } from '@qonsoll/translation'
-import { GroupsList } from 'bioflyt/domains/Group/components'
+import { GroupsList } from 'bioflow/domains/Group/components'
 
 function GroupsAll(props) {
   const { inTab } = props
