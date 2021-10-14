@@ -7,6 +7,7 @@ import { AdminStudyRoutes } from './Study'
 import { AdminTherapistsRoutes } from './Therapist'
 
 import { TherapistGroupRoutes } from './Group'
+import { TherapistPatientsRoutes } from './Patient'
 import { TherapistNotificationRoutes } from './Notification'
 
 export const allAdminRoutes = [
@@ -21,7 +22,8 @@ export const allAdminRoutes = [
 
 export const allTherapistRoutes = [
   ...TherapistGroupRoutes,
-  ...TherapistNotificationRoutes
+  ...TherapistNotificationRoutes,
+  ...TherapistPatientsRoutes
 ]
 
 export default [

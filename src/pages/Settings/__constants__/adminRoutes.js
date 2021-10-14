@@ -1,10 +1,10 @@
-import { BIOFLYT_ADMIN_SETTINGS_PATH } from '../../../constants/paths'
+import { BIOFLOW_ADMIN_SETTINGS_PATH } from '../../../constants/paths'
 import { Settings } from '..'
 
 export default [
   {
     name: 'Settings',
-    path: BIOFLYT_ADMIN_SETTINGS_PATH,
+    path: BIOFLOW_ADMIN_SETTINGS_PATH,
     exact: false,
     component: Settings
   }

@@ -1,9 +1,9 @@
 import {
-  BIOFLYT_GROUPS_PATH,
-  BIOFLYT_GROUP_ACTIVITIES_PATH,
-  BIOFLYT_GROUP_CREATE_PATH,
-  BIOFLYT_GROUP_EDIT_PATH,
-  BIOFLYT_GROUP_SHOW_PATH
+  BIOFLOW_GROUPS_PATH,
+  BIOFLOW_GROUP_ACTIVITIES_PATH,
+  BIOFLOW_GROUP_CREATE_PATH,
+  BIOFLOW_GROUP_EDIT_PATH,
+  BIOFLOW_GROUP_SHOW_PATH
 } from '../../../constants/paths'
 import {
   GroupsAll,
@@ -16,31 +16,31 @@ import {
 export default [
   {
     name: 'GroupsAll',
-    path: BIOFLYT_GROUPS_PATH,
+    path: BIOFLOW_GROUPS_PATH,
     exact: true,
     component: GroupsAll
   },
   {
     name: 'GroupCreate',
-    path: BIOFLYT_GROUP_CREATE_PATH,
+    path: BIOFLOW_GROUP_CREATE_PATH,
     exact: true,
     component: GroupCreate
   },
   {
     name: 'GroupEdit',
-    path: BIOFLYT_GROUP_EDIT_PATH,
+    path: BIOFLOW_GROUP_EDIT_PATH,
     exact: true,
     component: GroupEdit
   },
   {
     name: 'GroupShow',
-    path: BIOFLYT_GROUP_SHOW_PATH,
+    path: BIOFLOW_GROUP_SHOW_PATH,
     exact: true,
     component: GroupShow
   },
   {
     name: 'GroupActivitiesAll',
-    path: BIOFLYT_GROUP_ACTIVITIES_PATH,
+    path: BIOFLOW_GROUP_ACTIVITIES_PATH,
     exact: true,
     component: GroupActivitiesAll
   }

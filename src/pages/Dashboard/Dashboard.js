@@ -13,10 +13,10 @@ import { AdminGroupRoutes } from '../../pages/Group'
 import { AdminActivityRoutes } from '../../pages/Activity'
 import { AdminSettingRoutes } from '../../pages/Settings'
 import {
-  BIOFLYT_ADMIN_GLOBAL_ACTIVITIES_PATH,
-  BIOFLYT_ADMIN_GROUPS_PATH,
-  BIOFLYT_ADMIN_SETTINGS_PATH,
-  BIOFLYT_ADMIN_PATH
+  BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH,
+  BIOFLOW_ADMIN_GROUPS_PATH,
+  BIOFLOW_ADMIN_SETTINGS_PATH,
+  BIOFLOW_ADMIN_PATH
 } from '../../constants/paths'
 
 function Dashboard() {
@@ -45,21 +45,21 @@ function Dashboard() {
       <Tabs
         size="large"
         activeKey={activeRoute}
-        defaultActiveKey={BIOFLYT_ADMIN_GROUPS_PATH}
+        defaultActiveKey={BIOFLOW_ADMIN_GROUPS_PATH}
         onChange={onChange}>
-        <Tabs.TabPane tab={t('Groups')} key={BIOFLYT_ADMIN_GROUPS_PATH} />
+        <Tabs.TabPane tab={t('Groups')} key={BIOFLOW_ADMIN_GROUPS_PATH} />
         <Tabs.TabPane
           tab={t('Activities')}
-          key={BIOFLYT_ADMIN_GLOBAL_ACTIVITIES_PATH}
+          key={BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH}
         />
-        <Tabs.TabPane tab={t('Settings')} key={BIOFLYT_ADMIN_SETTINGS_PATH} />
+        <Tabs.TabPane tab={t('Settings')} key={BIOFLOW_ADMIN_SETTINGS_PATH} />
       </Tabs>
       {routes.map(({ path, exact, component }) => (
         <Route key={path} path={path} exact={exact} component={component} />
       ))}
 
-      {location.pathname === BIOFLYT_ADMIN_PATH && (
-        <Redirect to={BIOFLYT_ADMIN_GROUPS_PATH} />
+      {location.pathname === BIOFLOW_ADMIN_PATH && (
+        <Redirect to={BIOFLOW_ADMIN_GROUPS_PATH} />
       )}
     </PageWrapper>
   )
