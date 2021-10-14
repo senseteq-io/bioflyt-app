@@ -18,13 +18,15 @@ export default [
     name: 'GroupsAll',
     path: BIOFLOW_ADMIN_GROUPS_PATH,
     exact: true,
-    component: (props) => <GroupsAll inTab {...props} />
+    component: (props) => <GroupsAll inTab {...props} />,
+    inDashboardRoute: true
   },
   {
     name: 'GroupCreate',
     path: BIOFLOW_ADMIN_GROUP_CREATE_PATH,
     exact: true,
-    component: GroupCreate
+    component: GroupCreate,
+    inDashboardRoute: false
   },
   {
     name: 'GroupEdit',

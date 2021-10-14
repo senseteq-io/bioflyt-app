@@ -8,7 +8,7 @@ const useBioflowAccess = () => {
   const { role, bioflowAccess } = useUserContext()
 
   return {
-    isAdmin: bioflowAccess && role === 'ADMIN',
+    isAdmin: bioflowAccess && role === 'SUPER_ADMIN',
     isTherapist:
       bioflowAccess && ['THERAPIST', 'BIOFLOW_THERAPIST'].includes(role)
   }
