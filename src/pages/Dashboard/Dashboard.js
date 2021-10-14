@@ -2,28 +2,28 @@ import React from 'react'
 import { PageWrapper } from '@qonsoll/react-design'
 import { Tabs } from 'antd'
 import {
-  BIOFLYT_ADMIN_GLOBAL_ACTIVITIES_PATH,
-  BIOFLYT_ADMIN_GROUPS_PATH,
-  BIOFLYT_ADMIN_SETTINGS_PATH,
-  BIOFLYT_ADMIN_PATH
-} from 'modules/bioflyt-app/src/constants/paths'
-import {
   Route,
   useHistory,
   useLocation,
   Redirect,
   matchPath
 } from 'react-router-dom'
-import { useTranslations } from '../../contexts/Translation'
+import { useTranslations } from '@qonsoll/translation'
 import { AdminGroupRoutes } from '../../pages/Group'
 import { AdminActivityRoutes } from '../../pages/Activity'
 import { AdminSettingRoutes } from '../../pages/Settings'
+import {
+  BIOFLYT_ADMIN_GLOBAL_ACTIVITIES_PATH,
+  BIOFLYT_ADMIN_GROUPS_PATH,
+  BIOFLYT_ADMIN_SETTINGS_PATH,
+  BIOFLYT_ADMIN_PATH
+} from '../../constants/paths'
 
 function Dashboard() {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const location = useLocation()
-  const t = useTranslations()
+  const { t } = useTranslations()
   // [COMPUTED PROPERTIES]
   const routes = [
     ...AdminGroupRoutes,
