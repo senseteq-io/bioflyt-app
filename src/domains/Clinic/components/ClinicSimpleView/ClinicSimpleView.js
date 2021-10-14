@@ -1,14 +1,14 @@
 import React from 'react'
 import { Tooltip } from 'antd'
 import { Col, Divider, Row, Switch, Text } from '@qonsoll/react-design'
-import { useTranslations } from '../../../../contexts/Translation'
+import { useTranslations } from '@qonsoll/translation'
 
 function ClinicSimpleView(props) {
   const { clinic } = props
   const { name } = clinic || {}
 
   // [ADDITIONAL HOOKS]
-  const t = useTranslations()
+  const { t } = useTranslations()
 
   // [CLEAN FUNCTIONS]
   const onSwitchValueChange = (isBioflowEnabled) => {}
