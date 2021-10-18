@@ -13,10 +13,10 @@ import { AdminGroupRoutes } from '../../pages/Group'
 import { AdminActivityRoutes } from '../../pages/Activity'
 import { AdminSettingRoutes } from '../../pages/Settings'
 import {
-  BIOFLYT_ADMIN_GLOBAL_ACTIVITIES_PATH,
-  BIOFLYT_ADMIN_GROUPS_PATH,
-  BIOFLYT_ADMIN_SETTINGS_PATH,
-  BIOFLYT_ADMIN_PATH
+  BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH,
+  BIOFLOW_ADMIN_GROUPS_PATH,
+  BIOFLOW_ADMIN_SETTINGS_PATH,
+  BIOFLOW_ADMIN_PATH
 } from '../../constants/paths'
 
 function Dashboard() {
@@ -25,13 +25,17 @@ function Dashboard() {
   const location = useLocation()
   const { t } = useTranslations()
   // [COMPUTED PROPERTIES]
-  const routes = [
-    ...AdminGroupRoutes,
+  const routesWithTabs = [
+    ...AdminGroupRoutes.filter(({ name }) => name === 'GroupsAll'),
     ...AdminActivityRoutes,
     ...AdminSettingRoutes
   ]
 
-  const activeRoute = routes.filter((route) =>
+  const routesWithoutTabs = AdminGroupRoutes.filter(
+    ({ name }) => name !== 'GroupsAll'
+  )
+
+  const activeRoute = routesWithTabs.filter((route) =>
     matchPath(location.pathname, route.path)
   )?.[0]?.route
 
@@ -41,27 +45,40 @@ function Dashboard() {
   }
 
   return (
-    <PageWrapper firstLevelHidden isBottomSticky>
-      <Tabs
-        size="large"
-        activeKey={activeRoute}
-        defaultActiveKey={BIOFLYT_ADMIN_GROUPS_PATH}
-        onChange={onChange}>
-        <Tabs.TabPane tab={t('Groups')} key={BIOFLYT_ADMIN_GROUPS_PATH} />
-        <Tabs.TabPane
-          tab={t('Activities')}
-          key={BIOFLYT_ADMIN_GLOBAL_ACTIVITIES_PATH}
-        />
-        <Tabs.TabPane tab={t('Settings')} key={BIOFLYT_ADMIN_SETTINGS_PATH} />
-      </Tabs>
-      {routes.map(({ path, exact, component }) => (
+    <>
+      <PageWrapper
+        onBack={() => history.goBack()}
+        headingProps={{
+          title: t('Bioflow'),
+          titleSize: 2,
+          textAlign: 'left',
+          marginBottom: '0px'
+        }}
+        isBottomSticky>
+        <Tabs
+          size="large"
+          activeKey={activeRoute}
+          defaultActiveKey={BIOFLOW_ADMIN_GROUPS_PATH}
+          onChange={onChange}>
+          <Tabs.TabPane tab={t('Groups')} key={BIOFLOW_ADMIN_GROUPS_PATH} />
+          <Tabs.TabPane
+            tab={t('Activities')}
+            key={BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH}
+          />
+          <Tabs.TabPane tab={t('Settings')} key={BIOFLOW_ADMIN_SETTINGS_PATH} />
+        </Tabs>
+        {routesWithTabs.map(({ path, exact, component }) => (
+          <Route key={path} path={path} exact={exact} component={component} />
+        ))}
+
+        {location.pathname === BIOFLOW_ADMIN_PATH && (
+          <Redirect to={BIOFLOW_ADMIN_GROUPS_PATH} />
+        )}
+      </PageWrapper>
+      {routesWithoutTabs.map(({ path, exact, component }) => (
         <Route key={path} path={path} exact={exact} component={component} />
       ))}
-
-      {location.pathname === BIOFLYT_ADMIN_PATH && (
-        <Redirect to={BIOFLYT_ADMIN_GROUPS_PATH} />
-      )}
-    </PageWrapper>
+    </>
   )
 }
 

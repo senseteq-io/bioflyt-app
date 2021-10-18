@@ -2,11 +2,11 @@ import React from 'react'
 import { PageWrapper } from '@qonsoll/react-design'
 import { Tabs } from 'antd'
 import {
-  BIOFLYT_ADMIN_CLINICS_PATH,
-  BIOFLYT_ADMIN_THERAPISTS_PATH,
-  BIOFLYT_ADMIN_NOTIFICATIONS_PATH,
-  BIOFLYT_ADMIN_SETTINGS_PATH
-} from 'modules/bioflyt-app/src/constants/paths'
+  BIOFLOW_ADMIN_CLINICS_PATH,
+  BIOFLOW_ADMIN_THERAPISTS_PATH,
+  BIOFLOW_ADMIN_NOTIFICATIONS_PATH,
+  BIOFLOW_ADMIN_SETTINGS_PATH
+} from 'bioflow/constants/paths'
 import {
   Route,
   useHistory,
@@ -47,24 +47,24 @@ function Settings(props) {
       <Tabs
         size="large"
         activeKey={activeRoute}
-        defaultActiveKey={BIOFLYT_ADMIN_CLINICS_PATH}
+        defaultActiveKey={BIOFLOW_ADMIN_CLINICS_PATH}
         onChange={onChange}>
-        <Tabs.TabPane tab={t('Clinics')} key={BIOFLYT_ADMIN_CLINICS_PATH} />
+        <Tabs.TabPane tab={t('Clinics')} key={BIOFLOW_ADMIN_CLINICS_PATH} />
         <Tabs.TabPane
           tab={t('Therapists')}
-          key={BIOFLYT_ADMIN_THERAPISTS_PATH}
+          key={BIOFLOW_ADMIN_THERAPISTS_PATH}
         />
         <Tabs.TabPane
           tab={t('Notifications')}
-          key={BIOFLYT_ADMIN_NOTIFICATIONS_PATH}
+          key={BIOFLOW_ADMIN_NOTIFICATIONS_PATH}
         />
       </Tabs>
       {routes.map(({ path, exact, component }) => (
         <Route key={path} path={path} exact={exact} component={component} />
       ))}
 
-      {location.pathname === BIOFLYT_ADMIN_SETTINGS_PATH && (
-        <Redirect to={BIOFLYT_ADMIN_CLINICS_PATH} />
+      {location.pathname === BIOFLOW_ADMIN_SETTINGS_PATH && (
+        <Redirect to={BIOFLOW_ADMIN_CLINICS_PATH} />
       )}
     </PageWrapper>
   )
