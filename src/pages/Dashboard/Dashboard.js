@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { PageWrapper } from '@qonsoll/react-design'
 import { Tabs } from 'antd'
 import {
@@ -35,46 +35,59 @@ function Dashboard() {
     ({ name }) => name !== 'GroupsAll'
   )
 
-  const activeRoute = routesWithTabs.filter((route) =>
-    matchPath(location.pathname, route.path)
-  )?.[0]?.route
+  const activeRoute = useMemo(
+    () =>
+      routesWithTabs.filter((route) =>
+        matchPath(location.pathname, route.path)
+      )?.[0]?.route,
+    [location.pathname]
+  )
 
   // [CLEAN FUNCTIONS]
   function onChange(key) {
     history.push(key)
   }
 
-  return (
-    <>
-      <PageWrapper
-        onBack={() => history.goBack()}
-        headingProps={{
-          title: t('Bioflow'),
-          titleSize: 2,
-          textAlign: 'left',
-          marginBottom: '0px'
-        }}
-        isBottomSticky>
-        <Tabs
-          size="large"
-          activeKey={activeRoute}
-          defaultActiveKey={BIOFLOW_ADMIN_GROUPS_PATH}
-          onChange={onChange}>
-          <Tabs.TabPane tab={t('Groups')} key={BIOFLOW_ADMIN_GROUPS_PATH} />
-          <Tabs.TabPane
-            tab={t('Activities')}
-            key={BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH}
-          />
-          <Tabs.TabPane tab={t('Settings')} key={BIOFLOW_ADMIN_SETTINGS_PATH} />
-        </Tabs>
-        {routesWithTabs.map(({ path, exact, component }) => (
-          <Route key={path} path={path} exact={exact} component={component} />
-        ))}
+  const isWithTabsRoute = useMemo(
+    () =>
+      !routesWithoutTabs.filter((route) =>
+        matchPath(location.pathname, route.path)
+      )?.length,
+    [location.pathname]
+  )
 
-        {location.pathname === BIOFLOW_ADMIN_PATH && (
-          <Redirect to={BIOFLOW_ADMIN_GROUPS_PATH} />
-        )}
-      </PageWrapper>
+  return isWithTabsRoute ? (
+    <PageWrapper
+      onBack={() => history.goBack()}
+      headingProps={{
+        title: t('Bioflow'),
+        titleSize: 2,
+        textAlign: 'left',
+        marginBottom: '0px'
+      }}
+      isBottomSticky>
+      <Tabs
+        size="large"
+        activeKey={activeRoute}
+        defaultActiveKey={BIOFLOW_ADMIN_GROUPS_PATH}
+        onChange={onChange}>
+        <Tabs.TabPane tab={t('Groups')} key={BIOFLOW_ADMIN_GROUPS_PATH} />
+        <Tabs.TabPane
+          tab={t('Activities')}
+          key={BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH}
+        />
+        <Tabs.TabPane tab={t('Settings')} key={BIOFLOW_ADMIN_SETTINGS_PATH} />
+      </Tabs>
+      {routesWithTabs.map(({ path, exact, component }) => (
+        <Route key={path} path={path} exact={exact} component={component} />
+      ))}
+
+      {location.pathname === BIOFLOW_ADMIN_PATH && (
+        <Redirect to={BIOFLOW_ADMIN_GROUPS_PATH} />
+      )}
+    </PageWrapper>
+  ) : (
+    <>
       {routesWithoutTabs.map(({ path, exact, component }) => (
         <Route key={path} path={path} exact={exact} component={component} />
       ))}
