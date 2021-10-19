@@ -1,4 +1,5 @@
 import { Box, Title } from '@qonsoll/react-design'
+import { useSize } from '@umijs/hooks'
 import { List } from 'antd'
 
 import { useClinicContext } from 'app/domains/Clinic/contexts'
@@ -78,7 +79,6 @@ function GroupsList() {
   const history = useHistory()
   const { isAdmin } = useBioflowAccess()
   const { _id: clinicId } = useClinicContext()
-  // const [{ height }, boxRef] = useSize()
 
   // [DATA FETCH]
   const [list] = useCollectionData(
@@ -114,6 +114,7 @@ function GroupsList() {
     <>
       <Box mb={4}>
         <AddItem
+          height={120}
           onClick={goToCreateGroup}
           variant="large"
           createText={t('Add group')}
@@ -139,16 +140,14 @@ function GroupsList() {
   )
 }
 
+//xs: 1, sm: 1, md: 1, lg: 2, xl: 2, xxl: 3
 const GroupFilteredList = ({ status, data }) => (
-  <Box mb={3}>
+  <Box mb={1}>
     <Title level={4} mb={2}>
       {status}
     </Title>
     <List
-      grid={{
-        gutter: [32, 16],
-        column: 1
-      }}
+      grid={{ gutter: [32, 4], column: 1 }}
       dataSource={data}
       renderItem={(item) => (
         <List.Item key={item._id} style={{ width: '100%' }}>

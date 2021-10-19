@@ -1,3 +1,4 @@
+import { Badge, Tooltip } from 'antd'
 import {
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
   BIOFLOW_GROUP_SHOW_PATH
@@ -11,6 +12,13 @@ import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { Box, Card, Col, Row, Text, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 import { useService } from 'bioflow/contexts/Service'
+
+const STATUS_COLOR_MAP = {
+  DRAFT: 'gray',
+  ONGOING: 'green',
+  FUTURE: 'orange',
+  FINISHED: 'red'
+}
 
 function GroupAdvancedView(props) {
   const {
@@ -46,34 +54,80 @@ function GroupAdvancedView(props) {
         { id: _id }
       )
     )
+
   return (
-    <Card onClick={goToGroup} cursor="pointer">
-      <Row>
-        <Col h="center" v="center" cw="auto">
-          {t('Week')} <Title level={2}>{weekNumber}</Title>
-        </Col>
-        <Col>
-          <Text>
-            {clinicData?.name}
-            {` (${place})` || ''}
-          </Text>
-          <Text>{studyId || ''}</Text>
-          <Text>{disorderData?.name || ''}</Text>
-        </Col>
-        <Col v="center">
-          <Box
-            display="flex"
-            alignItems="center"
-            flexDirection="column"
-            width="fit-content">
-            {t('Patients')} <Title level={2}>{patients.length}</Title>
-          </Box>
-        </Col>
-        <Col v="center" h="right">
-          <Title level={3}>{status}</Title>
-        </Col>
-      </Row>
-    </Card>
+    <Badge.Ribbon text={status} color={STATUS_COLOR_MAP[status]}>
+      <Card
+        size="small"
+        bordered={false}
+        shadowless
+        bg="var(--ql-color-dark-t-lighten6)"
+        onClick={goToGroup}
+        cursor="pointer">
+        <Row>
+          <Col h="left" v="center" cw={[2, 2, 2, 3]}>
+            <Text>{t('Week')}</Text> <Title level={2}>{weekNumber}</Title>
+          </Col>
+          <Col h="center">
+            <Row noGutters>
+              <Col flexDirection="row" cw={12}>
+                <Text
+                  whiteSpace="noWrap"
+                  type="secondary"
+                  fontWeight="var(--ql-font-weight-medium)"
+                  mr={1}>
+                  {t('Clinic')}:
+                </Text>
+                <Text>
+                  {clinicData?.name}
+                  {` (${place})` || ''}
+                </Text>
+              </Col>
+              <Col flexDirection="row" cw={12}>
+                <Text
+                  whiteSpace="noWrap"
+                  type="secondary"
+                  fontWeight="var(--ql-font-weight-medium)"
+                  mr={1}>
+                  {t('Study')}:
+                </Text>
+                <Text>{studyId || ''}</Text>
+              </Col>
+              <Col flexDirection="row" cw={12}>
+                <Text
+                  whiteSpace="noWrap"
+                  type="secondary"
+                  fontWeight="var(--ql-font-weight-medium)"
+                  mr={1}>
+                  {t('Disorder')}:
+                </Text>
+                <Tooltip title={disorderData?.name || ''}>
+                  <Text whiteSpace="noWrap" isEllipsis>
+                    {disorderData?.name || ''}
+                  </Text>
+                </Tooltip>
+              </Col>
+            </Row>
+          </Col>
+          <Col v="center" h="center">
+            <Box
+              display="flex"
+              alignItems="center"
+              flexDirection="column"
+              width="fit-content">
+              <Text
+                whiteSpace="noWrap"
+                type="secondary"
+                fontWeight="var(--ql-font-weight-medium)"
+                mr={1}>
+                {t('Patients')}:
+              </Text>
+              <Title level={3}>{patients.length}</Title>
+            </Box>
+          </Col>
+        </Row>
+      </Card>
+    </Badge.Ribbon>
   )
 }
 
