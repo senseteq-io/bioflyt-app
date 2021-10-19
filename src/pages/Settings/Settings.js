@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { PageWrapper } from '@qonsoll/react-design'
 import { Tabs } from 'antd'
 import {
@@ -32,9 +32,12 @@ function Settings(props) {
     ...AdminNotificationRoutes
   ]
 
-  const activeRoute = routes.filter((route) =>
-    matchPath(location.pathname, route.path)
-  )?.[0]?.route
+  const activeRoute = useMemo(
+    () =>
+      routes.filter((route) => matchPath(location.pathname, route.path))?.[0]
+        ?.path,
+    [location.pathname]
+  )
 
   // [CLEAN FUNCTIONS]
   function onChange(key) {

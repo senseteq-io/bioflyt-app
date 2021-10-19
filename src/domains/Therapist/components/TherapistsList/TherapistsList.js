@@ -1,8 +1,10 @@
-import { ListWithCreate } from 'app/components'
-import { THERAPISTS } from 'bioflow/constants/collections'
 import React from 'react'
-import { TherapistSimpleView } from '..'
+import { useHistory } from 'react-router'
 import { useTranslations } from '@qonsoll/translation'
+import { ListWithCreate } from 'app/components'
+import { TherapistSimpleView } from '..'
+import { BIOFLOW_ADMIN_THERAPIST_INVITE_PATH } from 'bioflow/constants/paths'
+import { THERAPISTS } from 'bioflow/constants/collections'
 
 const MOCK_THERAPISTS = [
   {
@@ -118,6 +120,7 @@ const MOCK_THERAPISTS = [
 
 function TherapistsList(props) {
   // [ADDITIONAL HOOKS]
+  const history = useHistory()
   const { t } = useTranslations()
   // [COMPONENT STATE HOOKS]
 
@@ -125,8 +128,7 @@ function TherapistsList(props) {
 
   // [CLEAN FUNCTIONS]
   const goToInviteTherapist = () => {
-    //TODO add route for invite Therapist form
-    // history.push(BIOF)
+    history.push(BIOFLOW_ADMIN_THERAPIST_INVITE_PATH)
   }
 
   return (
