@@ -1,6 +1,6 @@
 import React from 'react'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
-import { List } from 'antd'
+import { ListWithCreate } from 'app/components'
 import { ClinicSimpleView } from '..'
 import { useService } from 'bioflow/contexts/Service'
 import firebase from 'firebase'
@@ -13,13 +13,20 @@ function ClinicsList(props) {
   )
 
   return (
-    <List>
-      {clinics?.map((clinic, index) => (
-        <List.Item key={index}>
-          <ClinicSimpleView clinic={clinic} />
-        </List.Item>
-      ))}
-    </List>
+    <ListWithCreate
+      grid={{
+        gutter: [32, 16],
+        xs: 1,
+        sm: 1,
+        md: 1,
+        lg: 2,
+        xl: 4,
+        xxl: 4
+      }}
+      dataSource={clinics}
+      withCreate={false}>
+      <ClinicSimpleView />
+    </ListWithCreate>
   )
 }
 

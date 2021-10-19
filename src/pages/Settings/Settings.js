@@ -17,11 +17,13 @@ import {
 import { AdminClinicRoutes } from '../../pages/Clinic'
 import { AdminTherapistsRoutes } from '../../pages/Therapist'
 import { AdminNotificationRoutes } from '../../pages/Notification'
+import { useTranslations } from '@qonsoll/translation'
 
 function Settings(props) {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const location = useLocation()
+  const { t } = useTranslations()
 
   // [COMPUTED PROPERTIES]
   const routes = [
@@ -38,9 +40,6 @@ function Settings(props) {
   function onChange(key) {
     history.push(key)
   }
-
-  // TODO replace to translation function
-  const t = (text) => text
 
   return (
     <PageWrapper firstLevelHidden isBottomSticky>

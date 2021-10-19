@@ -69,19 +69,13 @@ function GroupShow(props) {
       onBack={() => history.goBack()}
       headingProps={{
         title: group?.name,
+        subTitle: t('Patients'),
         titleSize: 2,
         textAlign: 'left',
         marginBottom: 48
       }}
       action={actionPanel}>
-      <Box display="flex" width="100%" justifyContent="center" mb={16}>
-        <Title level={3}>{t('Patients')}</Title>
-      </Box>
-      <Box display="flex" justifyContent="center" alignItems="center">
-        <Box width={['100%', '80%', '70%', '50%', '50%']}>
-          <PatientsList />
-        </Box>
-      </Box>
+      <PatientsList />
     </PageWrapper>
   )
 }

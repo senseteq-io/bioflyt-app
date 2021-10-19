@@ -1,11 +1,10 @@
 import React from 'react'
 import { Tooltip } from 'antd'
-import { Col, Divider, Row, Switch, Text } from '@qonsoll/react-design'
+import { Box, Card, Switch, Text, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 
 function ClinicSimpleView(props) {
-  const { clinic } = props
-  const { name } = clinic || {}
+  const { name, location = 'Oslo' } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
@@ -14,30 +13,36 @@ function ClinicSimpleView(props) {
   const onSwitchValueChange = (isBioflowEnabled) => {}
 
   return (
-    <Row width="100%">
-      <Col cw={12}>
-        <Row noGutters>
-          <Col>
-            <Text type="secondary">{name}</Text>
-          </Col>
-          <Col cw="auto">
-            <Tooltip
-              title={t(
-                'Allows to enable or disable Bioflow functionality for this clinic'
-              )}>
-              <Switch defaultChecked={false} onChange={onSwitchValueChange} />
-            </Tooltip>
-          </Col>
-        </Row>
-      </Col>
-      <Col cw={12}>
-        <Row noGutters>
-          <Col cw={12}>
-            <Divider my={2} />
-          </Col>
-        </Row>
-      </Col>
-    </Row>
+    <Card
+      size="small"
+      bordered={false}
+      shadowless
+      bg="var(--ql-color-dark-t-lighten6)">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}>
+        <Tooltip title={name}>
+          <Title variant="h5" isEllipsis>
+            {name}
+          </Title>
+        </Tooltip>
+
+        <Tooltip
+          title={t(
+            'Allows to enable or disable Bioflow functionality for this clinic'
+          )}>
+          <Switch defaultChecked={false} onChange={onSwitchValueChange} />
+        </Tooltip>
+      </Box>
+
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Text type="secondary">{t('location')}:</Text>
+
+        <Text>{location}</Text>
+      </Box>
+    </Card>
   )
 }
 
