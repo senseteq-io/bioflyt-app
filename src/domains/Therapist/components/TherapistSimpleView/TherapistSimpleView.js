@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import {
   Button,
   Box,
@@ -6,7 +6,8 @@ import {
   Text,
   Dropdown,
   Menu,
-  MenuItem
+  MenuItem,
+  NoData
 } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 import { UserCard } from 'app/domains/User/components'
@@ -27,13 +28,19 @@ function TherapistSimpleView(props) {
 
   const groupList = (
     <Menu>
-      {groups?.map((group) => (
+      {groups?.length ? (
+        groups.map((group) => (
+          <MenuItem>
+            <Text type="secondary">
+              {t('Group')}: {group?.name}
+            </Text>
+          </MenuItem>
+        ))
+      ) : (
         <MenuItem>
-          <Text type="secondary">
-            {t('Group')}: {group?.name}
-          </Text>
+          <NoData />
         </MenuItem>
-      ))}
+      )}
     </Menu>
   )
 
@@ -41,7 +48,7 @@ function TherapistSimpleView(props) {
     <UserCard
       avatarUrl={avatarUrl}
       actions={
-        <>
+        <Fragment>
           <Box mb={2}>
             <Dropdown overlay={groupList} placement="bottomRight" arrow>
               <Button variant="white" icon={<TeamOutlined />} />
@@ -56,7 +63,7 @@ function TherapistSimpleView(props) {
               />
             </Tooltip>
           </Box>
-        </>
+        </Fragment>
       }>
       <Title
         mb={2}

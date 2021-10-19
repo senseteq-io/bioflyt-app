@@ -4,7 +4,7 @@ import { useTranslations } from '@qonsoll/translation'
 import { CheckOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
 
-const successIconStyle = {
+const successIconStyles = {
   display: 'flex',
   alignItems: 'center',
   color: 'var(--ql-color-success)',
@@ -44,7 +44,7 @@ function PatientSimpleView(props) {
               {t('Deliver Bio')}
             </Button>
           ) : (
-            <Icon {...successIconStyle} component={<CheckOutlined />} />
+            <Icon {...successIconStyles} component={<CheckOutlined />} />
           )}
         </Box>
       </Box>
