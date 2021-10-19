@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
-import { Box, Button, PageWrapper, Title } from '@qonsoll/react-design'
+import { Box, Button, PageWrapper } from '@qonsoll/react-design'
 import { PatientsList } from 'bioflow/domains/Patient/components'
-import { LineChartOutlined, SettingOutlined } from '@ant-design/icons'
+import { LineChartOutlined } from '@ant-design/icons'
 import { useHistory } from 'react-router'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
 import {
   BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH,
-  BIOFLOW_GROUP_ACTIVITIES_PATH
+  BIOFLOW_GROUP_ACTIVITIES_PATH,
+  BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
 
 //TODO replace to data from db
@@ -33,9 +34,8 @@ function GroupShow(props) {
     )
   }
 
-  const goToSettings = () => {
-    // TODO add route for Group settings
-    // history.push()
+  const goToGroupEdit = () => {
+    history.push(BIOFLOW_GROUP_EDIT_PATH)
   }
 
   const activateGroup = () => {
@@ -51,12 +51,8 @@ function GroupShow(props) {
         onClick={goToActivities}>
         {t('Activities')}
       </Button>
-      <Button
-        mr={3}
-        type="text"
-        icon={<SettingOutlined />}
-        onClick={goToSettings}>
-        {t('Settings')}
+      <Button mr={3} type="text" onClick={goToGroupEdit}>
+        {t('Edit')}
       </Button>
       <Button type="primary" disabled={isActivated} onClick={activateGroup}>
         {t('Activate')}
