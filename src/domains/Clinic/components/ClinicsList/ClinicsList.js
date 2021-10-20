@@ -18,7 +18,7 @@ function ClinicsList(props) {
         gutter: [32, 16],
         xs: 1,
         sm: 1,
-        md: 1,
+        md: 2,
         lg: 2,
         xl: 4,
         xxl: 4
