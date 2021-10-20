@@ -11,9 +11,7 @@ function TherapistInvite(props) {
   // [COMPUTED PROPERTIES]
 
   // [CLEAN FUNCTIONS]
-  const goBack = () => {
-    history.goBack()
-  }
+  const goBack = () => history.goBack()
 
   const handleTherapistInviteFormSubmit = () => {}
 

@@ -31,11 +31,11 @@ function TherapistInviteForm(props) {
 
   // [CLEAN FUNCTIONS]
   const onFinish = (values) => {
-    onSubmit && onSubmit(values)
+    onSubmit?.(values)
   }
 
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
+    console.error('Failed:', errorInfo)
   }
 
   const handleKeyUp = (event) => {
