@@ -5,7 +5,8 @@ import {
   BIOFLOW_ADMIN_CLINICS_PATH,
   BIOFLOW_ADMIN_THERAPISTS_PATH,
   BIOFLOW_ADMIN_NOTIFICATIONS_PATH,
-  BIOFLOW_ADMIN_SETTINGS_PATH
+  BIOFLOW_ADMIN_SETTINGS_PATH,
+  BIOFLOW_ADMIN_STUDIES_PATH
 } from 'bioflow/constants/paths'
 import {
   Route,
@@ -14,9 +15,10 @@ import {
   Redirect,
   matchPath
 } from 'react-router-dom'
-import { AdminClinicRoutes } from '../../pages/Clinic'
-import { AdminTherapistsRoutes } from '../../pages/Therapist'
-import { AdminNotificationRoutes } from '../../pages/Notification'
+import { AdminClinicRoutes } from '../Clinic'
+import { AdminTherapistsRoutes } from '../Therapist'
+import { AdminNotificationRoutes } from '../Notification'
+import { AdminStudyRoutes } from '../Study'
 import { useTranslations } from '@qonsoll/translation'
 
 function Settings(props) {
@@ -28,8 +30,9 @@ function Settings(props) {
   // [COMPUTED PROPERTIES]
   const routes = [
     ...AdminClinicRoutes,
-    ...AdminTherapistsRoutes,
-    ...AdminNotificationRoutes
+    ...AdminNotificationRoutes,
+    ...AdminStudyRoutes.filter(({ name }) => name === 'StudiesAll'),
+    ...AdminTherapistsRoutes.filter(({ name }) => name === 'TherapistsAll')
   ]
 
   const activeRoute = useMemo(
@@ -56,6 +59,7 @@ function Settings(props) {
           tab={t('Therapists')}
           key={BIOFLOW_ADMIN_THERAPISTS_PATH}
         />
+        <Tabs.TabPane tab={t('Studies')} key={BIOFLOW_ADMIN_STUDIES_PATH} />
         <Tabs.TabPane
           tab={t('Notifications')}
           key={BIOFLOW_ADMIN_NOTIFICATIONS_PATH}

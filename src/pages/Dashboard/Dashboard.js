@@ -18,6 +18,8 @@ import {
   BIOFLOW_ADMIN_SETTINGS_PATH,
   BIOFLOW_ADMIN_PATH
 } from '../../constants/paths'
+import { AdminStudyRoutes } from '../Study'
+import { AdminTherapistsRoutes } from '../Therapist'
 
 function Dashboard() {
   // [ADDITIONAL HOOKS]
@@ -31,9 +33,11 @@ function Dashboard() {
     ...AdminSettingRoutes
   ]
 
-  const routesWithoutTabs = AdminGroupRoutes.filter(
-    ({ name }) => name !== 'GroupsAll'
-  )
+  const routesWithoutTabs = [
+    ...AdminGroupRoutes.filter(({ name }) => name !== 'GroupsAll'),
+    ...AdminStudyRoutes.filter(({ name }) => name !== 'StudiesAll'),
+    ...AdminTherapistsRoutes.filter(({ name }) => name !== 'TherapistsAll')
+  ]
 
   const activeRoute = useMemo(
     () =>
