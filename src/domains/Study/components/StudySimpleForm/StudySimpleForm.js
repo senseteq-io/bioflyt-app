@@ -16,11 +16,10 @@ function StudySimpleForm(props) {
 
   // [CLEAN FUNCTIONS]
   const onFinish = (values) => {
-    console.log('Success:', values)
     onSubmit && onSubmit(values)
   }
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
+    console.error('Failed:', errorInfo)
   }
 
   return (
