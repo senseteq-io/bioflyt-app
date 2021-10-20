@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
-import {
-  Button,
-  Card,
-  Col,
-  Icon,
-  Row,
-  Text,
-  Title
-} from '@qonsoll/react-design'
+import { Box, Button, Card, Icon, Text } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 import { CheckOutlined } from '@ant-design/icons'
+import { Tooltip } from 'antd'
+
+const successIconStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  color: 'var(--ql-color-success)',
+  fontSize: 'var(--ql-typography-font-size-lg)',
+  height: 'var(--btn-height-base)'
+}
 
 function PatientSimpleView(props) {
   const { name } = props || {}
@@ -26,23 +27,27 @@ function PatientSimpleView(props) {
   const deliverBio = () => {
     setIsBioDelivered(true)
   }
+
   return (
-    <Card>
-      <Row>
-        <Col v="center">
-          <Text type="secondary">{name}</Text>
-        </Col>
-        <Col v="center" cw={4}>
-          <Button
-            ghost
-            type="primary"
-            width="100%"
-            onClick={deliverBio}
-            fontSize={isBioDelivered && 'var(--ql-typography-font-size-lg)'}>
-            {isBioDelivered ? <CheckOutlined /> : t('Deliver Bio')}
-          </Button>
-        </Col>
-      </Row>
+    <Card
+      shadowless
+      bordered={false}
+      size="small"
+      bg="var(--ql-color-dark-t-lighten6)">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Tooltip title={name}>
+          <Text isEllipsis>{name}</Text>
+        </Tooltip>
+        <Box>
+          {!isBioDelivered ? (
+            <Button ghost type="primary" onClick={deliverBio}>
+              {t('Deliver Bio')}
+            </Button>
+          ) : (
+            <Icon {...successIconStyles} component={<CheckOutlined />} />
+          )}
+        </Box>
+      </Box>
     </Card>
   )
 }

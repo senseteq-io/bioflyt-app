@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { PageWrapper } from '@qonsoll/react-design'
 import { Tabs } from 'antd'
 import {
@@ -17,11 +17,13 @@ import {
 import { AdminClinicRoutes } from '../../pages/Clinic'
 import { AdminTherapistsRoutes } from '../../pages/Therapist'
 import { AdminNotificationRoutes } from '../../pages/Notification'
+import { useTranslations } from '@qonsoll/translation'
 
 function Settings(props) {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const location = useLocation()
+  const { t } = useTranslations()
 
   // [COMPUTED PROPERTIES]
   const routes = [
@@ -30,17 +32,17 @@ function Settings(props) {
     ...AdminNotificationRoutes
   ]
 
-  const activeRoute = routes.filter((route) =>
-    matchPath(location.pathname, route.path)
-  )?.[0]?.route
+  const activeRoute = useMemo(
+    () =>
+      routes.filter((route) => matchPath(location.pathname, route.path))?.[0]
+        ?.path,
+    [location.pathname]
+  )
 
   // [CLEAN FUNCTIONS]
   function onChange(key) {
     history.push(key)
   }
-
-  // TODO replace to translation function
-  const t = (text) => text
 
   return (
     <PageWrapper firstLevelHidden isBottomSticky>

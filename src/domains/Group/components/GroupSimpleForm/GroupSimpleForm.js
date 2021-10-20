@@ -7,7 +7,6 @@ import { Form } from 'antd'
 import { Button, Col, Input, Row, Text, Title } from '@qonsoll/react-design'
 import { DisorderSelect } from 'app/domains/Disorder/components'
 import { ClinicSelect } from 'bioflow/domains/Clinic/components'
-import { TherapistInviteForm } from 'bioflow/domains/Therapist/components'
 
 function GroupSimpleForm(props) {
   const { loading } = props
@@ -24,18 +23,19 @@ function GroupSimpleForm(props) {
       endDay: moment(value).add(4, 'day').format('yyyy-MM-DD')
     })
   }
+
   return (
     <Form {...props}>
       <Row noGutters>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Disorder')}</Text>
-          <Form.Item style={{ marginBottom: 0 }} name="disorderId">
+          <Form.Item name="disorderId">
             <DisorderSelect placeholder={t('Select disorder')} />
           </Form.Item>
         </Col>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Clinic')}</Text>
-          <Form.Item style={{ marginBottom: 0 }} name="clinicId">
+          <Form.Item name="clinicId">
             <ClinicSelect placeholder={t('Select clinic')} />
           </Form.Item>
         </Col>
@@ -44,7 +44,6 @@ function GroupSimpleForm(props) {
             <Col cw={[12, 12, 6]} mb={3}>
               <Text mb={2}>{t('Start day')}</Text>
               <Form.Item
-                style={{ marginBottom: 0 }}
                 name="startDay"
                 initialValue={moment().format('yyyy-MM-DD')}
                 rules={[
@@ -64,7 +63,6 @@ function GroupSimpleForm(props) {
             <Col cw={[12, 12, 6]} mb={3}>
               <Text mb={2}>{t('End day')}</Text>
               <Form.Item
-                style={{ marginBottom: 0 }}
                 name="endDay"
                 initialValue={moment().add(4, 'day').format('yyyy-MM-DD')}
                 rules={[
@@ -79,12 +77,20 @@ function GroupSimpleForm(props) {
           </Row>
         </Col>
         <Col cw={12} mb={3}>
-          <Form.Item style={{ marginBottom: 0 }} name="therapists">
-            <TherapistInviteForm />
+          <Form.Item name="therapists">
+            <Row noGutters>
+              <Col cw={6} v="center">
+                <Title level={4}>{t('Therapists')}</Title>
+              </Col>
+              <Col cw={6} h="right">
+                <Button icon={<PlusOutlined />} />
+              </Col>
+              <Col cw={12}></Col>
+            </Row>
           </Form.Item>
         </Col>
         <Col cw={12} mb={3}>
-          <Form.Item style={{ marginBottom: 0 }} name="patients">
+          <Form.Item name="patients">
             <Row noGutters>
               <Col cw={6} v="center">
                 <Title level={4}>{t('Patients')}</Title>

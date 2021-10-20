@@ -19,6 +19,8 @@ export const BIOFLOW_ADMIN_SETTINGS_PATH = '/bioflow/admin/settings'
 export const BIOFLOW_ADMIN_CLINICS_PATH = '/bioflow/admin/settings/clinics'
 export const BIOFLOW_ADMIN_THERAPISTS_PATH =
   '/bioflow/admin/settings/therapists'
+export const BIOFLOW_ADMIN_THERAPIST_INVITE_PATH =
+  '/bioflow/admin/settings/therapist/invite'
 export const BIOFLOW_ADMIN_STUDIES_PATH = '/bioflow/admin/settings/studies'
 export const BIOFLOW_ADMIN_STUDY_CREATE_PATH =
   '/bioflow/admin/settings/study/create'

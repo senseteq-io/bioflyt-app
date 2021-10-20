@@ -39,7 +39,7 @@ function Dashboard() {
     () =>
       routesWithTabs.filter((route) =>
         matchPath(location.pathname, route.path)
-      )?.[0]?.route,
+      )?.[0]?.path,
     [location.pathname]
   )
 
