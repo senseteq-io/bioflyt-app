@@ -3,30 +3,26 @@ import { Drawer, Tooltip } from 'antd'
 import { Box, Col, Row, Switch, Text } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 import useMedia from 'use-media'
+import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
 
-const WIDTHS = ['60vw', '35vw', '25vw', '15vw']
+const WIDTHS = ['15vw', '25vw', '35vw', '60vw']
 
 function ClinicDrawerView(props) {
   const { visible, onDrawerClose, clinicName, clinicPlaces } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
-  const isPhoneMediaSize = useMedia({ maxWidth: 498 })
-  const isTabletMediaSize = useMedia({ minWidth: 500, maxWidth: 780 })
-  const isSmallLaptopMediaSize = useMedia({
-    minWidth: 782,
-    maxWidth: 1025
-  })
+
+  const { xs, md, lg, xl } = useBreakpoint()
 
   //[COMPUTED PROPERTIES]
-
   const drawerWidth = useMemo(() => {
-    let width = [isPhoneMediaSize, isTabletMediaSize, isSmallLaptopMediaSize]
+    let width = [xl, lg, md, xs]
       .map((mediaSize, index) => mediaSize && WIDTHS[index])
       .filter((width) => width)?.[0]
 
-    return width || '15vw'
-  }, [isPhoneMediaSize, isTabletMediaSize, isSmallLaptopMediaSize])
+    return width
+  }, [xl, lg, md, xs])
 
   // [CLEAN FUNCTIONS]
   const onSwitchValueChange = (isBioflowEnabled) => {
