@@ -14,9 +14,7 @@ function ClinicSimpleView(props) {
   const [isDrawerVisible, setIsDrawerVisible] = useState(false)
 
   // [CLEAN FUNCTIONS]
-  const onSwitchValueChange = (isBioflowEnabled) => {
-    console.log(isBioflowEnabled)
-  }
+  const onSwitchValueChange = (isBioflowEnabled) => {}
 
   const onDrawerOpen = () => {
     setIsDrawerVisible(true)

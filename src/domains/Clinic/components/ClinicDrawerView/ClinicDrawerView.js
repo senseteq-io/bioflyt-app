@@ -25,9 +25,7 @@ function ClinicDrawerView(props) {
   }, [xl, lg, md, xs])
 
   // [CLEAN FUNCTIONS]
-  const onSwitchValueChange = (isBioflowEnabled) => {
-    console.log(isBioflowEnabled)
-  }
+  const onSwitchValueChange = (isBioflowEnabled) => {}
 
   return (
     <Drawer
