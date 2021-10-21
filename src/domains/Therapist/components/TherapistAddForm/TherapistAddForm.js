@@ -1,20 +1,13 @@
-import { Modal, Select, List, Form } from 'antd'
+import { Modal, List, Form } from 'antd'
 import { USERS_MODEL_NAME } from 'app/constants/models'
-import therapistRoles from 'bioflow/constants/therapistRoles'
+import {
+  TherapistForm,
+  TherapistAddFormListItem
+} from 'bioflow/domains/Therapist/components'
 import firebase from 'firebase'
-import _ from 'lodash'
 import React, { useState } from 'react'
 import { useTranslations } from '@qonsoll/translation'
-import {
-  Box,
-  Button,
-  Card,
-  Col,
-  Remove,
-  Row,
-  Text,
-  Title
-} from '@qonsoll/react-design'
+import { Button, Col, Row, Title } from '@qonsoll/react-design'
 import { PlusOutlined } from '@ant-design/icons'
 import { useCollectionDataOnce } from 'react-firebase-hooks/firestore'
 
@@ -64,110 +57,29 @@ function TherapistAddForm(props) {
           visible={isModalVisible}
           onCancel={hideModal}
           destroyOnClose
-          onOk={() => {
-            form.submit()
-          }}>
-          <Form form={form} onFinish={onFinish} preserve={false}>
-            <Box mb={4}>
-              <Form.Item
-                name="therapistId"
-                rules={[
-                  { required: true, message: t('Select therapist, please') }
-                ]}>
-                <Select
-                  placeholder={t('Select therapist')}
-                  style={{ width: '100%' }}
-                  loading={loading}>
-                  {therapists
-                    ?.filter(({ _id }) =>
-                      value
-                        ? !value
-                            .map(({ therapistId }) => therapistId)
-                            ?.includes(_id)
-                        : true
-                    )
-                    .map(({ _id, firstName, lastName }) => (
-                      <Select.Option value={_id} key={_id}>
-                        {firstName} {lastName}
-                      </Select.Option>
-                    ))}
-                </Select>
-              </Form.Item>
-            </Box>
-            <Box mb={3}>
-              <Form.Item
-                name="role"
-                rules={[{ required: true, message: t('Select role, please') }]}>
-                <Select
-                  placeholder={t('Select role')}
-                  style={{ width: '100%' }}>
-                  {Object.values(therapistRoles)
-                    ?.filter((roleName) =>
-                      value
-                        ? !value.map(({ role }) => role)?.includes(roleName)
-                        : true
-                    )
-                    .map((role) => (
-                      <Select.Option value={role} key={role}>
-                        {_.upperFirst(_.lowerCase(role))}
-                      </Select.Option>
-                    ))}
-                </Select>
-              </Form.Item>
-            </Box>
-          </Form>
+          onOk={form.submit}>
+          <TherapistForm
+            onFinish={onFinish}
+            form={form}
+            loading={loading}
+            value={value}
+            therapists={therapists}
+          />
         </Modal>
       </Col>
       <Col cw={12}>
         <List
           itemLayout="horizontal"
           dataSource={value}
-          renderItem={({ therapistId, role }) => {
-            const therapist = therapists.find(({ _id }) => _id === therapistId)
-            return (
-              <List.Item>
-                <Card size="small" width="100%">
-                  <Row v="center" negativeBlockMargin>
-                    <Col cw="auto" mb={2}>
-                      <Text>
-                        {therapist.firstName} {therapist.lastName}
-                      </Text>
-                    </Col>
-                    <Col mb={2} h="right">
-                      <Remove
-                        icon
-                        onSubmit={() =>
-                          onChange(
-                            value.filter(
-                              ({ therapistId: id }) => id !== therapistId
-                            )
-                          )
-                        }
-                      />
-                    </Col>
-                    <Col cw={12} h="right">
-                      <Select
-                        defaultValue={role}
-                        onChange={(newRole) => {
-                          const index = value.findIndex(
-                            ({ therapistId: id }) => id === therapistId
-                          )
-                          value[index].role = newRole
-                          onChange?.(value)
-                        }}
-                        placeholder={t('Select role')}>
-                        {Object.values(therapistRoles).map((role) => (
-                          <Select.Option value={role} key={role}>
-                            {_.upperFirst(_.lowerCase(role))}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </Col>
-                  </Row>
-                </Card>
-              </List.Item>
-            )
-          }}
+          renderItem={({ therapistId, role }) => (
+            <TherapistAddFormListItem
+              therapist={therapists.find(({ _id }) => _id === therapistId)}
+              role={role}
+              value={value}
+              therapistId={therapistId}
+              onChange={onChange}
+            />
+          )}
         />
       </Col>
     </Row>

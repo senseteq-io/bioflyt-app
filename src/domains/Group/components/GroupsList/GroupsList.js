@@ -1,13 +1,10 @@
+import React, { useEffect, useMemo, useState, Fragment } from 'react'
 import { Box, Title } from '@qonsoll/react-design'
-import { useSize } from '@umijs/hooks'
 import { List } from 'antd'
-
-import { useClinicContext } from 'app/domains/Clinic/contexts'
 import { GroupAdvancedView } from 'bioflow/domains/Group/components'
 import firebase from 'firebase'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { useEffect, useMemo, useState } from 'react'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
@@ -63,7 +60,7 @@ function GroupsList() {
   }, [sortedList])
 
   return (
-    <>
+    <Fragment>
       <Box mb={4}>
         <AddItem
           height={120}
@@ -91,7 +88,7 @@ function GroupsList() {
           data={filteredList['FINISHED']}
         />
       )}
-    </>
+    </Fragment>
   )
 }
 

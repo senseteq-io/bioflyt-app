@@ -51,7 +51,7 @@ function StudySimpleForm(props) {
           <Button
             size="middle"
             type="text"
-            onClick={() => history.goBack()}
+            onClick={history.goBack}
             disabled={loading}>
             {t('Cancel')}
           </Button>
@@ -60,7 +60,7 @@ function StudySimpleForm(props) {
           <Button
             size="middle"
             type="primary"
-            onClick={() => form.submit()}
+            onClick={form.submit}
             loading={loading}>
             {submitBtnText || t('Save')}
           </Button>

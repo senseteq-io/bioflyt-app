@@ -15,15 +15,25 @@ import { useTranslations } from '@qonsoll/translation'
 
 const PatientAddForm = (props) => {
   const { value, onChange } = props
+
   // [ADDITIONAL_HOOKS]
   const { t } = useTranslations()
 
+  // [CLEAN_FUNCTIONS]
   const onInputChange = (e, field, index) => {
-    const text = e.target.value
-
-    value[index][field] = text
+    value[index][field] = e.target.value
     onChange?.(value)
   }
+  const addPatient = () => {
+    if (value?.length < 6 || !value) {
+      onChange?.(value ? [...value, {}] : [{}])
+    } else {
+      notification.warn({
+        message: `${t('Each group can have only 6 patients')}.`
+      })
+    }
+  }
+  const removePatient = () => onChange(value.filter((_, i) => i !== index))
 
   return (
     <Row noGutters>
@@ -31,18 +41,7 @@ const PatientAddForm = (props) => {
         <Title level={4}>{t('Patients')}</Title>
       </Col>
       <Col cw={6} h="right">
-        <Button
-          icon={<PlusOutlined />}
-          onClick={() => {
-            if (value?.length < 6 || !value) {
-              onChange?.(value ? [...value, {}] : [{}])
-            } else {
-              notification.warn({
-                message: `${t('Each group can have only 6 patients')}.`
-              })
-            }
-          }}
-        />
+        <Button icon={<PlusOutlined />} onClick={addPatient} />
       </Col>
       <Col cw={12}>
         <List
@@ -68,12 +67,7 @@ const PatientAddForm = (props) => {
                       />
                     </Col>
                     <Col h="right" cw="auto">
-                      <Remove
-                        icon
-                        onSubmit={() =>
-                          onChange(value.filter((_, i) => i !== index))
-                        }
-                      />
+                      <Remove icon onSubmit={removePatient} />
                     </Col>
                   </Row>
                 </Card>
