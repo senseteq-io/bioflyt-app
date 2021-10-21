@@ -12,7 +12,7 @@ function StudySimpleView(props) {
   const { name, _id } = props
 
   // [ADDITIONAL_HOOKS]
-  const { save } = useSaveData()
+  const { save, remove } = useSaveData()
   const { t } = useTranslations()
 
   // [COMPONENT_STATE_HOOKS]
@@ -42,7 +42,7 @@ function StudySimpleView(props) {
     }
   }
   const handleRemove = async () => {
-    await firebase.firestore().collection(STUDIES).doc(_id).delete()
+    await remove({ collection: STUDIES, id: _id })
     notification.success({
       message: t(`Study successfully deleted`)
     })

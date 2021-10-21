@@ -36,7 +36,7 @@ function GroupSimpleForm(props) {
       <Row noGutters>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Clinic')}</Text>
-          <Form.Item style={{ marginBottom: 0 }} name="clinicId">
+          <Form.Item name="clinicId">
             <ClinicSelect
               placeholder={t('Select clinic')}
               onChange={(value) => {
@@ -48,13 +48,13 @@ function GroupSimpleForm(props) {
         </Col>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Study')}</Text>
-          <Form.Item style={{ marginBottom: 0 }} name="studyId">
+          <Form.Item name="studyId">
             <StudySelect placeholder={t('Select study')} />
           </Form.Item>
         </Col>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Disorder')}</Text>
-          <Form.Item style={{ marginBottom: 0 }} name="disorderId">
+          <Form.Item name="disorderId">
             <DisorderSelect
               placeholder={t('Select disorder')}
               clinicId={selectedClinic}
@@ -68,7 +68,6 @@ function GroupSimpleForm(props) {
             <Col cw={[12, 12, 6]} mb={3}>
               <Text mb={2}>{t('Start day')}</Text>
               <Form.Item
-                style={{ marginBottom: 0 }}
                 name="startDay"
                 initialValue={moment().format('yyyy-MM-DD')}
                 rules={[
@@ -88,7 +87,6 @@ function GroupSimpleForm(props) {
             <Col cw={[12, 12, 6]} mb={3}>
               <Text mb={2}>{t('End day')}</Text>
               <Form.Item
-                style={{ marginBottom: 0 }}
                 name="endDay"
                 initialValue={moment().add(4, 'day').format('yyyy-MM-DD')}
                 rules={[
@@ -103,7 +101,7 @@ function GroupSimpleForm(props) {
           </Row>
         </Col>
         <Col cw={12} mb={3}>
-          <Form.Item style={{ marginBottom: 0 }} name="therapists">
+          <Form.Item name="therapists">
             <TherapistAddForm
               clinicId={form.getFieldValue('clinicId')}
               disabled={!selectedClinic}
@@ -111,7 +109,7 @@ function GroupSimpleForm(props) {
           </Form.Item>
         </Col>
         <Col cw={12} mb={3}>
-          <Form.Item style={{ marginBottom: 0 }} name="patients">
+          <Form.Item name="patients">
             <PatientAddForm />
           </Form.Item>
         </Col>
@@ -131,10 +129,7 @@ function GroupSimpleForm(props) {
           <Button
             size="middle"
             type="primary"
-            onClick={() => {
-              const form = props.form || groupForm
-              form.submit()
-            }}
+            onClick={form.submit}
             loading={loading}>
             {t('Activate')}
           </Button>
