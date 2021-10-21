@@ -1,12 +1,10 @@
-import { AdminDashboardRoutes } from './Dashboard'
+import { AdminDashboardRoutes, TherapistDashboardRoutes } from './Dashboard'
 import { AdminActivityRoutes } from './Activity'
-import { AdminGroupRoutes } from './Group'
+import { AdminGroupRoutes, TherapistGroupRoutes } from './Group'
 import { AdminSettingRoutes } from './Settings'
 import { AdminClinicRoutes } from './Clinic'
 import { AdminStudyRoutes } from './Study'
 import { AdminTherapistsRoutes } from './Therapist'
-
-import { TherapistGroupRoutes } from './Group'
 import { TherapistPatientsRoutes } from './Patient'
 import { TherapistNotificationRoutes } from './Notification'
 
@@ -21,6 +19,7 @@ export const allAdminRoutes = [
 ]
 
 export const allTherapistRoutes = [
+  ...TherapistDashboardRoutes,
   ...TherapistGroupRoutes,
   ...TherapistNotificationRoutes,
   ...TherapistPatientsRoutes
