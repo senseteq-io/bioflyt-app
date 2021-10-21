@@ -1,14 +1,21 @@
 import React, { useMemo } from 'react'
-import { Drawer, Tooltip } from 'antd'
+import { Drawer, Tooltip, Grid } from 'antd'
 import { Box, Col, Row, Switch, Text } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
-import useMedia from 'use-media'
-import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
+
+const { useBreakpoint } = Grid
 
 const WIDTHS = ['15vw', '25vw', '35vw', '60vw']
 
 function ClinicDrawerView(props) {
-  const { visible, onDrawerClose, clinicName, clinicPlaces } = props
+  const {
+    visible,
+    onDrawerClose,
+    clinicName,
+    clinicPlaces,
+    bioflowAccess,
+    onSwitchValueChange
+  } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
@@ -25,7 +32,6 @@ function ClinicDrawerView(props) {
   }, [xl, lg, md, xs])
 
   // [CLEAN FUNCTIONS]
-  const onSwitchValueChange = (isBioflowEnabled) => {}
 
   return (
     <Drawer
@@ -53,7 +59,7 @@ function ClinicDrawerView(props) {
               <Switch
                 checkedChildren={t('on')}
                 unCheckedChildren={t('off')}
-                defaultChecked={false}
+                defaultChecked={bioflowAccess}
                 onChange={onSwitchValueChange}
               />
             </Tooltip>
@@ -63,9 +69,11 @@ function ClinicDrawerView(props) {
           <Text>{t('places')}:</Text>
         </Col>
         <Col cw={12}>
-          {clinicPlaces?.map((place) => (
-            <Text type="secondary">{place}</Text>
-          ))}
+          {clinicPlaces?.length ? (
+            clinicPlaces.map((place) => <Text type="secondary">{place}</Text>)
+          ) : (
+            <Text type="secondary">{t('No selected places')}</Text>
+          )}
         </Col>
       </Row>
     </Drawer>
