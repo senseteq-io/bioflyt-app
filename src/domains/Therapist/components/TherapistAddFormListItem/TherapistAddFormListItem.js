@@ -22,15 +22,20 @@ const TherapistAddFormListItem = (props) => {
 
   return (
     <List.Item>
-      <Card size="small" width="100%">
+      <Card
+        size="small"
+        bordered={false}
+        shadowless
+        bg="var(--ql-color-dark-t-lighten6)"
+        width="100%">
         <Row v="center" negativeBlockMargin>
           <Col cw="auto" mb={2}>
             <Text>
-              {therapist.firstName} {therapist.lastName}
+              {therapist?.firstName} {therapist?.lastName}
             </Text>
           </Col>
           <Col mb={2} h="right">
-            <Remove icon onSubmit={removeTherapist} />
+            <Remove icon onSubmit={removeTherapist} type="text" />
           </Col>
           <Col cw={12} h="right">
             <Select

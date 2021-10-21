@@ -6,13 +6,13 @@ import { useTranslations } from '@qonsoll/translation'
 import { Select } from 'antd'
 import { useService } from 'bioflow/contexts/Service'
 
-function ClinicSelect({ placeholder, ...args }) {
+function ClinicSelect({ placeholder, query, ...args }) {
   // [ADDITIONAL HOOKS
   const { t } = useTranslations()
   const { CLINICS_MODEL_NAME } = useService()
   // [DATA FETCH]
   const [list = []] = useCollectionData(
-    firebase.firestore().collection(CLINICS_MODEL_NAME)
+    query || firebase.firestore().collection(CLINICS_MODEL_NAME)
   )
 
   // [COMPUTED PROPERTIES]

@@ -1,8 +1,13 @@
+import { EditRemove } from 'app/components'
+import { useSaveData } from 'app/hooks'
+import { GROUPS } from 'bioflow/constants/collections'
+import firebase from 'firebase'
 import React, { useState } from 'react'
 import { Box, Button, PageWrapper } from '@qonsoll/react-design'
 import { PatientsList } from 'bioflow/domains/Patient/components'
 import { LineChartOutlined } from '@ant-design/icons'
-import { useHistory } from 'react-router'
+import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
+import { useHistory, useParams, generatePath } from 'react-router-dom'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
 import {
@@ -11,31 +16,39 @@ import {
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
 
-//TODO replace to data from db
-const group = { name: 'Week 36' }
-
-function GroupShow(props) {
+function GroupShow() {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
   const history = useHistory()
+  const { id } = useParams()
+  const { remove } = useSaveData()
   const { isAdmin } = useBioflowAccess()
 
   //[COMPONENT STATE HOOKS]
   const [isActivated, setIsActivated] = useState(false)
 
-  // [COMPUTED PROPERTIES]
-
+  const [groupData] = useDocumentDataOnce(
+    firebase.firestore().collection(GROUPS).doc(id)
+  )
   // [CLEAN FUNCTIONS]
   const goToActivities = () => {
     history.push(
-      isAdmin
-        ? BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH
-        : BIOFLOW_GROUP_ACTIVITIES_PATH
+      generatePath(
+        isAdmin
+          ? BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH
+          : BIOFLOW_GROUP_ACTIVITIES_PATH,
+        { id }
+      )
     )
   }
 
   const goToGroupEdit = () => {
-    history.push(BIOFLOW_GROUP_EDIT_PATH)
+    history.push(generatePath(BIOFLOW_GROUP_EDIT_PATH, { id }))
+  }
+
+  const onRemoveGroup = async () => {
+    await remove({ collection: GROUPS, id, withNotification: true })
+    history.goBack()
   }
 
   const activateGroup = () => {
@@ -51,9 +64,10 @@ function GroupShow(props) {
         onClick={goToActivities}>
         {t('Activities')}
       </Button>
-      <Button mr={3} type="text" onClick={goToGroupEdit}>
-        {t('Edit')}
-      </Button>
+      <Box mr={3}>
+        <EditRemove onEdit={goToGroupEdit} onRemove={onRemoveGroup} />
+      </Box>
+
       <Button type="primary" disabled={isActivated} onClick={activateGroup}>
         {t('Activate')}
       </Button>
@@ -64,18 +78,16 @@ function GroupShow(props) {
     <PageWrapper
       onBack={() => history.goBack()}
       headingProps={{
-        title: group?.name,
+        title: `${t('Week')} ${groupData?.weekNumber || ''}`,
         subTitle: t('Patients'),
         titleSize: 2,
         textAlign: 'left',
         marginBottom: 48
       }}
       action={actionPanel}>
-      <PatientsList />
+      <PatientsList patients={groupData?.patients} />
     </PageWrapper>
   )
 }
-
-GroupShow.propTypes = {}
 
 export default GroupShow

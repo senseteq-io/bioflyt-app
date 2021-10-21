@@ -1,67 +1,37 @@
-import { Form, notification } from 'antd'
-import { useSaveData } from 'app/hooks'
-import { GROUPS } from 'bioflow/constants/collections'
-import moment from 'moment'
+import { Form } from 'antd'
+
+import { useSaveGroup } from 'bioflow/hooks'
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
 import { GroupSimpleForm } from 'bioflow/domains/Group/components'
-import firebase from 'firebase/app'
-import _ from 'lodash'
 
 function GroupCreate() {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const { t } = useTranslations()
   const [form] = Form.useForm()
-  const { save } = useSaveData()
+  const { updateDataWithStatus, saveDataWithStatus } = useSaveGroup()
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
+  const [isSave, setIsSave] = useState(false)
 
   // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
     setLoading(true)
-    console.log(data)
+    setIsSave(true)
+
+    await saveDataWithStatus({ data, status: 'FUTURE' })
+
+    history.goBack()
+
     setLoading(false)
   }
 
   useEffect(
-    () => () => {
-      const saveDraft = async () => {
-        const data = form.getFieldsValue()
-
-        if (data.clinicId && data.therapists.length && data.patients.length) {
-          try {
-            const weekNumber = moment(data.startDay).week()
-
-            await save({
-              collection: GROUPS,
-              data: _.omitBy(
-                {
-                  ...data,
-                  weekNumber,
-                  startDay: firebase.firestore.Timestamp.fromDate(
-                    new Date(data.startDay)
-                  ),
-                  endDay: firebase.firestore.Timestamp.fromDate(
-                    new Date(data.endDay)
-                  ),
-                  status: 'DRAFT'
-                },
-                _.isNil
-              ),
-              withNotification: true
-            })
-          } catch (e) {
-            console.log(e)
-            notification.error({ message: t('Error occurred on group save') })
-          }
-        }
-      }
-      saveDraft()
-    },
-    []
+    () => () => !isSave && updateDataWithStatus({ form, status: 'DRAFT' }),
+    [isSave]
   )
 
   return (

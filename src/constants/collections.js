@@ -6,6 +6,7 @@ export const THERAPISTS = 'bioflowTherapists'
 export const PATIENTS = 'bioflowPatients'
 export const NOTIFICATION_TYPES = 'bioflowNotificationTypes'
 export const NOTIFICATIONS = 'bioflowNotifications'
+export const ACTIVITIES = 'bioflowActivities'
 
 export default {
   STUDIES,
@@ -15,5 +16,6 @@ export default {
   THERAPISTS,
   PATIENTS,
   NOTIFICATION_TYPES,
-  NOTIFICATIONS
+  NOTIFICATIONS,
+  ACTIVITIES
 }

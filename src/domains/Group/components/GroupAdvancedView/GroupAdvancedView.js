@@ -1,7 +1,9 @@
 import { Badge, Tooltip } from 'antd'
 import { STUDIES } from 'bioflow/constants/collections'
 import {
+  BIOFLOW_ADMIN_GROUP_EDIT_PATH,
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
+  BIOFLOW_GROUP_EDIT_PATH,
   BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
 import { useBioflowAccess } from 'bioflow/hooks'
@@ -52,13 +54,22 @@ function GroupAdvancedView(props) {
   )
 
   // [CLEAN_FUNCTIONS]
-  const goToGroup = () =>
+  const goToGroup = () => {
+    if (status === 'DRAFT') {
+      return history.push(
+        generatePath(
+          isAdmin ? BIOFLOW_ADMIN_GROUP_EDIT_PATH : BIOFLOW_GROUP_EDIT_PATH,
+          { id: _id }
+        )
+      )
+    }
     history.push(
       generatePath(
         isAdmin ? BIOFLOW_ADMIN_GROUP_SHOW_PATH : BIOFLOW_GROUP_SHOW_PATH,
         { id: _id }
       )
     )
+  }
 
   return (
     <Badge.Ribbon text={status} color={STATUS_COLOR_MAP[status]}>

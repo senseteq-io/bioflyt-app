@@ -1,6 +1,7 @@
-import StudySelect from 'bioflow/domains/Study/components/StudySelect/StudySelect'
-import moment from 'moment'
+import { useClinicContext } from 'app/domains/Clinic/contexts'
 import React, { useState } from 'react'
+import firebase from 'firebase'
+import moment from 'moment'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { Form } from 'antd'
@@ -9,25 +10,29 @@ import { DisorderSelect } from 'app/domains/Disorder/components'
 import { ClinicSelect } from 'bioflow/domains/Clinic/components'
 import { TherapistAddForm } from 'bioflow/domains/Therapist/components'
 import { PatientAddForm } from 'bioflow/domains/Patient/components'
+import { StudySelect } from 'bioflow/domains/Study/components'
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
 
 function GroupSimpleForm(props) {
-  const { loading } = props
+  const { loading, submitText } = props
 
   // [ADDITIONAL_HOOKS]
   const [groupForm] = Form.useForm()
   const history = useHistory()
   const { t } = useTranslations()
-
+  const { _id: clinicId, bioflowAccess } = useClinicContext()
   // [COMPONENT_STATE_HOOKS]
-  const [selectedClinic, setSelectedClinic] = useState()
+  const [selectedClinic, setSelectedClinic] = useState(
+    props?.initialValues?.clinicId || (bioflowAccess && clinicId)
+  )
 
   const form = props.form || groupForm
 
   // [CLEAN_FUNCTIONS]
-  const onDateChange = (e) => {
+  const onDateChange = (e, field, amount) => {
     const value = e.target.value
     form.setFieldsValue({
-      endDay: moment(value).add(4, 'day').format('yyyy-MM-DD')
+      [field]: moment(value).add(amount, 'day').format('yyyy-MM-DD')
     })
   }
 
@@ -36,8 +41,15 @@ function GroupSimpleForm(props) {
       <Row noGutters>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Clinic')}</Text>
-          <Form.Item name="clinicId">
+          <Form.Item
+            name="clinicId"
+            initialValue={bioflowAccess && clinicId}
+            rules={[{ required: true, message: t('Select clinic, please') }]}>
             <ClinicSelect
+              query={firebase
+                .firestore()
+                .collection(CLINICS_MODEL_NAME)
+                .where('bioflowAccess', '==', true)}
               placeholder={t('Select clinic')}
               onChange={(value) => {
                 form.setFieldsValue({ therapists: [] })
@@ -48,13 +60,17 @@ function GroupSimpleForm(props) {
         </Col>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Study')}</Text>
-          <Form.Item name="studyId">
+          <Form.Item
+            name="studyId"
+            rules={[{ required: true, message: t('Select study, please') }]}>
             <StudySelect placeholder={t('Select study')} />
           </Form.Item>
         </Col>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Disorder')}</Text>
-          <Form.Item name="disorderId">
+          <Form.Item
+            name="disorderId"
+            rules={[{ required: true, message: t('Select disorder, please') }]}>
             <DisorderSelect
               placeholder={t('Select disorder')}
               clinicId={selectedClinic}
@@ -79,7 +95,7 @@ function GroupSimpleForm(props) {
                 <Input
                   type="date"
                   placeholder={t('Start day')}
-                  onChange={onDateChange}
+                  onChange={(e) => onDateChange(e, 'endDay', 4)}
                 />
               </Form.Item>
             </Col>
@@ -95,7 +111,11 @@ function GroupSimpleForm(props) {
                     message: t('Enter end day, please')
                   }
                 ]}>
-                <Input type="date" placeholder={t('End day')} />
+                <Input
+                  type="date"
+                  placeholder={t('End day')}
+                  onChange={(e) => onDateChange(e, 'startDay', -4)}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -103,7 +123,7 @@ function GroupSimpleForm(props) {
         <Col cw={12} mb={3}>
           <Form.Item name="therapists">
             <TherapistAddForm
-              clinicId={form.getFieldValue('clinicId')}
+              clinicId={selectedClinic}
               disabled={!selectedClinic}
             />
           </Form.Item>
@@ -131,7 +151,7 @@ function GroupSimpleForm(props) {
             type="primary"
             onClick={form.submit}
             loading={loading}>
-            {t('Activate')}
+            {submitText || t('Activate')}
           </Button>
         </Col>
       </Row>

@@ -3,6 +3,7 @@ import { List, notification } from 'antd'
 import React from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import {
+  Box,
   Button,
   Card,
   Col,
@@ -20,20 +21,23 @@ const PatientAddForm = (props) => {
   const { t } = useTranslations()
 
   // [CLEAN_FUNCTIONS]
-  const onInputChange = (e, field, index) => {
-    value[index][field] = e.target.value
-    onChange?.(value)
+  const onInputChange = (e, index) => {
+    if (e.target.value.match(/^[A-Za-z]+$/)) {
+      value[index] = e.target.value
+      onChange?.([...value])
+    }
   }
   const addPatient = () => {
     if (value?.length < 6 || !value) {
-      onChange?.(value ? [...value, {}] : [{}])
+      onChange?.(value ? [...value, ''] : [''])
     } else {
       notification.warn({
         message: `${t('Each group can have only 6 patients')}.`
       })
     }
   }
-  const removePatient = () => onChange(value.filter((_, i) => i !== index))
+  const removePatient = (index) =>
+    onChange?.(value.filter((_, i) => i !== index))
 
   return (
     <Row noGutters>
@@ -47,33 +51,30 @@ const PatientAddForm = (props) => {
         <List
           itemLayout="horizontal"
           dataSource={value}
-          renderItem={({ firstName, lastName }, index) => {
-            return (
-              <List.Item>
-                <Card size="small" width="100%">
-                  <Row v="center" noGutters>
-                    <Col mr={3}>
-                      <Input
-                        value={firstName}
-                        placeholder={t('First name')}
-                        onChange={(e) => onInputChange(e, 'firstName', index)}
-                      />
-                    </Col>
-                    <Col mr={3}>
-                      <Input
-                        value={lastName}
-                        placeholder={t('Last name')}
-                        onChange={(e) => onInputChange(e, 'lastName', index)}
-                      />
-                    </Col>
-                    <Col h="right" cw="auto">
-                      <Remove icon onSubmit={removePatient} />
-                    </Col>
-                  </Row>
-                </Card>
-              </List.Item>
-            )
-          }}
+          renderItem={(initials, index) => (
+            <List.Item>
+              <Card
+                size="small"
+                bordered={false}
+                shadowless
+                bg="var(--ql-color-dark-t-lighten6)"
+                width="100%">
+                <Box display="flex">
+                  <Input
+                    value={initials}
+                    placeholder={t('Initials')}
+                    onChange={(e) => onInputChange(e, index)}
+                    mr={3}
+                  />
+                  <Remove
+                    icon
+                    onSubmit={() => removePatient(index)}
+                    type="text"
+                  />
+                </Box>
+              </Card>
+            </List.Item>
+          )}
         />
       </Col>
     </Row>

@@ -1,143 +1,51 @@
+import { ACTIVITIES, GROUPS } from 'bioflow/constants/collections'
+import firebase from 'firebase'
+import moment from 'moment'
 import React from 'react'
 import { Box, PageWrapper, Title } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useTranslations } from '@qonsoll/translation'
-import { useHistory } from 'react-router-dom'
+import {
+  useCollectionData,
+  useDocumentDataOnce
+} from 'react-firebase-hooks/firestore'
+import { useHistory, useParams } from 'react-router-dom'
 
-const MOCK_ACTIVITIES = [
-  {
-    day: '17.10.2021',
-    time: '14:15',
-    message: 'Sasha created group Week 36',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '17.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '15.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '15.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '14.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '14.10.2021',
-    time: '14:15',
-    message: 'Sasha created group Week 36',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '16.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '16.10.2021',
-    time: '14:15',
-    message: 'Sasha created group Week 36',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '16.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '16.10.2021',
-    time: '14:15',
-    message: 'Sasha created group Week 36',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '16.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '18.10.2021',
-    time: '14:15',
-    message: 'Sasha created group Week 36',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '18.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '18.10.2021',
-    time: '14:15',
-    message: 'Sasha created group Week 36',
-    clinic: 'Oslo',
-    group: 'week36'
-  },
-  {
-    day: '18.10.2021',
-    time: '13:13',
-    message: 'Maxim invited new therapist',
-    clinic: 'Oslo',
-    group: 'week36'
-  }
-]
-
-function GroupActivitiesAll(props) {
-  // const { WRITE_PROPS_HERE } = props
-
+function GroupActivitiesAll() {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
   const history = useHistory()
-  // [COMPONENT STATE HOOKS]
+  const { id } = useParams()
+
+  // [DATA_FETCH]
+  const [groupData] = useDocumentDataOnce(
+    firebase.firestore().collection(GROUPS).doc(id)
+  )
+  const [activities] = useCollectionData(
+    firebase.firestore().collection(ACTIVITIES)
+  )
 
   // [COMPUTED PROPERTIES]
-  const actionsDates = MOCK_ACTIVITIES.map(({ day }) => day)
-  const uniqueDates = actionsDates.filter(
+  const actionsDates = activities
+    ?.filter(({ groupId }) => groupId === id)
+    ?.map(({ _createdAt }) =>
+      moment(_createdAt.toDate?.()).format('DD.MM.YYYY')
+    )
+  const uniqueDates = actionsDates?.filter(
     (day, index, self) => self.indexOf(day) === index
   )
-  // [CLEAN FUNCTIONS]
 
   return (
     <PageWrapper
       onBack={() => history.goBack()}
       headingProps={{
-        title: MOCK_ACTIVITIES[0].group,
+        title: `${t('Week')} ${groupData?.weekNumber || ''}`,
         subTitle: t('Activities'),
         titleSize: 2,
         textAlign: 'left',
         marginBottom: 32
       }}>
-      {uniqueDates.map((date) => (
+      {uniqueDates?.map((date) => (
         <>
           <Box my={3}>
             <Title type="secondary" level={5}>
@@ -145,17 +53,19 @@ function GroupActivitiesAll(props) {
             </Title>
           </Box>
           <ActivitiesList
-            dataSource={MOCK_ACTIVITIES.filter(
-              (activity) => activity.day === date
-            )}
-            isGroupActivity={true}
+            dataSource={activities
+              .filter(({ groupId }) => groupId === id)
+              .filter(
+                (activity) =>
+                  moment(activity._createdAt.toDate?.()).format(
+                    'DD.MM.YYYY'
+                  ) === date
+              )}
           />
         </>
       ))}
     </PageWrapper>
   )
 }
-
-GroupActivitiesAll.propTypes = {}
 
 export default GroupActivitiesAll

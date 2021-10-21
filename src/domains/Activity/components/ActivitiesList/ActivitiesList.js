@@ -4,16 +4,6 @@ import { ActivitySimpleView } from '..'
 
 function ActivitiesList(props) {
   const { dataSource, isGroupActivity } = props
-  // const { ADDITIONAL_DESTRUCTURING_HERE } = user
-
-  // [ADDITIONAL HOOKS]
-
-  // [COMPONENT STATE HOOKS]
-  // const [state, setState] = useState({})
-
-  // [COMPUTED PROPERTIES]
-
-  // [CLEAN FUNCTIONS]
 
   return (
     <ListWithCreate
