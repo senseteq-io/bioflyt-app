@@ -1,24 +1,52 @@
-import React from 'react'
-import { Box, Card, Text } from '@qonsoll/react-design'
-import { Tooltip } from 'antd'
+import { CheckOutlined } from '@ant-design/icons'
+import { useTranslations } from '@qonsoll/translation'
+import { useSaveData } from 'app/hooks'
+import { STUDIES } from 'bioflow/constants/collections'
+import firebase from 'firebase'
+import React, { useState } from 'react'
+import { Box, Card, Input, Text } from '@qonsoll/react-design'
+import { notification, Tooltip } from 'antd'
 import { EditRemove } from 'app/components'
 
 function StudySimpleView(props) {
-  const { name } = props
-  // const { ADDITIONAL_DESTRUCTURING_HERE } = user
+  const { name, _id } = props
 
-  // [ADDITIONAL HOOKS]
-  // const { t } = useTranslation('translation')
-  // const { currentLanguage } = t
+  // [ADDITIONAL_HOOKS]
+  const { save } = useSaveData()
+  const { t } = useTranslations()
 
-  // [COMPONENT STATE HOOKS]
-  // const [state, setState] = useState({})
-
-  // [COMPUTED PROPERTIES]
+  // [COMPONENT_STATE_HOOKS]
+  const [isEdit, setIsEdit] = useState(false)
+  const [newName, setNewName] = useState(name)
 
   // [CLEAN FUNCTIONS]
-  const handleEdit = () => {}
-  const handleRemove = () => {}
+  const handleEdit = async () => {
+    if (!isEdit) {
+      setIsEdit(true)
+    } else {
+      if (newName && name !== newName) {
+        await save({
+          collection: STUDIES,
+          id: _id,
+          data: { name: newName },
+          withNotification: true
+        })
+        setIsEdit(false)
+      } else {
+        notification.error({
+          message: t(
+            `New name should contain at least one symbol and don't be the same as previous`
+          )
+        })
+      }
+    }
+  }
+  const handleRemove = async () => {
+    await firebase.firestore().collection(STUDIES).doc(_id).delete()
+    notification.success({
+      message: t(`Study successfully deleted`)
+    })
+  }
 
   return (
     <Card
@@ -31,13 +59,26 @@ function StudySimpleView(props) {
         justifyContent="space-between"
         alignItems="center"
         px={3}>
-        <Tooltip title={name}>
-          <Text variant="h5" isEllipsis>
-            {name}
-          </Text>
-        </Tooltip>
+        {!isEdit ? (
+          <Tooltip title={name}>
+            <Text variant="h5" isEllipsis>
+              {name}
+            </Text>
+          </Tooltip>
+        ) : (
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            mr={2}
+          />
+        )}
         <Box minWidth="88px">
-          <EditRemove onEdit={handleEdit} onRemove={handleRemove} name={name} />
+          <EditRemove
+            onEdit={handleEdit}
+            editIcon={isEdit && <CheckOutlined />}
+            onRemove={handleRemove}
+            name={name}
+          />
         </Box>
       </Box>
     </Card>

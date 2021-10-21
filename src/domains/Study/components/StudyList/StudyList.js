@@ -1,46 +1,33 @@
+import firebase from 'firebase'
 import React from 'react'
 import { ListWithCreate } from 'app/components'
 import { STUDIES } from 'bioflow/constants/collections'
+import {
+  useCollectionData,
+  useCollectionDataOnce
+} from 'react-firebase-hooks/firestore'
 import { StudySimpleView } from '..'
 import { useHistory } from 'react-router'
 import { BIOFLOW_ADMIN_STUDY_CREATE_PATH } from 'bioflow/constants/paths'
 
-const MOCK_STUDIES = [
-  { name: 'nose' },
-  { name: 'leg' },
-  { name: 'brain' },
-  { name: 'hand' },
-  { name: 'ear' }
-]
-
-function StudyList(props) {
-  // const { WRITE_PROPS_HERE } = props
-  // const { ADDITIONAL_DESTRUCTURING_HERE } = user
-
+function StudyList() {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
 
-  // [COMPONENT STATE HOOKS]
-  // const [state, setState] = useState({})
-
-  // [COMPUTED PROPERTIES]
-
+  // [DATA_FETCH]
+  const [studies = []] = useCollectionData(
+    firebase.firestore().collection(STUDIES)
+  )
   // [CLEAN FUNCTIONS]
   const onCreate = () => {
     history.push(BIOFLOW_ADMIN_STUDY_CREATE_PATH)
   }
 
   return (
-    <ListWithCreate
-      createHeight={64}
-      // collection={STUDIES}
-      onCreate={onCreate}
-      dataSource={MOCK_STUDIES}>
+    <ListWithCreate createHeight={64} onCreate={onCreate} dataSource={studies}>
       <StudySimpleView />
     </ListWithCreate>
   )
 }
-
-StudyList.propTypes = {}
 
 export default StudyList

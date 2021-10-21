@@ -1,4 +1,5 @@
 import { Badge, Tooltip } from 'antd'
+import { STUDIES } from 'bioflow/constants/collections'
 import {
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
   BIOFLOW_GROUP_SHOW_PATH
@@ -43,7 +44,11 @@ function GroupAdvancedView(props) {
     firebase.firestore().collection(CLINICS_MODEL_NAME).doc(clinicId)
   )
   const [disorderData] = useDocumentDataOnce(
-    firebase.firestore().collection(DISORDERS_MODEL_NAME).doc(disorderId)
+    disorderId &&
+      firebase.firestore().collection(DISORDERS_MODEL_NAME).doc(disorderId)
+  )
+  const [studyData] = useDocumentDataOnce(
+    studyId && firebase.firestore().collection(STUDIES).doc(studyId)
   )
 
   // [CLEAN_FUNCTIONS]
@@ -68,7 +73,7 @@ function GroupAdvancedView(props) {
           <Col h="left" v="center" cw={[2, 2, 2, 3]}>
             <Text>{t('Week')}</Text> <Title level={2}>{weekNumber}</Title>
           </Col>
-          <Col h="center">
+          <Col>
             <Row noGutters>
               <Col flexDirection="row" cw={12}>
                 <Text
@@ -80,7 +85,7 @@ function GroupAdvancedView(props) {
                 </Text>
                 <Text>
                   {clinicData?.name}
-                  {` (${place})` || ''}
+                  {place ? ` (${place})` : ''}
                 </Text>
               </Col>
               <Col flexDirection="row" cw={12}>
@@ -91,7 +96,7 @@ function GroupAdvancedView(props) {
                   mr={1}>
                   {t('Study')}:
                 </Text>
-                <Text>{studyId || ''}</Text>
+                <Text>{studyData?.name || t('Not selected')}</Text>
               </Col>
               <Col flexDirection="row" cw={12}>
                 <Text
@@ -103,7 +108,7 @@ function GroupAdvancedView(props) {
                 </Text>
                 <Tooltip title={disorderData?.name || ''}>
                   <Text whiteSpace="noWrap" isEllipsis>
-                    {disorderData?.name || ''}
+                    {disorderData?.name || t('Not selected')}
                   </Text>
                 </Tooltip>
               </Col>
