@@ -38,12 +38,14 @@ function ClinicSimpleView(props) {
       data: { bioflowAccess }
     })
     currentClinicTherapists?.forEach((therapist) => {
-      update({
-        collection: USERS_MODEL_NAME,
-        id: therapist?._id,
-        data: { bioflowAccess },
-        withNotification: false
-      })
+      if (therapist?._id) {
+        update({
+          collection: USERS_MODEL_NAME,
+          id: therapist._id,
+          data: { bioflowAccess },
+          withNotification: false
+        })
+      }
     })
   }
 
