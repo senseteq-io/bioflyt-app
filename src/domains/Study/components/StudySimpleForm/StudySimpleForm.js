@@ -5,7 +5,7 @@ import { useHistory } from 'react-router'
 import { useTranslations } from '@qonsoll/translation'
 
 function StudySimpleForm(props) {
-  const { onSubmit, initialValues, submitBtnText } = props
+  const { onSubmit, initialValues, submitBtnText, loading } = props
 
   // [ADDITIONAL HOOKS]
   const [form] = Form.useForm()
@@ -48,12 +48,20 @@ function StudySimpleForm(props) {
       </Row>
       <Row h="right" noInnerGutters>
         <Col cw="auto" mr={3}>
-          <Button size="middle" type="text" onClick={() => history.goBack()}>
+          <Button
+            size="middle"
+            type="text"
+            onClick={history.goBack}
+            disabled={loading}>
             {t('Cancel')}
           </Button>
         </Col>
         <Col cw="auto">
-          <Button size="middle" type="primary" onClick={() => form.submit()}>
+          <Button
+            size="middle"
+            type="primary"
+            onClick={form.submit}
+            loading={loading}>
             {submitBtnText || t('Save')}
           </Button>
         </Col>

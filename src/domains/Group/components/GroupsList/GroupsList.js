@@ -1,12 +1,10 @@
+import React, { useEffect, useMemo, useState, Fragment } from 'react'
 import { Box, Title } from '@qonsoll/react-design'
-import { useSize } from '@umijs/hooks'
 import { List } from 'antd'
-
-import { useClinicContext } from 'app/domains/Clinic/contexts'
 import { GroupAdvancedView } from 'bioflow/domains/Group/components'
 import firebase from 'firebase'
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import moment from 'moment'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
@@ -18,76 +16,18 @@ import {
   BIOFLOW_GROUP_CREATE_PATH
 } from 'bioflow/constants/paths'
 
-const MOCK_GROUPS = [
-  {
-    _id: 'testID1',
-    clinicId: 'o8ASa7FgK0zSFnwC0tDQ',
-    weekNumber: 21,
-    place: 'Khm',
-    studyId: 'brain',
-    disorderId: '2NkMMkFHxfJw4oXxbfcJ',
-    patients: [1, 2, 3, 4],
-    status: 'DRAFT',
-    firstDay: 'monday',
-    lastDay: 'thursday',
-    therapists: [1, 2, 3, 4]
-  },
-  {
-    _id: 'testID2',
-    clinicId: 'o8ASa7FgK0zSFnwC0tDQ',
-    weekNumber: 36,
-    place: 'Oslo',
-    studyId: 'nose',
-    disorderId: '7acv1DIMX6WSppca9dEj',
-    patients: [1, 2, 3, 4, 6, 5],
-    status: 'ONGOING',
-    firstDay: 'monday',
-    lastDay: 'thursday',
-    therapists: [1, 2, 3, 4]
-  },
-  {
-    _id: 'testID3',
-    clinicId: 'o8ASa7FgK0zSFnwC0tDQ',
-    weekNumber: 37,
-    place: 'Bergen',
-    studyId: 'mouth',
-    disorderId: 'LEMqVlks5jIqxRgfWUVR',
-    patients: [1, 2],
-    status: 'FUTURE',
-    firstDay: 'monday',
-    lastDay: 'thursday',
-    therapists: [1, 2, 3, 4]
-  },
-  {
-    _id: 'testID4',
-    clinicId: 'o8ASa7FgK0zSFnwC0tDQ',
-    weekNumber: 22,
-    place: 'Kiev',
-    studyId: 'leg',
-    disorderId: '2NkMMkFHxfJw4oXxbfcJ',
-    patients: [1, 2, 3, 4, 5],
-    status: 'DRAFT',
-    firstDay: 'monday',
-    lastDay: 'thursday',
-    therapists: [1, 2, 3, 4]
-  }
-]
-
 function GroupsList() {
   // [ADDITIONAL_HOOKS]
   const { t } = useTranslations()
   const history = useHistory()
   const { isAdmin } = useBioflowAccess()
-  const { _id: clinicId } = useClinicContext()
+  // const { _id: clinicId } = useClinicContext()
 
   // [DATA FETCH]
-  const [list] = useCollectionData(
-    clinicId &&
-      firebase.firestore().collection(GROUPS).where('clinicId', '==', clinicId)
-  )
+  const [list] = useCollectionData(firebase.firestore().collection(GROUPS))
 
   // [COMPONENT_STATE_HOOKS]
-  const [sortedList, setSortedList] = useState({})
+  const [filteredList, setFilteredList] = useState({})
 
   // [CLEAN_FUNCTIONS]
   const goToCreateGroup = () =>
@@ -95,23 +35,32 @@ function GroupsList() {
       isAdmin ? BIOFLOW_ADMIN_GROUP_CREATE_PATH : BIOFLOW_GROUP_CREATE_PATH
     )
 
+  // [COMPUTED PROPERTIES]
+  const sortedList = useMemo(() => {
+    return list
+      ? list.sort((a, b) =>
+          moment
+            .unix(b?._createdAt?.seconds)
+            .diff(moment.unix(a?._createdAt?.seconds))
+        )
+      : []
+  }, [list])
+
   // [USE_EFFECTS]
   useEffect(() => {
-    if (list) {
-      const statuses = _.uniq(MOCK_GROUPS.map(({ status }) => status))
-      const filteredList = {}
+    if (sortedList) {
+      const statuses = _.uniq(sortedList.map(({ status }) => status))
+      const buf = {}
 
       statuses.forEach((status) => {
-        filteredList[status] = _.filter(
-          MOCK_GROUPS,
-          (item) => item.status === status
-        )
+        buf[status] = _.filter(sortedList, (item) => item.status === status)
       })
-      setSortedList(filteredList)
+      setFilteredList(buf)
     }
-  }, [list])
+  }, [sortedList])
+
   return (
-    <>
+    <Fragment>
       <Box mb={4}>
         <AddItem
           height={120}
@@ -121,22 +70,25 @@ function GroupsList() {
         />
       </Box>
 
-      {sortedList['DRAFT'] && (
-        <GroupFilteredList status={t('Draft')} data={sortedList['DRAFT']} />
+      {filteredList['DRAFT'] && (
+        <GroupFilteredList status={t('Draft')} data={filteredList['DRAFT']} />
       )}
-      {sortedList['ONGOING'] && (
-        <GroupFilteredList status={t('Ongoing')} data={sortedList['ONGOING']} />
-      )}
-      {sortedList['FUTURE'] && (
-        <GroupFilteredList status={t('Future')} data={sortedList['FUTURE']} />
-      )}
-      {sortedList['FINISHED'] && (
+      {filteredList['ONGOING'] && (
         <GroupFilteredList
-          status={t('Finished')}
-          data={sortedList['FINISHED']}
+          status={t('Ongoing')}
+          data={filteredList['ONGOING']}
         />
       )}
-    </>
+      {filteredList['FUTURE'] && (
+        <GroupFilteredList status={t('Future')} data={filteredList['FUTURE']} />
+      )}
+      {filteredList['FINISHED'] && (
+        <GroupFilteredList
+          status={t('Finished')}
+          data={filteredList['FINISHED']}
+        />
+      )}
+    </Fragment>
   )
 }
 
