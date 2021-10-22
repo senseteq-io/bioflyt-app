@@ -6,7 +6,7 @@ export default [
   {
     name: 'Dashboard',
     path: BIOFLOW_PATH,
-    exact: false,
+    exact: true,
     component: Dashboard
   }
 ]

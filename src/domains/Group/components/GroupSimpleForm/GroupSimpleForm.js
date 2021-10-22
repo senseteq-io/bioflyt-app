@@ -95,25 +95,25 @@ function GroupSimpleForm(props) {
                 <Input
                   type="date"
                   placeholder={t('Start day')}
-                  onChange={(e) => onDateChange(e, 'endDay', 4)}
+                  onChange={(e) => onDateChange(e, 'fourthDay', 4)}
                 />
               </Form.Item>
             </Col>
 
             <Col cw={[12, 12, 6]} mb={3}>
-              <Text mb={2}>{t('End day')}</Text>
+              <Text mb={2}>{t('Fourth day')}</Text>
               <Form.Item
-                name="endDay"
+                name="fourthDay"
                 initialValue={moment().add(4, 'day').format('yyyy-MM-DD')}
                 rules={[
                   {
                     require: true,
-                    message: t('Enter end day, please')
+                    message: t('Enter fourth day, please')
                   }
                 ]}>
                 <Input
                   type="date"
-                  placeholder={t('End day')}
+                  placeholder={t('Fourth day')}
                   onChange={(e) => onDateChange(e, 'startDay', -4)}
                 />
               </Form.Item>

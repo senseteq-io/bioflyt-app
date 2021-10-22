@@ -2,7 +2,7 @@ import { EditRemove } from 'app/components'
 import { useSaveData } from 'app/hooks'
 import { GROUPS } from 'bioflow/constants/collections'
 import firebase from 'firebase'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Box, Button, PageWrapper } from '@qonsoll/react-design'
 import { PatientsList } from 'bioflow/domains/Patient/components'
 import { LineChartOutlined } from '@ant-design/icons'
@@ -15,6 +15,7 @@ import {
   BIOFLOW_GROUP_ACTIVITIES_PATH,
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
+import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 
 function GroupShow() {
   // [ADDITIONAL HOOKS]
@@ -24,12 +25,18 @@ function GroupShow() {
   const { remove } = useSaveData()
   const { isAdmin } = useBioflowAccess()
 
-  //[COMPONENT STATE HOOKS]
-  const [isActivated, setIsActivated] = useState(false)
-
   const [groupData] = useDocumentDataOnce(
     firebase.firestore().collection(GROUPS).doc(id)
   )
+
+  //[COMPONENT STATE HOOKS]
+  const [isActivated, setIsActivated] = useState(false)
+
+  //[COMPUTED PROPERTIES]
+  const isActivateDisabled = useMemo(() => groupData?.status !== DRAFT_STATUS, [
+    groupData
+  ])
+
   // [CLEAN FUNCTIONS]
   const goToActivities = () => {
     history.push(
@@ -52,7 +59,8 @@ function GroupShow() {
   }
 
   const activateGroup = () => {
-    setIsActivated(true)
+    
+    // setIsActivated(true)
   }
 
   const actionPanel = (
@@ -68,7 +76,10 @@ function GroupShow() {
         <EditRemove onEdit={goToGroupEdit} onRemove={onRemoveGroup} />
       </Box>
 
-      <Button type="primary" disabled={isActivated} onClick={activateGroup}>
+      <Button
+        type="primary"
+        disabled={isActivateDisabled}
+        onClick={activateGroup}>
         {t('Activate')}
       </Button>
     </Box>

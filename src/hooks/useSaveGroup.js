@@ -60,8 +60,8 @@ const useSaveGroup = () => {
               startDay: firebase.firestore.Timestamp.fromDate(
                 new Date(data.startDay)
               ),
-              endDay: firebase.firestore.Timestamp.fromDate(
-                new Date(data.endDay)
+              fourthDay: firebase.firestore.Timestamp.fromDate(
+                new Date(data.fourthDay)
               ),
               status
             },
@@ -108,8 +108,8 @@ const useSaveGroup = () => {
               startDay: firebase.firestore.Timestamp.fromDate(
                 new Date(data.startDay)
               ),
-              endDay: firebase.firestore.Timestamp.fromDate(
-                new Date(data.endDay)
+              fourthDay: firebase.firestore.Timestamp.fromDate(
+                new Date(data.fourthDay)
               ),
               status
             },
