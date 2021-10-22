@@ -29,7 +29,7 @@ const PatientAddForm = (props) => {
   }
   const addPatient = () => {
     if (value?.length < 6 || !value) {
-      onChange?.(value ? [...value, ''] : [''])
+      onChange?.(value ? [...value, {}] : [{}])
     } else {
       notification.warn({
         message: `${t('Each group can have only 6 patients')}.`

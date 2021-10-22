@@ -11,29 +11,35 @@ import moment from 'moment'
 import { useParams } from 'react-router-dom'
 
 const generatePatients = async (data, weekNumber) => {
-  const clinicSnapshot =
-    data.clinicId &&
-    (await firebase
-      .firestore()
-      .collection(CLINICS_MODEL_NAME)
-      .doc(data.clinicId)
-      .get())
-  const clinicData = clinicSnapshot?.data()
-  const disorderSnapshot =
-    data.disorderId &&
-    (await firebase
-      .firestore()
-      .collection(DISORDERS_MODEL_NAME)
-      .doc(data.disorderId)
-      .get())
-  const disorderData = disorderSnapshot?.data()
+  let clinicData, disorderData
+  try {
+    const clinicSnapshot =
+      data.clinicId &&
+      (await firebase
+        .firestore()
+        .collection(CLINICS_MODEL_NAME)
+        .doc(data.clinicId)
+        .get())
+    clinicData = clinicSnapshot?.data()
+    const disorderSnapshot =
+      data.disorderId &&
+      (await firebase
+        .firestore()
+        .collection(DISORDERS_MODEL_NAME)
+        .doc(data.disorderId)
+        .get())
+    disorderData = disorderSnapshot?.data()
+  } catch (e) {
+    console.log('error in patient generate', e)
+  }
+
   return data.patients.map((data) => ({
     ...data,
     generated: `${weekNumber}${clinicData?.name || ''}${
       disorderData?.name || ''
     }${data.initial.toUpperCase()}`,
     initial: data.initial,
-    id: firebase.firestore().collection(DISORDERS_MODEL_NAME).doc().id
+    id: firebase.firestore().collection(GROUPS).doc().id
   }))
 }
 
@@ -87,7 +93,7 @@ const useSaveGroup = () => {
           }
         })
       } catch (e) {
-        console.log(e)
+        console.log('error in update function', e)
         notification.error({ message: t('Error occurred on group save') })
       }
     }
@@ -103,7 +109,7 @@ const useSaveGroup = () => {
     if (data.clinicId && data.therapists?.length && data.patients?.length) {
       try {
         const weekNumber = moment(data.startDay).week()
-        for (const initial of data.patients) {
+        for (const { initial } of data.patients) {
           if (initial === '') return
         }
         const patients = await generatePatients(data, weekNumber)
@@ -143,7 +149,7 @@ const useSaveGroup = () => {
           }
         })
       } catch (e) {
-        console.log(e)
+        console.log('error in create function', e)
         notification.error({ message: t('Error occurred on group save') })
       }
     }

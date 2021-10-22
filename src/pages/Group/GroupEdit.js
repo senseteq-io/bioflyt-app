@@ -1,5 +1,6 @@
+import { FUTURE_STATUS, ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
 import { useSaveGroup } from 'bioflow/hooks'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import moment from 'moment'
 import firebase from 'firebase'
 import { useTranslations } from '@qonsoll/translation'
@@ -25,7 +26,6 @@ function GroupEdit() {
 
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
-  const [isSave, setIsSave] = useState(false)
   const initialValues = groupData && {
     ...groupData,
     startDay: moment(groupData?.startDay?.toDate?.()).format('YYYY-MM-DD'),
@@ -34,18 +34,25 @@ function GroupEdit() {
 
   const onFinish = async (data) => {
     setLoading(true)
-    setIsSave(true)
-    await updateDataWithStatus({ data, status: 'FUTURE' })
+    const status = moment(data.startDay).isSame(moment(), 'week')
+
+    await updateDataWithStatus({
+      data,
+      status: status ? ONGOING_STATUS : FUTURE_STATUS
+    })
 
     history.goBack()
 
     setLoading(false)
   }
 
-  useEffect(
-    () => () => !isSave && updateDataWithStatus({ form, status: 'DRAFT' }),
-    [isSave]
-  )
+  // useEffect(
+  //   () => () => {
+  //     groupData?.status === 'DRAFT' &&
+  //       updateDataWithStatus({ form, status: 'DRAFT' })
+  //   },
+  //   [groupData]
+  // )
 
   return (
     <PageWrapper

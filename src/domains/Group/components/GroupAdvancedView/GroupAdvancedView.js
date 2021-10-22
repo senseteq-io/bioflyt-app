@@ -82,7 +82,9 @@ function GroupAdvancedView(props) {
         cursor="pointer">
         <Row>
           <Col h="left" v="center" cw={[2, 2, 2, 3]}>
-            <Text>{t('Week')}</Text> <Title level={2}>{weekNumber}</Title>
+            <Box display="flex" flexDirection="column" alignItems="center">
+              <Text>{t('Week')}</Text> <Title level={2}>{weekNumber}</Title>
+            </Box>
           </Col>
           <Col>
             <Row noGutters>

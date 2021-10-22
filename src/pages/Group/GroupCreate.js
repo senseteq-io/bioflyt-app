@@ -1,7 +1,8 @@
 import { Form } from 'antd'
-
+import { ONGOING_STATUS, FUTURE_STATUS } from 'bioflow/constants/groupStatuses'
+import moment from 'moment'
 import { useSaveGroup } from 'bioflow/hooks'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
@@ -12,28 +13,35 @@ function GroupCreate() {
   const history = useHistory()
   const { t } = useTranslations()
   const [form] = Form.useForm()
-  const { updateDataWithStatus, saveDataWithStatus } = useSaveGroup()
+  const { saveDataWithStatus } = useSaveGroup()
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
-  const [isSave, setIsSave] = useState(false)
 
   // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
-    setIsSave(true)
-
     setLoading(true)
 
-    await saveDataWithStatus({ data, status: 'FUTURE', isActivate: true })
+    const status = moment(data.startDay).isSame(moment(), 'week')
+
+    await saveDataWithStatus({
+      data,
+      status: status ? ONGOING_STATUS : FUTURE_STATUS,
+      isActivate: true
+    })
 
     history.goBack()
 
     setLoading(false)
   }
 
-  useEffect(
-    () => () => !isSave && updateDataWithStatus({ form, status: 'DRAFT' }),
-    [isSave]
-  )
+  // useEffect(
+  //   () => () =>
+  //     saveDataWithStatus({
+  //       form,
+  //       status: 'DRAFT'
+  //     }),
+  //   []
+  // )
 
   return (
     <PageWrapper
