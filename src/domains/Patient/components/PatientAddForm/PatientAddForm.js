@@ -22,8 +22,8 @@ const PatientAddForm = (props) => {
 
   // [CLEAN_FUNCTIONS]
   const onInputChange = (e, index) => {
-    if (e.target.value.match(/^[A-Za-z]+$/)) {
-      value[index] = e.target.value
+    if (e.target.value.match(/^[A-Za-z]+$/) || e.target.value === '') {
+      value[index].initial = e.target.value
       onChange?.([...value])
     }
   }
@@ -36,8 +36,8 @@ const PatientAddForm = (props) => {
       })
     }
   }
-  const removePatient = (index) =>
-    onChange?.(value.filter((_, i) => i !== index))
+  const removePatient = (patientId) =>
+    onChange?.(value.filter(({ id }) => id !== patientId))
 
   return (
     <Row noGutters>
@@ -51,8 +51,8 @@ const PatientAddForm = (props) => {
         <List
           itemLayout="horizontal"
           dataSource={value}
-          renderItem={(initials, index) => (
-            <List.Item>
+          renderItem={({ initial, id }, index) => (
+            <List.Item key={id}>
               <Card
                 size="small"
                 bordered={false}
@@ -61,16 +61,12 @@ const PatientAddForm = (props) => {
                 width="100%">
                 <Box display="flex">
                   <Input
-                    value={initials}
+                    value={initial}
                     placeholder={t('Initials')}
                     onChange={(e) => onInputChange(e, index)}
                     mr={3}
                   />
-                  <Remove
-                    icon
-                    onSubmit={() => removePatient(index)}
-                    type="text"
-                  />
+                  <Remove icon onSubmit={() => removePatient(id)} type="text" />
                 </Box>
               </Card>
             </List.Item>

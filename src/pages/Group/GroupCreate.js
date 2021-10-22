@@ -19,10 +19,11 @@ function GroupCreate() {
 
   // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
-    setLoading(true)
     setIsSave(true)
 
-    await saveDataWithStatus({ data, status: 'FUTURE' })
+    setLoading(true)
+
+    await saveDataWithStatus({ data, status: 'FUTURE', isActivate: true })
 
     history.goBack()
 

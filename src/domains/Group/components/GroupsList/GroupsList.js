@@ -1,3 +1,9 @@
+import {
+  DRAFT_STATUS,
+  FINISHED_STATUS,
+  FUTURE_STATUS,
+  ONGOING_STATUS
+} from 'bioflow/constants/groupStatuses'
 import React, { useEffect, useMemo, useState, Fragment } from 'react'
 import { Box, Title } from '@qonsoll/react-design'
 import { List } from 'antd'
@@ -70,22 +76,28 @@ function GroupsList() {
         />
       </Box>
 
-      {filteredList['DRAFT'] && (
-        <GroupFilteredList status={t('Draft')} data={filteredList['DRAFT']} />
-      )}
-      {filteredList['ONGOING'] && (
+      {filteredList[DRAFT_STATUS] && (
         <GroupFilteredList
-          status={t('Ongoing')}
-          data={filteredList['ONGOING']}
+          status={t('Draft')}
+          data={filteredList[DRAFT_STATUS]}
         />
       )}
-      {filteredList['FUTURE'] && (
-        <GroupFilteredList status={t('Future')} data={filteredList['FUTURE']} />
+      {filteredList[ONGOING_STATUS] && (
+        <GroupFilteredList
+          status={t('Ongoing')}
+          data={filteredList[ONGOING_STATUS]}
+        />
       )}
-      {filteredList['FINISHED'] && (
+      {filteredList[FUTURE_STATUS] && (
+        <GroupFilteredList
+          status={t('Future')}
+          data={filteredList[FUTURE_STATUS]}
+        />
+      )}
+      {filteredList[FINISHED_STATUS] && (
         <GroupFilteredList
           status={t('Finished')}
-          data={filteredList['FINISHED']}
+          data={filteredList[FINISHED_STATUS]}
         />
       )}
     </Fragment>

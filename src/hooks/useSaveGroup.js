@@ -4,6 +4,7 @@ import { useTranslations } from '@qonsoll/translation'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useSaveData } from 'app/hooks'
 import { GROUPS, ACTIVITIES } from 'bioflow/constants/collections'
+import { DRAFT_STATUS, FUTURE_STATUS } from 'bioflow/constants/groupStatuses'
 import firebase from 'firebase'
 import _ from 'lodash'
 import moment from 'moment'
@@ -26,17 +27,19 @@ const generatePatients = async (data, weekNumber) => {
       .doc(data.disorderId)
       .get())
   const disorderData = disorderSnapshot?.data()
-  return data.patients.map((initials) => ({
+  return data.patients.map((data) => ({
+    ...data,
     generated: `${weekNumber}${clinicData?.name || ''}${
       disorderData?.name || ''
-    }${initials.toUpperCase()}`,
-    initial: initials
+    }${data.initial.toUpperCase()}`,
+    initial: data.initial,
+    id: firebase.firestore().collection(DISORDERS_MODEL_NAME).doc().id
   }))
 }
 
 const useSaveGroup = () => {
   const { id } = useParams()
-  const { firstName, lastName } = useUserContext()
+  const { firstName, lastName, role } = useUserContext()
   const { save, update } = useSaveData()
   const { t } = useTranslations()
   const updateDataWithStatus = async ({ form, data: formData, status }) => {
@@ -45,9 +48,10 @@ const useSaveGroup = () => {
     if (data.clinicId && data.therapists?.length && data.patients?.length) {
       try {
         const weekNumber = moment(data.startDay).week()
-        for (const initial of data.patients) {
+        for (const { initial } of data.patients) {
           if (initial === '') return
         }
+
         const patients = await generatePatients(data, weekNumber)
         await update({
           collection: GROUPS,
@@ -70,8 +74,9 @@ const useSaveGroup = () => {
           withNotification: true
         })
         const messages = {
-          DRAFT: 'Group was changed and save as a draft by',
-          FUTURE: 'Group was changed by'
+          [DRAFT_STATUS]: 'Group was changed and save as a draft by',
+          ACTIVATE: 'Group was activated by',
+          [FUTURE_STATUS]: 'Group was changed by'
         }
         await save({
           collection: ACTIVITIES,
@@ -87,7 +92,12 @@ const useSaveGroup = () => {
       }
     }
   }
-  const saveDataWithStatus = async ({ form, data: formData, status }) => {
+  const saveDataWithStatus = async ({
+    form,
+    data: formData,
+    status,
+    isActivate
+  }) => {
     const data = formData || form.getFieldsValue()
 
     if (data.clinicId && data.therapists?.length && data.patients?.length) {
@@ -119,15 +129,17 @@ const useSaveGroup = () => {
         })
 
         const messages = {
-          DRAFT: 'Group was saved as a draft by',
-          FUTURE: 'Group was created by'
+          [DRAFT_STATUS]: 'Group was saved as a draft by',
+          [FUTURE_STATUS]: 'Group was created by'
         }
         await save({
           collection: ACTIVITIES,
           data: {
             groupId,
             clinicId: data.clinicId,
-            text: `${t(messages[status])} ${firstName} ${lastName}`
+            text: `${t(
+              isActivate ? 'Group was activated by' : messages[status]
+            )} ${_.lowerCase(role)} ${firstName} ${lastName}`
           }
         })
       } catch (e) {

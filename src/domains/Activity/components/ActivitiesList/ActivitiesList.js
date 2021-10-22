@@ -4,7 +4,6 @@ import { ActivitySimpleView } from '..'
 
 function ActivitiesList(props) {
   const { dataSource, isGroupActivity } = props
-
   return (
     <ListWithCreate
       grid={{

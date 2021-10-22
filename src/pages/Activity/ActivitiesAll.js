@@ -2,7 +2,7 @@ import { ACTIVITIES } from 'bioflow/constants/collections'
 import firebase from 'firebase'
 import moment from 'moment'
 import React from 'react'
-import { Box, Container, Title } from '@qonsoll/react-design'
+import { Box, Container, NoData, Title } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 
@@ -19,10 +19,13 @@ function ActivitiesAll() {
     (day, index, self) => self.indexOf(day) === index
   )
 
-  // [CLEAN FUNCTIONS]
-
   return (
     <Container mt={4}>
+      {!uniqueDates?.length && (
+        <Box>
+          <NoData />
+        </Box>
+      )}
       {uniqueDates?.map((date) => (
         <>
           <Box my={3}>
@@ -42,7 +45,5 @@ function ActivitiesAll() {
     </Container>
   )
 }
-
-ActivitiesAll.propTypes = {}
 
 export default ActivitiesAll

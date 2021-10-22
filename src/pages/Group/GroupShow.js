@@ -2,11 +2,11 @@ import { EditRemove } from 'app/components'
 import { useSaveData } from 'app/hooks'
 import { GROUPS } from 'bioflow/constants/collections'
 import firebase from 'firebase'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Box, Button, PageWrapper } from '@qonsoll/react-design'
 import { PatientsList } from 'bioflow/domains/Patient/components'
 import { LineChartOutlined } from '@ant-design/icons'
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
+import { useDocumentData } from 'react-firebase-hooks/firestore'
 import { useHistory, useParams, generatePath } from 'react-router-dom'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
@@ -25,12 +25,9 @@ function GroupShow() {
   const { remove } = useSaveData()
   const { isAdmin } = useBioflowAccess()
 
-  const [groupData] = useDocumentDataOnce(
+  const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS).doc(id)
   )
-
-  //[COMPONENT STATE HOOKS]
-  const [isActivated, setIsActivated] = useState(false)
 
   //[COMPUTED PROPERTIES]
   const isActivateDisabled = useMemo(() => groupData?.status !== DRAFT_STATUS, [
@@ -59,7 +56,6 @@ function GroupShow() {
   }
 
   const activateGroup = () => {
-    
     // setIsActivated(true)
   }
 
@@ -96,7 +92,11 @@ function GroupShow() {
         marginBottom: 48
       }}
       action={actionPanel}>
-      <PatientsList patients={groupData?.patients} />
+      <PatientsList
+        patients={groupData?.patients}
+        startDay={groupData?.startDay}
+        fourthDay={groupData?.fourthDay}
+      />
     </PageWrapper>
   )
 }

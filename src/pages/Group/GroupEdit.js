@@ -29,8 +29,7 @@ function GroupEdit() {
   const initialValues = groupData && {
     ...groupData,
     startDay: moment(groupData?.startDay?.toDate?.()).format('YYYY-MM-DD'),
-    fourthDay: moment(groupData?.fourthDay?.toDate?.()).format('YYYY-MM-DD'),
-    patients: groupData.patients.map(({ initial }) => initial)
+    fourthDay: moment(groupData?.fourthDay?.toDate?.()).format('YYYY-MM-DD')
   }
 
   const onFinish = async (data) => {

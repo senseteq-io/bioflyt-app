@@ -2,7 +2,7 @@ import { ACTIVITIES, GROUPS } from 'bioflow/constants/collections'
 import firebase from 'firebase'
 import moment from 'moment'
 import React from 'react'
-import { Box, PageWrapper, Title } from '@qonsoll/react-design'
+import { Box, NoData, PageWrapper, Title } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useTranslations } from '@qonsoll/translation'
 import {
@@ -37,7 +37,7 @@ function GroupActivitiesAll() {
 
   return (
     <PageWrapper
-      onBack={() => history.goBack()}
+      onBack={history.goBack}
       headingProps={{
         title: `${t('Week')} ${groupData?.weekNumber || ''}`,
         subTitle: t('Activities'),
@@ -45,6 +45,11 @@ function GroupActivitiesAll() {
         textAlign: 'left',
         marginBottom: 32
       }}>
+      {!uniqueDates?.length && (
+        <Box>
+          <NoData />
+        </Box>
+      )}
       {uniqueDates?.map((date) => (
         <>
           <Box my={3}>

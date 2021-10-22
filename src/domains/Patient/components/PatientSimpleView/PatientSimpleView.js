@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import moment from 'moment'
+import React from 'react'
 import { Box, Button, Card, Icon, Text } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 import { CheckOutlined } from '@ant-design/icons'
@@ -13,20 +14,24 @@ const successIconStyles = {
 }
 
 function PatientSimpleView(props) {
-  const { name } = props || {}
+  const {
+    name,
+    startDay,
+    fourthDay,
+    firstDayBIOCollect,
+    fourthDayBIOCollect,
+    lastBIOCollect,
+    onDeliverBio
+  } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
 
-  // [COMPONENT STATE HOOKS]
-  const [isBioDelivered, setIsBioDelivered] = useState(false)
-
-  // [COMPUTED PROPERTIES]
-
-  // [CLEAN FUNCTIONS]
-  const deliverBio = () => {
-    setIsBioDelivered(true)
-  }
+  const isBIOCollectEnabled =
+    moment(startDay?.toDate()).format('DD-MM-YYYY') ===
+      moment().format('DD-MM-YYYY') ||
+    moment(fourthDay?.toDate()).format('DD-MM-YYYY') ===
+      moment().format('DD-MM-YYYY')
 
   return (
     <Card
@@ -39,13 +44,24 @@ function PatientSimpleView(props) {
           <Text isEllipsis>{name}</Text>
         </Tooltip>
         <Box>
-          {!isBioDelivered ? (
-            <Button ghost type="primary" onClick={deliverBio}>
+          {!(firstDayBIOCollect || fourthDayBIOCollect || lastBIOCollect) && (
+            <Button
+              ghost
+              type="primary"
+              onClick={() => onDeliverBio(props)}
+              disabled={!isBIOCollectEnabled}>
               {t('Deliver Bio')}
             </Button>
-          ) : (
-            <Icon {...successIconStyles} component={<CheckOutlined />} />
           )}
+          {(firstDayBIOCollect || fourthDayBIOCollect || lastBIOCollect) &&
+            isBIOCollectEnabled && (
+              <Tooltip
+                title={`${t('Next bio collect on')} ${moment(
+                  fourthDay?.toDate()
+                ).format('DD MMM YYYY')}`}>
+                <Icon {...successIconStyles} component={<CheckOutlined />} />
+              </Tooltip>
+            )}
         </Box>
       </Box>
     </Card>
