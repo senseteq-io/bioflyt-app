@@ -12,16 +12,8 @@ import {
 import { Form, Select as AntSelect } from 'antd'
 import { useHistory } from 'react-router'
 
-//TODO replace to studies from db
-const studies = [
-  { _id: '11111111', name: 'brain' },
-  { _id: '11111112', name: 'leg' },
-  { _id: '11111113', name: 'hand' },
-  { _id: '11111114', name: 'ear' },
-  { _id: '11111115', name: 'nose' }
-]
 function TherapistInviteForm(props) {
-  const { initialValues, onSubmit } = props
+  const { initialValues, onSubmit, studies } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
@@ -148,7 +140,9 @@ function TherapistInviteForm(props) {
                 message: t('Please choose study!')
               }
             ]}>
-            <Select mode="multiple" placeholder={t('Choose studies')}>
+            <Select
+              mode="multiple"
+              placeholder={t('Choose one or more studies')}>
               {studies?.map((study, index) => (
                 <AntSelect.Option key={index} value={study?._id}>
                   {study?.name}
