@@ -50,9 +50,11 @@ function TherapistSimpleView(props) {
       actions={
         <Fragment>
           <Box mb={2}>
-            <Dropdown overlay={groupList} placement="bottomRight" arrow>
-              <Button variant="white" icon={<TeamOutlined />} />
-            </Dropdown>
+            <Tooltip title={t('Therapist groups')}>
+              <Dropdown overlay={groupList} placement="bottomRight" arrow>
+                <Button variant="white" icon={<TeamOutlined />} />
+              </Dropdown>
+            </Tooltip>
           </Box>
           <Box mb={2}>
             <Tooltip title={email}>

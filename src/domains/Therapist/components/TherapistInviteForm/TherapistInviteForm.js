@@ -13,7 +13,7 @@ import { Form, Select as AntSelect } from 'antd'
 import { useHistory } from 'react-router'
 
 function TherapistInviteForm(props) {
-  const { initialValues, onSubmit, studies } = props
+  const { initialValues, onSubmit, studies, clinics } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
@@ -23,7 +23,17 @@ function TherapistInviteForm(props) {
 
   // [CLEAN FUNCTIONS]
   const onFinish = (values) => {
-    onSubmit?.(values)
+    const { clinics } = values
+    const clinicId = clinics[0]
+    //convert array of clinic ids to object with fields id:true
+    const formattedClinics = clinics?.reduce(
+      (previous, current) => ({
+        ...previous,
+        [current]: true
+      }),
+      {}
+    )
+    onSubmit?.({ ...values, clinicId, clinics: formattedClinics })
   }
 
   const onFinishFailed = (errorInfo) => {
@@ -124,6 +134,31 @@ function TherapistInviteForm(props) {
             ]}
             name="email">
             <Input size="middle" placeholder={t('Enter email')} />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row mb={24}>
+        <Col cw={12} mb={1}>
+          <Text>{t('Clinics')}</Text>
+        </Col>
+        <Col>
+          <Form.Item
+            name="clinics"
+            rules={[
+              {
+                required: true,
+                message: t('Please choose clinics!')
+              }
+            ]}>
+            <Select
+              mode="multiple"
+              placeholder={t('Choose one or more clinics')}>
+              {clinics?.map((clinic, index) => (
+                <AntSelect.Option key={index} value={clinic?._id}>
+                  {clinic?.name}
+                </AntSelect.Option>
+              ))}
+            </Select>
           </Form.Item>
         </Col>
       </Row>
