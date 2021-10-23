@@ -1,21 +1,29 @@
+import React, { Fragment, useMemo } from 'react'
 import { EditRemove } from 'app/components'
 import { useSaveData } from 'app/hooks'
-import { GROUPS } from 'bioflow/constants/collections'
-import firebase from 'firebase'
-import React, { useMemo } from 'react'
-import { Box, Button, PageWrapper } from '@qonsoll/react-design'
+import { Box, Button, PageWrapper, Title } from '@qonsoll/react-design'
+import { Breadcrumb } from 'antd'
 import { PatientsList } from 'bioflow/domains/Patient/components'
 import { LineChartOutlined } from '@ant-design/icons'
-import { useDocumentData } from 'react-firebase-hooks/firestore'
-import { useHistory, useParams, generatePath } from 'react-router-dom'
+import {
+  useHistory,
+  useParams,
+  generatePath,
+  useLocation,
+  Link
+} from 'react-router-dom'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
+import { useDocumentData } from 'react-firebase-hooks/firestore'
+import { GROUPS } from 'bioflow/constants/collections'
 import {
+  BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH,
   BIOFLOW_GROUP_ACTIVITIES_PATH,
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
 import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
+import firebase from 'firebase'
 
 function GroupShow() {
   // [ADDITIONAL HOOKS]
@@ -81,22 +89,39 @@ function GroupShow() {
     </Box>
   )
 
+  const groupShowBreadcrumbs = (
+    <Fragment>
+      <Breadcrumb.Item>
+        <Link to={BIOFLOW_ADMIN_GROUPS_PATH}>{t('Groups')}</Link>
+      </Breadcrumb.Item>
+      <Breadcrumb.Item>Week {groupData?.weekNumber}</Breadcrumb.Item>
+    </Fragment>
+  )
+
   return (
     <PageWrapper
       onBack={() => history.goBack()}
       headingProps={{
         title: `${t('Week')} ${groupData?.weekNumber || ''}`,
-        subTitle: t('Patients'),
         titleSize: 2,
         textAlign: 'left',
-        marginBottom: 48
+        marginBottom: 32
+      }}
+      breadcrumb={{
+        props: { separator: '>' },
+        children: groupShowBreadcrumbs
       }}
       action={actionPanel}>
-      <PatientsList
-        patients={groupData?.patients}
-        startDay={groupData?.startDay}
-        fourthDay={groupData?.fourthDay}
-      />
+      <Box>
+        <Box mb={24}>
+          <Title level={4}>{t('Patients')}</Title>
+        </Box>
+        <PatientsList
+          patients={groupData?.patients}
+          startDay={groupData?.startDay}
+          fourthDay={groupData?.fourthDay}
+        />
+      </Box>
     </PageWrapper>
   )
 }

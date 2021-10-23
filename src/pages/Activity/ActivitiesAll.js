@@ -1,7 +1,7 @@
 import { ACTIVITIES } from 'bioflow/constants/collections'
 import firebase from 'firebase'
 import moment from 'moment'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Box, Container, NoData, Title } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
@@ -20,14 +20,14 @@ function ActivitiesAll() {
   )
 
   return (
-    <Container mt={4}>
+    <Container mt={3}>
       {!uniqueDates?.length && (
         <Box>
           <NoData />
         </Box>
       )}
       {uniqueDates?.map((date) => (
-        <>
+        <Fragment>
           <Box my={3}>
             <Title type="secondary" level={5}>
               {date}
@@ -40,7 +40,7 @@ function ActivitiesAll() {
                 date
             )}
           />
-        </>
+        </Fragment>
       ))}
     </Container>
   )

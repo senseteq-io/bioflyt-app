@@ -1,7 +1,7 @@
 import { ACTIVITIES, GROUPS } from 'bioflow/constants/collections'
 import firebase from 'firebase'
 import moment from 'moment'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Box, NoData, PageWrapper, Title } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useTranslations } from '@qonsoll/translation'
@@ -9,7 +9,12 @@ import {
   useCollectionData,
   useDocumentDataOnce
 } from 'react-firebase-hooks/firestore'
-import { useHistory, useParams } from 'react-router-dom'
+import { Link, useHistory, useParams, generatePath } from 'react-router-dom'
+import { Breadcrumb } from 'antd'
+import {
+  BIOFLOW_ADMIN_GROUPS_PATH,
+  BIOFLOW_ADMIN_GROUP_SHOW_PATH
+} from 'bioflow/constants/paths'
 
 function GroupActivitiesAll() {
   // [ADDITIONAL HOOKS]
@@ -34,16 +39,32 @@ function GroupActivitiesAll() {
   const uniqueDates = actionsDates?.filter(
     (day, index, self) => self.indexOf(day) === index
   )
+  const groupShowPath = generatePath(BIOFLOW_ADMIN_GROUP_SHOW_PATH, { id })
+
+  const groupActivitiesBreadcrumbs = (
+    <Fragment>
+      <Breadcrumb.Item>
+        <Link to={BIOFLOW_ADMIN_GROUPS_PATH}>{t('Groups')}</Link>
+      </Breadcrumb.Item>
+      <Breadcrumb.Item>
+        <Link to={groupShowPath}>Week {groupData?.weekNumber}</Link>
+      </Breadcrumb.Item>
+      <Breadcrumb.Item>{t('Group activities')}</Breadcrumb.Item>
+    </Fragment>
+  )
 
   return (
     <PageWrapper
       onBack={history.goBack}
       headingProps={{
-        title: `${t('Week')} ${groupData?.weekNumber || ''}`,
-        subTitle: t('Activities'),
+        title: t('Activities'),
         titleSize: 2,
         textAlign: 'left',
-        marginBottom: 32
+        marginBottom: 16
+      }}
+      breadcrumb={{
+        props: { separator: '>' },
+        children: groupActivitiesBreadcrumbs
       }}>
       {!uniqueDates?.length && (
         <Box>

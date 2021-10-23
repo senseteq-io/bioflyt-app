@@ -41,7 +41,9 @@ function PatientSimpleView(props) {
       bg="var(--ql-color-dark-t-lighten6)">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Tooltip title={name}>
-          <Text isEllipsis>{name}</Text>
+          <Text isEllipsis pr={3}>
+            {name}
+          </Text>
         </Tooltip>
         <Box>
           {!(firstDayBIOCollect || fourthDayBIOCollect || lastBIOCollect) && (
