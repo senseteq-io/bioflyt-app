@@ -1,6 +1,6 @@
 import { FUTURE_STATUS, ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
 import { useSaveGroup } from 'bioflow/hooks'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import moment from 'moment'
 import firebase from 'firebase'
 import { useTranslations } from '@qonsoll/translation'
@@ -32,6 +32,18 @@ function GroupEdit() {
     fourthDay: moment(groupData?.fourthDay?.toDate?.()).format('YYYY-MM-DD')
   }
 
+  // [COMPUTED_PROPERTIES]
+  const submitText = useMemo(
+    () =>
+      !(
+        groupData?.clinicId &&
+        groupData?.therapists?.length &&
+        groupData?.patients?.length
+      ) && t('Save'),
+    []
+  )
+
+  // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
     setLoading(true)
     const status = moment(data.startDay).isSame(moment(), 'week')
@@ -61,13 +73,7 @@ function GroupEdit() {
             <GroupSimpleForm
               initialValues={initialValues}
               form={form}
-              submitText={
-                !(
-                  groupData?.clinicId &&
-                  groupData?.therapists?.length &&
-                  groupData?.patients?.length
-                ) && t('Save')
-              }
+              submitText={submitText}
               onFinish={onFinish}
               loading={loading}
             />

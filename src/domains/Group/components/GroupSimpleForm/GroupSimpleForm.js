@@ -1,10 +1,20 @@
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 import React, { useCallback, useMemo, useState, memo } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import moment from 'moment'
 import firebase from 'firebase'
-import { Form } from 'antd'
-import { Button, Col, Input, Remove, Row, Text } from '@qonsoll/react-design'
+import { Form, Tooltip } from 'antd'
+import {
+  Button,
+  Col,
+  Input,
+  Remove,
+  Row,
+  Text,
+  Icon,
+  Box
+} from '@qonsoll/react-design'
 import { useSaveData } from 'app/hooks'
 import { useClinicContext } from 'app/domains/Clinic/contexts'
 import { TherapistAddForm } from 'bioflow/domains/Therapist/components'
@@ -15,6 +25,13 @@ import { StudySelect } from 'bioflow/domains/Study/components'
 import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import { CLINICS_MODEL_NAME } from 'app/constants/models'
 import { GROUPS } from 'bioflow/constants/collections'
+
+const exclamationIconStyles = {
+  cursor: 'help',
+  color: 'var(--ql-color-accent1)',
+  display: 'flex',
+  size: 'medium'
+}
 
 function GroupSimpleForm(props) {
   const { loading, submitText } = props
@@ -138,7 +155,15 @@ function GroupSimpleForm(props) {
         <Col cw={12}>
           <Row negativeBlockMargin>
             <Col cw={[12, 12, 6]} mb={3}>
-              <Text mb={2}>{t('Start day')}</Text>
+              <Box display="flex" alignItems="center" mb={2}>
+                <Text mr={2}>{t('Start day')}</Text>
+                <Tooltip title={t('Available days: Mon, Thu, Fri')}>
+                  <Icon
+                    {...exclamationIconStyles}
+                    component={<ExclamationCircleOutlined />}
+                  />
+                </Tooltip>
+              </Box>
               <Form.Item
                 name="startDay"
                 initialValue={moment().format('yyyy-MM-DD')}
