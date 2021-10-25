@@ -76,6 +76,7 @@ function GroupEdit() {
               submitText={submitText}
               onFinish={onFinish}
               loading={loading}
+              id={id}
             />
           )}
         </Col>

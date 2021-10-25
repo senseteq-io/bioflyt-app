@@ -1,6 +1,6 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import React, { useCallback, useMemo, useState, memo } from 'react'
-import { useHistory, useParams } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import moment from 'moment'
 import firebase from 'firebase'
@@ -34,13 +34,12 @@ const exclamationIconStyles = {
 }
 
 function GroupSimpleForm(props) {
-  const { loading, submitText } = props
+  const { loading, submitText, id } = props
 
   // [ADDITIONAL_HOOKS]
   const [groupForm] = Form.useForm()
   const history = useHistory()
   const { t } = useTranslations()
-  const { id } = useParams()
   const { _id: clinicId, bioflowAccess } = useClinicContext()
   const { save, update } = useSaveData()
 
@@ -59,7 +58,20 @@ function GroupSimpleForm(props) {
     form.setFieldsValue({
       [field]: moment(value).add(amount, 'day').format('yyyy-MM-DD')
     })
-    form.validateFields([field])
+    form.validateFields([field]).then(async (value) => {
+      if (groupId || id) {
+        await update({
+          collection: GROUPS,
+          id: groupId || id,
+          data: {
+            [Object.keys(value)[0]]: firebase.firestore.Timestamp.fromDate(
+              new Date(value[Object.keys(value)[0]])
+            )
+          },
+          withNotification: true
+        })
+      }
+    })
   }
 
   const resetClinic = (value) => {
@@ -78,6 +90,11 @@ function GroupSimpleForm(props) {
 
   const draftSave = useCallback(
     async (value, data) => {
+      if (['fourthDay', 'startDay'].includes(Object.keys(value)[0])) {
+        value[Object.keys(value)[0]] = firebase.firestore.Timestamp.fromDate(
+          new Date(value[Object.keys(value)[0]])
+        )
+      }
       const saveData = async () => {
         if (!groupId) {
           const docId = await save({
@@ -100,9 +117,8 @@ function GroupSimpleForm(props) {
       try {
         await form.validateFields(Object.keys(value))
         saveData()
-      } catch (error) {
-        console.log(error)
-        const { errorFields } = error
+      } catch (formData) {
+        const { errorFields } = formData
         if (!errorFields.length) {
           saveData()
         }
