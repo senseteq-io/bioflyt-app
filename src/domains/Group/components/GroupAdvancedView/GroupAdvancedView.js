@@ -10,6 +10,7 @@ import { useBioflowAccess } from 'bioflow/hooks'
 import React from 'react'
 import PropTypes from 'prop-types'
 import firebase from 'firebase'
+import _ from 'lodash'
 import { useHistory, generatePath } from 'react-router-dom'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { Box, Card, Col, Row, Text, Title } from '@qonsoll/react-design'
@@ -43,7 +44,8 @@ function GroupAdvancedView(props) {
 
   // [DATA_FETCH]
   const [clinicData] = useDocumentDataOnce(
-    firebase.firestore().collection(CLINICS_MODEL_NAME).doc(clinicId)
+    clinicId &&
+      firebase.firestore().collection(CLINICS_MODEL_NAME).doc(clinicId)
   )
   const [disorderData] = useDocumentDataOnce(
     disorderId &&
@@ -72,7 +74,9 @@ function GroupAdvancedView(props) {
   }
 
   return (
-    <Badge.Ribbon text={status} color={STATUS_COLOR_MAP[status]}>
+    <Badge.Ribbon
+      text={_.upperFirst(_.toLower(status))}
+      color={STATUS_COLOR_MAP[status]}>
       <Card
         size="small"
         bordered={false}
@@ -140,7 +144,11 @@ function GroupAdvancedView(props) {
                 mr={1}>
                 {t('Patients')}:
               </Text>
-              <Title level={3}>{patients.length}</Title>
+              {patients?.length ? (
+                <Title level={3}>{patients?.length}</Title>
+              ) : (
+                <Text>{t('Not selected')}</Text>
+              )}
             </Box>
           </Col>
         </Row>

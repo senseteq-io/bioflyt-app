@@ -38,8 +38,7 @@ const generatePatients = async (data, weekNumber) => {
     generated: `${weekNumber}${clinicData?.name || ''}${
       disorderData?.name || ''
     }${data.initial.toUpperCase()}`,
-    initial: data.initial,
-    id: firebase.firestore().collection(GROUPS).doc().id
+    initial: data.initial
   }))
 }
 
@@ -96,6 +95,12 @@ const useSaveGroup = () => {
         console.log('error in update function', e)
         notification.error({ message: t('Error occurred on group save') })
       }
+    } else {
+      notification.warn({
+        message: t(
+          'Need at least one therapist and one patient in group to activate it'
+        )
+      })
     }
   }
   const saveDataWithStatus = async ({
@@ -152,6 +157,12 @@ const useSaveGroup = () => {
         console.log('error in create function', e)
         notification.error({ message: t('Error occurred on group save') })
       }
+    } else {
+      notification.warn({
+        message: t(
+          'Need at least one therapist and one patient in group to activate it'
+        )
+      })
     }
   }
 

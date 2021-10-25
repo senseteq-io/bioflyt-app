@@ -1,4 +1,5 @@
 import { List, notification } from 'antd'
+import firebase from 'firebase'
 
 import React from 'react'
 import { PlusOutlined } from '@ant-design/icons'
@@ -29,7 +30,8 @@ const PatientAddForm = (props) => {
   }
   const addPatient = () => {
     if (value?.length < 6 || !value) {
-      onChange?.(value ? [...value, {}] : [{}])
+      const id = firebase.firestore().collection('test').doc().id
+      onChange?.(value ? [...value, { id }] : [{ id }])
     } else {
       notification.warn({
         message: `${t('Each group can have only 6 patients')}.`

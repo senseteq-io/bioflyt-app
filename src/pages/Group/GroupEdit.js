@@ -1,11 +1,11 @@
 import { FUTURE_STATUS, ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
 import { useSaveGroup } from 'bioflow/hooks'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import moment from 'moment'
 import firebase from 'firebase'
 import { useTranslations } from '@qonsoll/translation'
 import { useHistory, useParams } from 'react-router-dom'
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
+import { useDocumentData } from 'react-firebase-hooks/firestore'
 import { Form } from 'antd'
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
 import { GroupSimpleForm } from 'bioflow/domains/Group/components'
@@ -20,7 +20,7 @@ function GroupEdit() {
   const [form] = Form.useForm()
 
   // [DATA_FETCH]
-  const [groupData] = useDocumentDataOnce(
+  const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS).doc(id)
   )
 
@@ -32,6 +32,18 @@ function GroupEdit() {
     fourthDay: moment(groupData?.fourthDay?.toDate?.()).format('YYYY-MM-DD')
   }
 
+  // [COMPUTED_PROPERTIES]
+  const submitText = useMemo(
+    () =>
+      !(
+        groupData?.clinicId &&
+        groupData?.therapists?.length &&
+        groupData?.patients?.length
+      ) && t('Save'),
+    []
+  )
+
+  // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
     setLoading(true)
     const status = moment(data.startDay).isSame(moment(), 'week')
@@ -45,14 +57,6 @@ function GroupEdit() {
 
     setLoading(false)
   }
-
-  // useEffect(
-  //   () => () => {
-  //     groupData?.status === 'DRAFT' &&
-  //       updateDataWithStatus({ form, status: 'DRAFT' })
-  //   },
-  //   [groupData]
-  // )
 
   return (
     <PageWrapper
@@ -69,9 +73,10 @@ function GroupEdit() {
             <GroupSimpleForm
               initialValues={initialValues}
               form={form}
-              submitText={t('Save')}
+              submitText={submitText}
               onFinish={onFinish}
               loading={loading}
+              id={id}
             />
           )}
         </Col>
