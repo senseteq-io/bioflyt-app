@@ -2,15 +2,13 @@ import React, { Fragment } from 'react'
 import { Box } from '@qonsoll/react-design'
 import { Remove, Title, Button } from '@qonsoll/react-design'
 import { MailOutlined } from '@ant-design/icons'
-import { Tooltip, Spin } from 'antd'
-import { withTheme } from 'styled-components'
+import { Tooltip, Spin, notification } from 'antd'
 import { useTranslations } from 'app/contexts'
 import { DeleteUserHelper } from 'helpers'
 import { useUI } from 'app/domains/UI/contexts'
 import firebase from 'firebase'
 import { USERS_MODEL_NAME } from 'app/constants/models'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
-import { notification } from 'antd'
 import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
 import {
   useNotification,
@@ -96,7 +94,8 @@ function TherapistInviteView(props) {
 
         if (responseData && responseData.statusCode === 200) {
           // calling of parent component callback
-          onRemove && onRemove()
+          console.log(onRemove)
+          onRemove?.()
         }
       }
     )
@@ -188,4 +187,4 @@ function TherapistInviteView(props) {
 
 TherapistInviteView.propTypes = {}
 
-export default withTheme(TherapistInviteView)
+export default TherapistInviteView
