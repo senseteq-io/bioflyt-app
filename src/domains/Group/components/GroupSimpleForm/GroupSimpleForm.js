@@ -96,11 +96,7 @@ function GroupSimpleForm(props) {
   )
 
   return (
-    <Form
-      {...props}
-      form={form}
-      onValuesChange={draftSave}
-      onFieldsChange={console.log}>
+    <Form {...props} form={form} onValuesChange={draftSave}>
       <Row noGutters>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Clinic')}</Text>
@@ -192,7 +188,7 @@ function GroupSimpleForm(props) {
                   type="date"
                   placeholder={t('Fourth day')}
                   onChange={(e) => onDateChange(e, 'startDay', -4)}
-                  min={moment().format('YYYY-MM-DD')}
+                  min={moment().add(4, 'days').format('YYYY-MM-DD')}
                 />
               </Form.Item>
             </Col>
