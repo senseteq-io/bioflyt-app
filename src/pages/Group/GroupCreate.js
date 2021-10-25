@@ -34,15 +34,6 @@ function GroupCreate() {
     setLoading(false)
   }
 
-  // useEffect(
-  //   () => () =>
-  //     saveDataWithStatus({
-  //       form,
-  //       status: 'DRAFT'
-  //     }),
-  //   []
-  // )
-
   return (
     <PageWrapper
       onBack={history.goBack}

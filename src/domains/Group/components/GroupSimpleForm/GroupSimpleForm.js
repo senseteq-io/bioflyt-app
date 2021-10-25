@@ -1,19 +1,20 @@
-import { useClinicContext } from 'app/domains/Clinic/contexts'
-import { GROUPS } from 'bioflow/constants/collections'
-import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
-import React, { useState } from 'react'
-import firebase from 'firebase'
-import moment from 'moment'
-import { useHistory } from 'react-router-dom'
+import React, { useCallback, useMemo, useState, memo } from 'react'
+import { useHistory, useParams } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
+import moment from 'moment'
+import firebase from 'firebase'
 import { Form } from 'antd'
 import { Button, Col, Input, Remove, Row, Text } from '@qonsoll/react-design'
-import { DisorderSelect } from 'app/domains/Disorder/components'
-import { ClinicSelect } from 'bioflow/domains/Clinic/components'
+import { useSaveData } from 'app/hooks'
+import { useClinicContext } from 'app/domains/Clinic/contexts'
 import { TherapistAddForm } from 'bioflow/domains/Therapist/components'
 import { PatientAddForm } from 'bioflow/domains/Patient/components'
+import { DisorderSelect } from 'app/domains/Disorder/components'
+import { ClinicSelect } from 'bioflow/domains/Clinic/components'
 import { StudySelect } from 'bioflow/domains/Study/components'
+import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { GROUPS } from 'bioflow/constants/collections'
 
 function GroupSimpleForm(props) {
   const { loading, submitText } = props
@@ -22,16 +23,18 @@ function GroupSimpleForm(props) {
   const [groupForm] = Form.useForm()
   const history = useHistory()
   const { t } = useTranslations()
-  // const { id } = useParams()
+  const { id } = useParams()
   const { _id: clinicId, bioflowAccess } = useClinicContext()
-  // const { save, update } = useSaveData()
+  const { save, update } = useSaveData()
 
   // [COMPONENT_STATE_HOOKS]
   const [selectedClinic, setSelectedClinic] = useState(
     props?.initialValues?.clinicId || (bioflowAccess && clinicId)
   )
-  // const [groupId, setGroupId] = useState()
-  const form = props.form || groupForm
+  const [groupId, setGroupId] = useState(id)
+
+  // [COMPUTED_PROPERTIES]
+  const form = useMemo(() => props.form || groupForm, [groupForm, props.form])
 
   // [CLEAN_FUNCTIONS]
   const onDateChange = (e, field, amount) => {
@@ -39,10 +42,65 @@ function GroupSimpleForm(props) {
     form.setFieldsValue({
       [field]: moment(value).add(amount, 'day').format('yyyy-MM-DD')
     })
+    form.validateFields([field])
   }
 
+  const resetClinic = (value) => {
+    const resetedFields = { therapists: [], disorderId: null }
+    form.setFieldsValue(resetedFields)
+    if (groupId || id) {
+      update({
+        collection: GROUPS,
+        id: groupId || id,
+        data: resetedFields,
+        withNotification: true
+      })
+    }
+    setSelectedClinic(value)
+  }
+
+  const draftSave = useCallback(
+    async (value, data) => {
+      const saveData = async () => {
+        if (!groupId) {
+          const docId = await save({
+            collection: GROUPS,
+            data: {
+              ...value,
+              weekNumber: moment(data.startDay).week(),
+              status: 'DRAFT'
+            }
+          })
+          return setGroupId(docId)
+        }
+        await update({
+          collection: GROUPS,
+          id: groupId || id,
+          data: value
+        })
+      }
+
+      try {
+        await form.validateFields(Object.keys(value))
+        saveData()
+      } catch (error) {
+        console.log(error)
+        const { errorFields } = error
+        if (!errorFields.length) {
+          saveData()
+        }
+      }
+    },
+
+    [groupId]
+  )
+
   return (
-    <Form {...props} form={form} onFieldsChange={console.log}>
+    <Form
+      {...props}
+      form={form}
+      onValuesChange={draftSave}
+      onFieldsChange={console.log}>
       <Row noGutters>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Clinic')}</Text>
@@ -56,10 +114,7 @@ function GroupSimpleForm(props) {
                 .collection(CLINICS_MODEL_NAME)
                 .where('bioflowAccess', '==', true)}
               placeholder={t('Select clinic')}
-              onChange={(value) => {
-                form.setFieldsValue({ therapists: [] })
-                setSelectedClinic(value)
-              }}
+              onChange={resetClinic}
             />
           </Form.Item>
         </Col>
@@ -95,12 +150,21 @@ function GroupSimpleForm(props) {
                   {
                     require: true,
                     message: t('Enter start day, please')
+                  },
+                  {
+                    validator: (_, value) =>
+                      ['Mon', 'Thu', 'Fri'].includes(
+                        moment(value).format('ddd')
+                      )
+                        ? Promise.resolve()
+                        : Promise.reject(new Error(t('Select correct day')))
                   }
                 ]}>
                 <Input
                   type="date"
                   placeholder={t('Start day')}
                   onChange={(e) => onDateChange(e, 'fourthDay', 4)}
+                  min={moment().format('YYYY-MM-DD')}
                 />
               </Form.Item>
             </Col>
@@ -114,12 +178,21 @@ function GroupSimpleForm(props) {
                   {
                     require: true,
                     message: t('Enter fourth day, please')
+                  },
+                  {
+                    validator: (_, value) =>
+                      ['Sun', 'Sat', 'Thu', 'Wed'].includes(
+                        moment(value).format('ddd')
+                      )
+                        ? Promise.reject(new Error(t('Select correct day')))
+                        : Promise.resolve()
                   }
                 ]}>
                 <Input
                   type="date"
                   placeholder={t('Fourth day')}
                   onChange={(e) => onDateChange(e, 'startDay', -4)}
+                  min={moment().format('YYYY-MM-DD')}
                 />
               </Form.Item>
             </Col>
@@ -185,4 +258,4 @@ function GroupSimpleForm(props) {
 
 GroupSimpleForm.propTypes = {}
 
-export default GroupSimpleForm
+export default memo(GroupSimpleForm)

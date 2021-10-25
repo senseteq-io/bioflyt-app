@@ -5,7 +5,7 @@ import moment from 'moment'
 import firebase from 'firebase'
 import { useTranslations } from '@qonsoll/translation'
 import { useHistory, useParams } from 'react-router-dom'
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
+import { useDocumentData } from 'react-firebase-hooks/firestore'
 import { Form } from 'antd'
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
 import { GroupSimpleForm } from 'bioflow/domains/Group/components'
@@ -20,7 +20,7 @@ function GroupEdit() {
   const [form] = Form.useForm()
 
   // [DATA_FETCH]
-  const [groupData] = useDocumentDataOnce(
+  const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS).doc(id)
   )
 
@@ -46,14 +46,6 @@ function GroupEdit() {
     setLoading(false)
   }
 
-  // useEffect(
-  //   () => () => {
-  //     groupData?.status === 'DRAFT' &&
-  //       updateDataWithStatus({ form, status: 'DRAFT' })
-  //   },
-  //   [groupData]
-  // )
-
   return (
     <PageWrapper
       onBack={history.goBack}
@@ -69,7 +61,13 @@ function GroupEdit() {
             <GroupSimpleForm
               initialValues={initialValues}
               form={form}
-              submitText={t('Save')}
+              submitText={
+                !(
+                  groupData?.clinicId &&
+                  groupData?.therapists?.length &&
+                  groupData?.patients?.length
+                ) && t('Save')
+              }
               onFinish={onFinish}
               loading={loading}
             />
