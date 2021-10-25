@@ -11,6 +11,8 @@ import {
   Remove
 } from '@qonsoll/react-design'
 import { notification, Tooltip, Spin } from 'antd'
+import { UserCard } from 'app/domains/User/components'
+import { DeleteUserHelper } from 'helpers'
 import { MailOutlined, TeamOutlined } from '@ant-design/icons'
 import { useTranslations } from '@qonsoll/translation'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
@@ -20,12 +22,9 @@ import {
   useNotification,
   usePushNotification
 } from 'app/domains/Notification/hooks'
-import { DeleteUserHelper } from 'helpers'
-import { UserCard } from 'app/domains/User/components'
 import { FOI_ADMIN_APP } from 'app/constants/applications'
 import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
 import { USERS_MODEL_NAME } from 'app/constants/models'
-
 import firebase from 'firebase'
 
 function TherapistSimpleView(props) {
@@ -35,8 +34,7 @@ function TherapistSimpleView(props) {
     email,
     groups,
     avatarUrl,
-    _id: initializedUserId,
-    onRemove
+    _id: initializedUserId
   } = props
 
   // [ADDITIONAL HOOKS]
@@ -90,26 +88,18 @@ function TherapistSimpleView(props) {
       }
     })
 
-    DeleteUserHelper(requestDetails, toastConfiguration).then(
-      (responseData) => {
-        console.log('===>>', responseData)
-        // stopping the spinner after response get-back
-        UIDispatch({
-          type: 'UPDATE_DATA',
-          data: {
-            userIdToDeletionRequestProcessing: {
-              ...userIdToDeletionRequestProcessing,
-              [initializedUserId]: false
-            }
+    DeleteUserHelper(requestDetails, toastConfiguration).then(() => {
+      // stopping the spinner after response get-back
+      UIDispatch({
+        type: 'UPDATE_DATA',
+        data: {
+          userIdToDeletionRequestProcessing: {
+            ...userIdToDeletionRequestProcessing,
+            [initializedUserId]: false
           }
-        })
-
-        if (responseData && responseData.statusCode === 200) {
-          // calling of parent component callback
-          onRemove?.()
         }
-      }
-    )
+      })
+    })
 
     createNotification({
       data: {
@@ -173,44 +163,43 @@ function TherapistSimpleView(props) {
       )}
     </Menu>
   )
+  const actions = (
+    <Fragment>
+      <Box mb={2}>
+        <Tooltip title={t('Therapist groups')}>
+          <Dropdown overlay={groupList} placement="bottomRight" arrow>
+            <Button variant="white" icon={<TeamOutlined />} />
+          </Dropdown>
+        </Tooltip>
+      </Box>
+      <Box mb={2}>
+        <Tooltip title={email}>
+          <Button
+            variant="white"
+            icon={<MailOutlined />}
+            href={`mailto:${email}`}
+          />
+        </Tooltip>
+      </Box>
+      <Box>
+        <Tooltip title={t('Remove user completely')}>
+          <Remove
+            popconfirmPlacement="bottomRight"
+            type="primary"
+            onSubmit={handleRemove}
+            icon
+            confirmLabel={t('Yes, remove')}
+            cancelLabel={t('No, keep')}
+            itemName={displayName}
+          />
+        </Tooltip>
+      </Box>
+    </Fragment>
+  )
 
   return (
     <Spin size="large" spinning={Boolean(isSpinningActive)}>
-      <UserCard
-        avatarUrl={avatarUrl}
-        actions={
-          <Fragment>
-            <Box mb={2}>
-              <Tooltip title={t('Therapist groups')}>
-                <Dropdown overlay={groupList} placement="bottomRight" arrow>
-                  <Button variant="white" icon={<TeamOutlined />} />
-                </Dropdown>
-              </Tooltip>
-            </Box>
-            <Box mb={2}>
-              <Tooltip title={email}>
-                <Button
-                  variant="white"
-                  icon={<MailOutlined />}
-                  href={`mailto:${email}`}
-                />
-              </Tooltip>
-            </Box>
-            <Box>
-              <Tooltip title={t('Remove user completely')}>
-                <Remove
-                  popconfirmPlacement="bottomRight"
-                  type="primary"
-                  onSubmit={handleRemove}
-                  icon
-                  confirmLabel={t('Yes, remove')}
-                  cancelLabel={t('No, keep')}
-                  itemName={displayName}
-                />
-              </Tooltip>
-            </Box>
-          </Fragment>
-        }>
+      <UserCard avatarUrl={avatarUrl} actions={actions}>
         <Title
           mb={2}
           level={4}
