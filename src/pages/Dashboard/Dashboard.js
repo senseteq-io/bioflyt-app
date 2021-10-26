@@ -1,4 +1,4 @@
-import React, { useMemo, Fragment } from 'react'
+import React, { useMemo } from 'react'
 import { PageWrapper } from '@qonsoll/react-design'
 import { Tabs } from 'antd'
 import {
@@ -9,58 +9,36 @@ import {
   matchPath
 } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
-import { AdminGroupRoutes, TherapistGroupRoutes } from '../Group'
+import { AdminGroupRoutes } from '../Group'
 import { AdminActivityRoutes } from '../Activity'
 import { AdminSettingRoutes } from '../Settings'
 import { AdminStudyRoutes } from '../Study'
 import { AdminTherapistsRoutes } from '../Therapist'
-import { TherapistPatientsRoutes } from '../Patient'
-import { TherapistNotificationRoutes } from '../Notification'
 import {
   BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH,
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_SETTINGS_PATH,
-  BIOFLOW_ADMIN_PATH,
-  BIOFLOW_PATH,
-  BIOFLOW_GROUPS_PATH,
-  BIOFLOW_PATIENTS_PATH,
-  BIOFLOW_NOTIFICATIONS_PATH
+  BIOFLOW_ADMIN_PATH
 } from 'bioflow/constants/paths'
 
-const adminRoutesWithTabs = [
+const routesWithTabs = [
   ...AdminGroupRoutes.filter(({ name }) => name === 'GroupsAll'),
   ...AdminActivityRoutes,
   ...AdminSettingRoutes
 ]
-const adminRoutesWithoutTabs = [
+const routesWithoutTabs = [
   ...AdminGroupRoutes.filter(({ name }) => name !== 'GroupsAll'),
   ...AdminStudyRoutes.filter(({ name }) => name !== 'StudiesAll'),
   ...AdminTherapistsRoutes.filter(({ name }) => name !== 'TherapistsAll')
 ]
 
-const therapistRoutesWithTabs = [
-  ...TherapistGroupRoutes.filter(({ name }) => name === 'GroupsAll'),
-  ...TherapistPatientsRoutes,
-  ...TherapistNotificationRoutes
-]
-const therapistRoutesWithoutTabs = TherapistGroupRoutes.filter(
-  ({ name }) => name !== 'GroupsAll'
-)
-
-function Dashboard(props) {
-  const { isAdmin } = props
+function Dashboard() {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const location = useLocation()
   const { t } = useTranslations()
 
   // [COMPUTED PROPERTIES]
-  const routesWithTabs = isAdmin ? adminRoutesWithTabs : therapistRoutesWithTabs
-
-  const routesWithoutTabs = isAdmin
-    ? adminRoutesWithoutTabs
-    : therapistRoutesWithoutTabs
-
   const activeRoute = useMemo(
     () =>
       routesWithTabs.filter((route) =>
@@ -76,17 +54,9 @@ function Dashboard(props) {
     [location.pathname]
   )
 
-  const computedTitle = useMemo(
-    () => (isAdmin ? `${t('Bioflow')}(${t('Admin')})` : t('Bioflow')),
-    [isAdmin]
-  )
-  const computedGroupsPath = useMemo(
-    () => (isAdmin ? BIOFLOW_ADMIN_GROUPS_PATH : BIOFLOW_GROUPS_PATH),
-    [isAdmin]
-  )
   const computedRedirectRule = useMemo(
-    () => location.pathname === (isAdmin ? BIOFLOW_ADMIN_PATH : BIOFLOW_PATH),
-    [isAdmin, location.pathname]
+    () => location.pathname === BIOFLOW_ADMIN_PATH,
+    [location.pathname]
   )
 
   // [CLEAN FUNCTIONS]
@@ -99,7 +69,7 @@ function Dashboard(props) {
     <PageWrapper
       onBack={goBack}
       headingProps={{
-        title: computedTitle,
+        title: `${t('Bioflow')}(${t('Admin')})`,
         titleSize: 2,
         textAlign: 'left',
         marginBottom: '0px'
@@ -108,36 +78,21 @@ function Dashboard(props) {
       <Tabs
         size="large"
         activeKey={activeRoute}
-        defaultActiveKey={computedGroupsPath}
+        defaultActiveKey={BIOFLOW_ADMIN_GROUPS_PATH}
         onChange={onChange}>
-        <Tabs.TabPane tab={t('Groups')} key={computedGroupsPath} />
-        {isAdmin ? (
-          <Fragment>
-            <Tabs.TabPane
-              tab={t('Activities')}
-              key={BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH}
-            />
-
-            <Tabs.TabPane
-              tab={t('Settings')}
-              key={BIOFLOW_ADMIN_SETTINGS_PATH}
-            />
-          </Fragment>
-        ) : (
-          <Fragment>
-            <Tabs.TabPane tab={t('Patients')} key={BIOFLOW_PATIENTS_PATH} />
-            <Tabs.TabPane
-              tab={t('Notifications')}
-              key={BIOFLOW_NOTIFICATIONS_PATH}
-            />
-          </Fragment>
-        )}
+        <Tabs.TabPane tab={t('Groups')} key={BIOFLOW_ADMIN_GROUPS_PATH} />
+        <Tabs.TabPane
+          tab={t('Activities')}
+          key={BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH}
+        />
+        <Tabs.TabPane tab={t('Settings')} key={BIOFLOW_ADMIN_SETTINGS_PATH} />
       </Tabs>
+
       {routesWithTabs.map(({ path, exact, component }) => (
         <Route key={path} path={path} exact={exact} component={component} />
       ))}
 
-      {computedRedirectRule && <Redirect to={computedGroupsPath} />}
+      {computedRedirectRule && <Redirect to={BIOFLOW_ADMIN_GROUPS_PATH} />}
     </PageWrapper>
   ) : (
     <>

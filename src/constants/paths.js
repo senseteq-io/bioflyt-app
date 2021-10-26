@@ -27,7 +27,6 @@ export const BIOFLOW_ADMIN_STUDY_CREATE_PATH =
 export const BIOFLOW_ADMIN_NOTIFICATIONS_PATH =
   '/bioflow/admin/settings/notifications'
 
-export const BIOFLOW_PATH = '/bioflow'
 export const BIOFLOW_GROUPS_PATH = '/bioflow/groups'
 export const BIOFLOW_GROUP_SHOW_PATH = '/bioflow/groups/:id'
 export const BIOFLOW_GROUP_EDIT_PATH = '/bioflow/groups/:id/edit'
@@ -55,7 +54,6 @@ export default {
   BIOFLOW_ADMIN_STUDIES_PATH,
   BIOFLOW_ADMIN_STUDY_CREATE_PATH,
   BIOFLOW_ADMIN_NOTIFICATIONS_PATH,
-  BIOFLOW_PATH,
   BIOFLOW_GROUP_SHOW_PATH,
   BIOFLOW_GROUPS_PATH,
   BIOFLOW_PATIENTS_PATH,
