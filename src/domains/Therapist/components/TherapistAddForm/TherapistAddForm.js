@@ -1,5 +1,6 @@
 import { Modal, List, Form } from 'antd'
 import { USERS_MODEL_NAME } from 'app/constants/models'
+import { BIOFLOW_THERAPIST_ROLE } from 'app/constants/userRoles'
 import {
   TherapistForm,
   TherapistAddFormListItem
@@ -27,15 +28,18 @@ function TherapistAddForm(props) {
       firebase
         .firestore()
         .collection(USERS_MODEL_NAME)
-        .where('role', '==', 'THERAPIST')
-        .where('clinicId', '==', clinicId)
+        .where('role', '==', BIOFLOW_THERAPIST_ROLE)
+        .where(`clinics.${clinicId}`, '==', true)
   )
 
   // [CLEAN_FUNCTIONS]
   const showModal = () => setIsModalVisible(true)
   const hideModal = () => setIsModalVisible(false)
   const onFinish = (data) => {
-    onChange?.(value ? [...value, data] : [data])
+    const { therapistId, role } = data
+    onChange?.(
+      value ? { ...value, [therapistId]: role } : { [therapistId]: role }
+    )
     hideModal()
   }
 
@@ -70,11 +74,11 @@ function TherapistAddForm(props) {
       <Col cw={12}>
         <List
           itemLayout="horizontal"
-          dataSource={value}
-          renderItem={({ therapistId, role }) => (
+          dataSource={value && Object.keys(value)}
+          renderItem={(therapistId) => (
             <TherapistAddFormListItem
-              therapist={therapists?.find(({ _id }) => _id === therapistId)}
-              role={role}
+              therapists={therapists}
+              role={value[therapistId]}
               value={value}
               therapistId={therapistId}
               onChange={onChange}

@@ -10,7 +10,7 @@ function StudySelect({ placeholder, ...args }) {
   // [ADDITIONAL HOOKS
   const { t } = useTranslations()
   // [DATA FETCH]
-  const [list = []] = useCollectionData(
+  const [list = [], loading] = useCollectionData(
     firebase.firestore().collection(STUDIES)
   )
 
@@ -26,7 +26,7 @@ function StudySelect({ placeholder, ...args }) {
   }, [list])
 
   return (
-    <Select {...args} placeholder={placeholder || t('Study')}>
+    <Select {...args} placeholder={placeholder || t('Study')} loading={loading}>
       {sortedList.map(({ name, _id }) => (
         <Select.Option key={_id} value={_id}>
           {name}

@@ -1,3 +1,5 @@
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { useUserContext } from 'app/domains/User/contexts'
 import { FUTURE_STATUS, ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
 import { useSaveGroup } from 'bioflow/hooks'
 import React, { useMemo, useState } from 'react'
@@ -17,6 +19,7 @@ function GroupEdit() {
   const { t } = useTranslations()
   const { id } = useParams()
   const { updateDataWithStatus } = useSaveGroup()
+  const { clinics } = useUserContext()
   const [form] = Form.useForm()
 
   // [DATA_FETCH]
@@ -37,7 +40,7 @@ function GroupEdit() {
     () =>
       !(
         groupData?.clinicId &&
-        groupData?.therapists?.length &&
+        Object.keys(groupData?.therapists)?.length &&
         groupData?.patients?.length
       ) && t('Save'),
     []
@@ -77,6 +80,13 @@ function GroupEdit() {
               onFinish={onFinish}
               loading={loading}
               id={id}
+              clinicQuery={
+                Object.keys(clinics).length &&
+                firebase
+                  .firestore()
+                  .collection(CLINICS_MODEL_NAME)
+                  .where('_id', 'in', Object.keys(clinics))
+              }
             />
           )}
         </Col>

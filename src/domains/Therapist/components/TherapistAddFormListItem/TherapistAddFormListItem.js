@@ -1,24 +1,35 @@
-import { Card, Col, Remove, Row, Text } from '@qonsoll/react-design'
-import { List, Select } from 'antd'
-import { useTranslations } from '@qonsoll/translation'
-import therapistRoles from 'bioflow/constants/therapistRoles'
+import React, { memo, useMemo } from 'react'
+import PropTypes from 'prop-types'
 import _ from 'lodash'
-import React from 'react'
+import { useTranslations } from '@qonsoll/translation'
+import { List, Select } from 'antd'
+import { Card, Col, Remove, Row, Text } from '@qonsoll/react-design'
+import { useUserContext } from 'app/domains/User/contexts'
+import therapistRoles from 'bioflow/constants/therapistRoles'
 
 const TherapistAddFormListItem = (props) => {
-  const { therapist, therapistId, value, role, onChange } = props
+  const { therapists, therapistId, value, role, onChange } = props
 
   // [ADDITIONAL_HOOKS]
+  const { _id } = useUserContext()
   const { t } = useTranslations()
 
   // [CLEAN_FUNCTIONS]
   const changeRole = (newRole) => {
-    const index = value.findIndex(({ therapistId: id }) => id === therapistId)
-    value[index].role = newRole
-    onChange?.(value)
+    const newValue = { ...value }
+    newValue[therapistId] = newRole
+    onChange?.(newValue)
   }
-  const removeTherapist = () =>
-    onChange(value.filter(({ therapistId: id }) => id !== therapistId))
+  const removeTherapist = () => {
+    const newValue = { ...value }
+    delete newValue[therapistId]
+    onChange(newValue)
+  }
+
+  const therapist = useMemo(
+    () => therapists?.find(({ _id }) => _id === therapistId),
+    [therapistId]
+  )
 
   return (
     <List.Item>
@@ -35,7 +46,9 @@ const TherapistAddFormListItem = (props) => {
             </Text>
           </Col>
           <Col mb={2} h="right">
-            <Remove icon onSubmit={removeTherapist} type="text" />
+            {therapistId !== _id && (
+              <Remove icon onSubmit={removeTherapist} type="text" />
+            )}
           </Col>
           <Col cw={12} h="right">
             <Select
@@ -55,6 +68,12 @@ const TherapistAddFormListItem = (props) => {
   )
 }
 
-TherapistAddFormListItem.propTypes = {}
+TherapistAddFormListItem.propTypes = {
+  therapist: PropTypes.array,
+  therapistId: PropTypes.string,
+  value: PropTypes.object,
+  role: PropTypes.string,
+  onChange: PropTypes.func
+}
 
-export default TherapistAddFormListItem
+export default memo(TherapistAddFormListItem)

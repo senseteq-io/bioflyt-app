@@ -4,7 +4,11 @@ import { useTranslations } from '@qonsoll/translation'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useSaveData } from 'app/hooks'
 import { GROUPS, ACTIVITIES } from 'bioflow/constants/collections'
-import { DRAFT_STATUS, FUTURE_STATUS } from 'bioflow/constants/groupStatuses'
+import {
+  DRAFT_STATUS,
+  FUTURE_STATUS,
+  ONGOING_STATUS
+} from 'bioflow/constants/groupStatuses'
 import firebase from 'firebase'
 import _ from 'lodash'
 import moment from 'moment'
@@ -50,7 +54,11 @@ const useSaveGroup = () => {
   const updateDataWithStatus = async ({ form, data: formData, status }) => {
     const data = formData || form.getFieldsValue()
 
-    if (data.clinicId && data.therapists?.length && data.patients?.length) {
+    if (
+      data.clinicId &&
+      Object.keys(data.therapists)?.length &&
+      data.patients?.length
+    ) {
       try {
         const weekNumber = moment(data.startDay).week()
         for (const { initial } of data.patients) {
@@ -111,7 +119,11 @@ const useSaveGroup = () => {
   }) => {
     const data = formData || form.getFieldsValue()
 
-    if (data.clinicId && data.therapists?.length && data.patients?.length) {
+    if (
+      data.clinicId &&
+      Object.keys(data.therapists)?.length &&
+      data.patients?.length
+    ) {
       try {
         const weekNumber = moment(data.startDay).week()
         for (const { initial } of data.patients) {
@@ -141,7 +153,8 @@ const useSaveGroup = () => {
 
         const messages = {
           [DRAFT_STATUS]: 'Group was saved as a draft by',
-          [FUTURE_STATUS]: 'Group was created by'
+          [ONGOING_STATUS]: 'Group was created by'
+          // [FUTURE_STATUS]: 'Group was finished by'
         }
         await save({
           collection: ACTIVITIES,

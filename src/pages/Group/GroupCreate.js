@@ -1,7 +1,11 @@
 import { Form } from 'antd'
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { useUserContext } from 'app/domains/User/contexts'
 import { ONGOING_STATUS, FUTURE_STATUS } from 'bioflow/constants/groupStatuses'
+import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
+import firebase from 'firebase'
 import moment from 'moment'
-import { useSaveGroup } from 'bioflow/hooks'
+import { useBioflowAccess, useSaveGroup } from 'bioflow/hooks'
 import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
@@ -13,7 +17,10 @@ function GroupCreate() {
   const history = useHistory()
   const { t } = useTranslations()
   const [form] = Form.useForm()
+  const { clinics, _id: therapistId } = useUserContext()
+  const { isTherapist } = useBioflowAccess()
   const { saveDataWithStatus } = useSaveGroup()
+
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
 
@@ -45,7 +52,23 @@ function GroupCreate() {
       }}>
       <Row noGutters h="center">
         <Col cw={[12, 8, 8, 6]}>
-          <GroupSimpleForm loading={loading} onFinish={onFinish} form={form} />
+          <GroupSimpleForm
+            initialValues={
+              isTherapist && {
+                therapists: { [therapistId]: THERAPIST_ROLES.ADMIN }
+              }
+            }
+            loading={loading}
+            onFinish={onFinish}
+            form={form}
+            clinicQuery={
+              Object.keys(clinics).length &&
+              firebase
+                .firestore()
+                .collection(CLINICS_MODEL_NAME)
+                .where('_id', 'in', Object.keys(clinics))
+            }
+          />
         </Col>
       </Row>
     </PageWrapper>

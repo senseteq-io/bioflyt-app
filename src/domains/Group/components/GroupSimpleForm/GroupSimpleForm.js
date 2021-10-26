@@ -1,5 +1,5 @@
-import { ExclamationCircleOutlined } from '@ant-design/icons'
-import React, { useCallback, useMemo, useState, memo } from 'react'
+import React, { useMemo, useState, memo } from 'react'
+import PropTypes from 'prop-types'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import moment from 'moment'
@@ -15,6 +15,7 @@ import {
   Icon,
   Box
 } from '@qonsoll/react-design'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { useSaveData } from 'app/hooks'
 import { useClinicContext } from 'app/domains/Clinic/contexts'
 import { TherapistAddForm } from 'bioflow/domains/Therapist/components'
@@ -23,7 +24,7 @@ import { DisorderSelect } from 'app/domains/Disorder/components'
 import { ClinicSelect } from 'bioflow/domains/Clinic/components'
 import { StudySelect } from 'bioflow/domains/Study/components'
 import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
-import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { CLINICS_MODEL_NAME, USERS_MODEL_NAME } from 'app/constants/models'
 import { GROUPS } from 'bioflow/constants/collections'
 
 const exclamationIconStyles = {
@@ -34,7 +35,15 @@ const exclamationIconStyles = {
 }
 
 function GroupSimpleForm(props) {
-  const { loading, submitText, id } = props
+  const {
+    loading,
+    submitText,
+    id,
+    clinicQuery = firebase
+      .firestore()
+      .collection(CLINICS_MODEL_NAME)
+      .where('bioflowAccess', '==', true)
+  } = props
 
   // [ADDITIONAL_HOOKS]
   const [groupForm] = Form.useForm()
@@ -55,14 +64,15 @@ function GroupSimpleForm(props) {
   // [CLEAN_FUNCTIONS]
   const onDateChange = (e, field, amount) => {
     const value = e.target.value
-    form.setFieldsValue({
-      [field]: moment(value).add(amount, 'day').format('yyyy-MM-DD')
-    })
+    value &&
+      form.setFieldsValue({
+        [field]: moment(value).add(amount, 'day').format('yyyy-MM-DD')
+      })
     form.validateFields([field]).then(async (value) => {
-      if (groupId || id) {
+      if (groupId && value) {
         await update({
           collection: GROUPS,
-          id: groupId || id,
+          id: groupId,
           data: {
             [Object.keys(value)[0]]: firebase.firestore.Timestamp.fromDate(
               new Date(value[Object.keys(value)[0]])
@@ -74,13 +84,36 @@ function GroupSimpleForm(props) {
     })
   }
 
-  const resetClinic = (value) => {
-    const resetedFields = { therapists: [], disorderId: null }
+  const resetClinic = async (value) => {
+    let therapists = form.getFieldValue('therapists')
+    const selectedTherapists = Object.keys(therapists)
+    const therapistsData = []
+
+    for (const therapistId of selectedTherapists) {
+      const snapshot = await firebase
+        .firestore()
+        .collection(USERS_MODEL_NAME)
+        .doc(therapistId)
+        .get()
+
+      const data = snapshot.data()
+      if (data?.clinics && Object.keys(data?.clinics).includes(value)) {
+        therapistsData.push(data._id)
+      }
+    }
+
+    selectedTherapists.forEach((therapistId) => {
+      if (!therapistsData.includes(therapistId)) {
+        delete therapists[therapistId]
+      }
+    })
+
+    const resetedFields = { therapists, disorderId: null }
     form.setFieldsValue(resetedFields)
-    if (groupId || id) {
+    if (groupId) {
       update({
         collection: GROUPS,
-        id: groupId || id,
+        id: groupId,
         data: resetedFields,
         withNotification: true
       })
@@ -88,45 +121,46 @@ function GroupSimpleForm(props) {
     setSelectedClinic(value)
   }
 
-  const draftSave = useCallback(
-    async (value, data) => {
-      if (['fourthDay', 'startDay'].includes(Object.keys(value)[0])) {
-        value[Object.keys(value)[0]] = firebase.firestore.Timestamp.fromDate(
-          new Date(value[Object.keys(value)[0]])
-        )
-      }
-      const saveData = async () => {
-        if (!groupId) {
-          const docId = await save({
-            collection: GROUPS,
-            data: {
-              ...value,
-              weekNumber: moment(data.startDay).week(),
-              status: 'DRAFT'
-            }
-          })
-          return setGroupId(docId)
-        }
-        await update({
+  const draftSave = async (value, data) => {
+    const changedFieldName = Object.keys(value)[0]
+    if (['fourthDay', 'startDay'].includes(changedFieldName)) {
+      value[changedFieldName] = firebase.firestore.Timestamp.fromDate(
+        new Date(value[changedFieldName])
+      )
+    }
+    const saveData = async () => {
+      if (!groupId) {
+        const therapists = form.getFieldValue('therapists')
+
+        const docId = await save({
           collection: GROUPS,
-          id: groupId || id,
-          data: value
+          data: {
+            ...value,
+            therapists,
+            clinicId: selectedClinic,
+            weekNumber: moment(data.startDay).week(),
+            status: 'DRAFT'
+          }
         })
+        return setGroupId(docId)
       }
+      await update({
+        collection: GROUPS,
+        id: groupId,
+        data: value
+      })
+    }
 
-      try {
-        await form.validateFields(Object.keys(value))
-        saveData()
-      } catch (formData) {
-        const { errorFields } = formData
-        if (!errorFields.length) {
-          saveData()
-        }
+    try {
+      await form.validateFields(Object.keys(value))
+      await saveData()
+    } catch (formData) {
+      const { errorFields } = formData
+      if (!errorFields.length) {
+        await saveData()
       }
-    },
-
-    [groupId]
-  )
+    }
+  }
 
   return (
     <Form {...props} form={form} onValuesChange={draftSave}>
@@ -138,10 +172,7 @@ function GroupSimpleForm(props) {
             initialValue={bioflowAccess && clinicId}
             rules={[{ required: true, message: t('Select clinic, please') }]}>
             <ClinicSelect
-              query={firebase
-                .firestore()
-                .collection(CLINICS_MODEL_NAME)
-                .where('bioflowAccess', '==', true)}
+              query={clinicQuery}
               placeholder={t('Select clinic')}
               onChange={resetClinic}
             />
@@ -293,6 +324,11 @@ function GroupSimpleForm(props) {
   )
 }
 
-GroupSimpleForm.propTypes = {}
+GroupSimpleForm.propTypes = {
+  clinicQuery: PropTypes.object,
+  loading: PropTypes.bool,
+  id: PropTypes.string, // need on edit routes
+  submitText: PropTypes.string
+}
 
 export default memo(GroupSimpleForm)
