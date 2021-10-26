@@ -173,7 +173,7 @@ function GroupSimpleForm(props) {
             <Col cw={[12, 12, 6]} mb={3}>
               <Box display="flex" alignItems="center" mb={2}>
                 <Text mr={2}>{t('Start day')}</Text>
-                <Tooltip title={t('Available days: Mon, Thu, Fri')}>
+                <Tooltip title={t('Available days: Mon, Tue, Fri')}>
                   <Icon
                     {...exclamationIconStyles}
                     component={<ExclamationCircleOutlined />}
@@ -190,7 +190,7 @@ function GroupSimpleForm(props) {
                   },
                   {
                     validator: (_, value) =>
-                      ['Mon', 'Thu', 'Fri'].includes(
+                      ['Mon', 'Tue', 'Fri'].includes(
                         moment(value).format('ddd')
                       )
                         ? Promise.resolve()
@@ -200,7 +200,7 @@ function GroupSimpleForm(props) {
                 <Input
                   type="date"
                   placeholder={t('Start day')}
-                  onChange={(e) => onDateChange(e, 'fourthDay', 4)}
+                  onChange={(e) => onDateChange(e, 'fourthDay', 3)}
                   min={moment().format('YYYY-MM-DD')}
                 />
               </Form.Item>
@@ -210,7 +210,7 @@ function GroupSimpleForm(props) {
               <Text mb={2}>{t('Fourth day')}</Text>
               <Form.Item
                 name="fourthDay"
-                initialValue={moment().add(4, 'day').format('yyyy-MM-DD')}
+                initialValue={moment().add(3, 'day').format('yyyy-MM-DD')}
                 rules={[
                   {
                     require: true,
@@ -218,7 +218,7 @@ function GroupSimpleForm(props) {
                   },
                   {
                     validator: (_, value) =>
-                      ['Sun', 'Sat', 'Thu', 'Wed'].includes(
+                      ['Sun', 'Sat', 'Wed', 'Tue'].includes(
                         moment(value).format('ddd')
                       )
                         ? Promise.reject(new Error(t('Select correct day')))
@@ -228,8 +228,8 @@ function GroupSimpleForm(props) {
                 <Input
                   type="date"
                   placeholder={t('Fourth day')}
-                  onChange={(e) => onDateChange(e, 'startDay', -4)}
-                  min={moment().add(4, 'days').format('YYYY-MM-DD')}
+                  onChange={(e) => onDateChange(e, 'startDay', -3)}
+                  min={moment().add(3, 'days').format('YYYY-MM-DD')}
                 />
               </Form.Item>
             </Col>
