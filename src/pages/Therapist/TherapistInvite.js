@@ -6,7 +6,6 @@ import { useTranslations } from '@qonsoll/translation'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import firebase from 'firebase'
 import { STUDIES } from 'bioflow/constants/collections'
-import { useClinicContext } from 'app/domains/Clinic/contexts'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useSaveData } from 'app/hooks'
 import {
