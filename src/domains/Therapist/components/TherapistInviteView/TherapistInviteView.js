@@ -1,24 +1,21 @@
 import React, { Fragment } from 'react'
-import { Box } from '@qonsoll/react-design'
-import { Remove, Title, Button } from '@qonsoll/react-design'
-import { MailOutlined } from '@ant-design/icons'
-import { Tooltip, Spin } from 'antd'
-import { withTheme } from 'styled-components'
-import { useTranslations } from 'app/contexts'
+import { Tooltip, Spin, notification } from 'antd'
+import { Remove, Title, Button, Box } from '@qonsoll/react-design'
+import { UserCard } from 'app/domains/User/components'
 import { DeleteUserHelper } from 'helpers'
+import { MailOutlined } from '@ant-design/icons'
+import { useTranslations } from 'app/contexts'
 import { useUI } from 'app/domains/UI/contexts'
-import firebase from 'firebase'
-import { USERS_MODEL_NAME } from 'app/constants/models'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
-import { notification } from 'antd'
-import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
+import { useUserContext } from 'app/domains/User/contexts'
 import {
   useNotification,
   usePushNotification
 } from 'app/domains/Notification/hooks'
 import { FOI_ADMIN_APP } from 'app/constants/applications'
-import { useUserContext } from 'app/domains/User/contexts'
-import { UserCard } from 'app/domains/User/components'
+import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
+import { USERS_MODEL_NAME } from 'app/constants/models'
+import firebase from 'firebase'
 
 function TherapistInviteView(props) {
   const {
@@ -26,7 +23,6 @@ function TherapistInviteView(props) {
     receiverEmail,
     initializedUserId,
     avatarUrl,
-    onRemove,
     _id
   } = props
 
@@ -80,26 +76,18 @@ function TherapistInviteView(props) {
       }
     })
 
-    DeleteUserHelper(requestDetails, toastConfiguration).then(
-      (responseData) => {
-        console.log('===>>', responseData)
-        // stopping the spinner after response get-back
-        UIDispatch({
-          type: 'UPDATE_DATA',
-          data: {
-            userIdToDeletionRequestProcessing: {
-              ...userIdToDeletionRequestProcessing,
-              [initializedUserId]: false
-            }
+    DeleteUserHelper(requestDetails, toastConfiguration).then(() => {
+      // stopping the spinner after response get-back
+      UIDispatch({
+        type: 'UPDATE_DATA',
+        data: {
+          userIdToDeletionRequestProcessing: {
+            ...userIdToDeletionRequestProcessing,
+            [initializedUserId]: false
           }
-        })
-
-        if (responseData && responseData.statusCode === 200) {
-          // calling of parent component callback
-          onRemove && onRemove()
         }
-      }
-    )
+      })
+    })
 
     createNotification({
       data: {
@@ -146,35 +134,36 @@ function TherapistInviteView(props) {
     })
   }
 
+  const actions = (
+    <Fragment>
+      <Box mb={2}>
+        <Tooltip title={receiverEmail}>
+          <Button
+            variant="white"
+            icon={<MailOutlined />}
+            href={`mailto:${receiverEmail}`}
+          />
+        </Tooltip>
+      </Box>
+      <Box>
+        <Tooltip title={t('Remove invitation record')}>
+          <Remove
+            popconfirmPlacement="bottomRight"
+            type="primary"
+            onSubmit={handleRemove}
+            icon
+            confirmLabel={t('Yes, remove')}
+            cancelLabel={t('No, keep')}
+            itemName={receiverName}
+          />
+        </Tooltip>
+      </Box>
+    </Fragment>
+  )
+
   return (
     <Spin size="large" spinning={Boolean(isSpinningActive)}>
-      <UserCard
-        actions={
-          <Fragment>
-            <Box mb={2}>
-              <Tooltip title={receiverEmail}>
-                <Button
-                  variant="white"
-                  icon={<MailOutlined />}
-                  href={`mailto:${receiverEmail}`}
-                />
-              </Tooltip>
-            </Box>
-            <Box>
-              <Tooltip title={t('Remove invitation record')}>
-                <Remove
-                  popconfirmPlacement="bottomRight"
-                  type="primary"
-                  onSubmit={handleRemove}
-                  icon
-                  confirmLabel={t('Yes, remove')}
-                  cancelLabel={t('No, keep')}
-                  itemName={receiverName}
-                />
-              </Tooltip>
-            </Box>
-          </Fragment>
-        }>
+      <UserCard actions={actions}>
         <Title
           level={4}
           color="white"
@@ -188,4 +177,4 @@ function TherapistInviteView(props) {
 
 TherapistInviteView.propTypes = {}
 
-export default withTheme(TherapistInviteView)
+export default TherapistInviteView

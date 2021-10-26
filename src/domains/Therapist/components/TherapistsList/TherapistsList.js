@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { useHistory } from 'react-router'
 import { useTranslations } from '@qonsoll/translation'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
@@ -11,6 +11,16 @@ import { BIOFLOW_THERAPIST_INVITATION_TYPE } from 'app/constants/invitationTypes
 import firebase from 'firebase'
 import { Box, Divider, Title } from '@qonsoll/react-design'
 import TherapistInviteView from '../TherapistInviteView'
+
+const LIST_GRID = {
+  gutter: [32, 16],
+  xs: 1,
+  sm: 1,
+  md: 1,
+  lg: 2,
+  xl: 4,
+  xxl: 4
+}
 
 function TherapistsList(props) {
   // [ADDITIONAL HOOKS]
@@ -41,22 +51,14 @@ function TherapistsList(props) {
   }
 
   return (
-    <>
+    <Fragment>
       {invitations && !!invitations.length && (
         <Box>
           <Box mb={24}>
             <Title level={4}>{t('Invitations')}</Title>
           </Box>
           <ListWithCreate
-            grid={{
-              gutter: [32, 16],
-              xs: 1,
-              sm: 1,
-              md: 1,
-              lg: 2,
-              xl: 4,
-              xxl: 4
-            }}
+            grid={LIST_GRID}
             dataSource={invitations}
             withCreate={false}>
             <TherapistInviteView />
@@ -66,15 +68,7 @@ function TherapistsList(props) {
       )}
 
       <ListWithCreate
-        grid={{
-          gutter: [32, 16],
-          xs: 1,
-          sm: 1,
-          md: 1,
-          lg: 2,
-          xl: 4,
-          xxl: 4
-        }}
+        grid={LIST_GRID}
         createHeight={340}
         dataSource={therapists}
         createVariant="large"
@@ -82,7 +76,7 @@ function TherapistsList(props) {
         onCreate={goToInviteTherapist}>
         <TherapistSimpleView />
       </ListWithCreate>
-    </>
+    </Fragment>
   )
 }
 
