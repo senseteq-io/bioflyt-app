@@ -1,36 +1,29 @@
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { useTranslations } from '@qonsoll/translation'
 import { Modal, List, Form } from 'antd'
-import { USERS_MODEL_NAME } from 'app/constants/models'
-import { BIOFLOW_THERAPIST_ROLE } from 'app/constants/userRoles'
+import { Button, Col, Row, Title } from '@qonsoll/react-design'
+import { useAvailableTherapists } from 'bioflow/hooks'
 import {
   TherapistForm,
   TherapistAddFormListItem
 } from 'bioflow/domains/Therapist/components'
-import firebase from 'firebase'
-import React, { useState } from 'react'
-import { useTranslations } from '@qonsoll/translation'
-import { Button, Col, Row, Title } from '@qonsoll/react-design'
 import { PlusOutlined } from '@ant-design/icons'
-import { useCollectionDataOnce } from 'react-firebase-hooks/firestore'
 
 function TherapistAddForm(props) {
-  const { clinicId, onChange, value, disabled } = props
+  const { clinicId, studyId, onChange, value, disabled } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
   const [form] = Form.useForm()
+  const [therapists, loading] = useAvailableTherapists(
+    clinicId,
+    studyId,
+    disabled
+  )
 
   // [COMPONENT_STATE_HOOKS]
   const [isModalVisible, setIsModalVisible] = useState(false)
-
-  // [DATA_FETCH]
-  const [therapists, loading] = useCollectionDataOnce(
-    !disabled &&
-      firebase
-        .firestore()
-        .collection(USERS_MODEL_NAME)
-        .where('role', '==', BIOFLOW_THERAPIST_ROLE)
-        .where(`clinics.${clinicId}`, '==', true)
-  )
 
   // [CLEAN_FUNCTIONS]
   const showModal = () => setIsModalVisible(true)
@@ -90,6 +83,9 @@ function TherapistAddForm(props) {
   )
 }
 
-TherapistAddForm.propTypes = {}
+TherapistAddForm.propTypes = {
+  clinicId: PropTypes.string.isRequired,
+  studyId: PropTypes.string.isRequired
+}
 
 export default TherapistAddForm

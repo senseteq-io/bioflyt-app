@@ -71,7 +71,7 @@ function GroupsList() {
       setFilteredList(buf)
     }
   }, [sortedList])
-  console.log(filteredList)
+
   return (
     <Fragment>
       <Box mb={4}>

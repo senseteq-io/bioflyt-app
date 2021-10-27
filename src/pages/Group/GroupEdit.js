@@ -1,3 +1,4 @@
+import { Form } from 'antd'
 import { CLINICS_MODEL_NAME } from 'app/constants/models'
 import { useUserContext } from 'app/domains/User/contexts'
 import { FUTURE_STATUS, ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
@@ -7,11 +8,17 @@ import moment from 'moment'
 import firebase from 'firebase'
 import { useTranslations } from '@qonsoll/translation'
 import { useHistory, useParams } from 'react-router-dom'
-import { useDocumentData } from 'react-firebase-hooks/firestore'
-import { Form } from 'antd'
+import {
+  useDocumentData,
+  useDocumentDataOnce
+} from 'react-firebase-hooks/firestore'
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
 import { GroupSimpleForm } from 'bioflow/domains/Group/components'
-import { GROUPS } from 'bioflow/constants/collections'
+import {
+  GROUPS,
+  STUDIES,
+  THERAPISTS_PROFILE
+} from 'bioflow/constants/collections'
 
 function GroupEdit() {
   // [ADDITIONAL HOOKS]
@@ -19,12 +26,19 @@ function GroupEdit() {
   const { t } = useTranslations()
   const { id } = useParams()
   const { updateDataWithStatus } = useSaveGroup()
-  const { clinics } = useUserContext()
   const [form] = Form.useForm()
+  const { clinics, bioflowTherapistProfileId } = useUserContext()
 
   // [DATA_FETCH]
   const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS).doc(id)
+  )
+  const [therapistProfile] = useDocumentDataOnce(
+    bioflowTherapistProfileId &&
+      firebase
+        .firestore()
+        .collection(THERAPISTS_PROFILE)
+        .doc(bioflowTherapistProfileId)
   )
 
   // [COMPONENT_STATE_HOOKS]
@@ -90,11 +104,19 @@ function GroupEdit() {
               loading={loading}
               id={id}
               clinicQuery={
+                clinics &&
                 Object.keys(clinics).length &&
                 firebase
                   .firestore()
                   .collection(CLINICS_MODEL_NAME)
                   .where('_id', 'in', Object.keys(clinics))
+              }
+              studyQuery={
+                therapistProfile &&
+                firebase
+                  .firestore()
+                  .collection(STUDIES)
+                  .where('_id', 'in', therapistProfile.studies)
               }
             />
           )}

@@ -25,7 +25,7 @@ import { ClinicSelect } from 'bioflow/domains/Clinic/components'
 import { StudySelect } from 'bioflow/domains/Study/components'
 import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import { CLINICS_MODEL_NAME, USERS_MODEL_NAME } from 'app/constants/models'
-import { GROUPS } from 'bioflow/constants/collections'
+import { GROUPS, THERAPISTS_PROFILE } from 'bioflow/constants/collections'
 
 const exclamationIconStyles = {
   cursor: 'help',
@@ -45,7 +45,8 @@ function GroupSimpleForm(props) {
     clinicQuery = firebase
       .firestore()
       .collection(CLINICS_MODEL_NAME)
-      .where('bioflowAccess', '==', true)
+      .where('bioflowAccess', '==', true),
+    studyQuery
   } = props
 
   // [ADDITIONAL_HOOKS]
@@ -55,14 +56,17 @@ function GroupSimpleForm(props) {
   const { _id: clinicId, bioflowAccess } = useClinicContext()
   const { save, update } = useSaveData()
 
+  // [COMPUTED_PROPERTIES]
+  const form = useMemo(() => props.form || groupForm, [groupForm, props.form])
+
   // [COMPONENT_STATE_HOOKS]
   const [selectedClinic, setSelectedClinic] = useState(
     props?.initialValues?.clinicId || (bioflowAccess && clinicId)
   )
+  const [selectedStudy, setSelectedStudy] = useState(
+    props?.initialValues?.studyId
+  )
   const [groupId, setGroupId] = useState(id)
-
-  // [COMPUTED_PROPERTIES]
-  const form = useMemo(() => props.form || groupForm, [groupForm, props.form])
 
   // [CLEAN_FUNCTIONS]
   const onDateChange = (e, field, amount) => {
@@ -89,40 +93,90 @@ function GroupSimpleForm(props) {
     }
   }
 
-  const resetClinic = async (value) => {
-    let therapists = form.getFieldValue('therapists')
+  const resetStudy = async (value) => {
+    setSelectedStudy(value)
+    let therapists = form.getFieldValue('therapists') || {}
     const selectedTherapists = Object.keys(therapists)
     const therapistsData = []
 
-    for (const therapistId of selectedTherapists) {
-      const snapshot = await firebase
-        .firestore()
-        .collection(USERS_MODEL_NAME)
-        .doc(therapistId)
-        .get()
+    if (selectedTherapists.length) {
+      for (const therapistId of selectedTherapists) {
+        const therapistSnapshot = await firebase
+          .firestore()
+          .collection(USERS_MODEL_NAME)
+          .doc(therapistId)
+          .get()
 
-      const data = snapshot.data()
-      if (data?.clinics && Object.keys(data?.clinics).includes(value)) {
-        therapistsData.push(data._id)
+        const therapistData = therapistSnapshot.data()
+
+        const therapistProfileSnapshot = await firebase
+          .firestore()
+          .collection(THERAPISTS_PROFILE)
+          .doc(therapistData.bioflowTherapistProfileId)
+          .get()
+
+        const therapistProfileData = therapistProfileSnapshot.data()
+
+        if (Object.keys(therapistProfileData.studies).includes(value)) {
+          therapistsData.push(therapistData._id)
+        }
       }
+
+      selectedTherapists.forEach((therapistId) => {
+        if (!therapistsData.includes(therapistId)) {
+          delete therapists[therapistId]
+        }
+      })
     }
 
-    selectedTherapists.forEach((therapistId) => {
-      if (!therapistsData.includes(therapistId)) {
-        delete therapists[therapistId]
-      }
-    })
-
-    const resetedFields = { therapists, disorderId: null }
+    const resetedFields = { therapists }
     form.setFieldsValue(resetedFields)
     if (groupId) {
-      update({
+      await update({
         collection: GROUPS,
         id: groupId,
         data: resetedFields
       })
     }
+  }
+
+  const resetClinic = async (value) => {
     setSelectedClinic(value)
+
+    let therapists = form.getFieldValue('therapists') || {}
+    const selectedTherapists = Object.keys(therapists)
+    const therapistsData = []
+
+    if (selectedTherapists.length) {
+      for (const therapistId of selectedTherapists) {
+        const snapshot = await firebase
+          .firestore()
+          .collection(USERS_MODEL_NAME)
+          .doc(therapistId)
+          .get()
+
+        const data = snapshot.data()
+        if (data?.clinics && Object.keys(data?.clinics).includes(value)) {
+          therapistsData.push(data._id)
+        }
+      }
+
+      selectedTherapists.forEach((therapistId) => {
+        if (!therapistsData.includes(therapistId)) {
+          delete therapists[therapistId]
+        }
+      })
+    }
+
+    const resetedFields = { therapists, disorderId: null }
+    form.setFieldsValue(resetedFields)
+    if (groupId) {
+      await update({
+        collection: GROUPS,
+        id: groupId,
+        data: resetedFields
+      })
+    }
   }
 
   const draftSave = async (value, data) => {
@@ -141,7 +195,9 @@ function GroupSimpleForm(props) {
           data: {
             ...value,
             therapists,
-            clinicId: selectedClinic,
+            clinicId: selectedClinic
+              ? selectedClinic
+              : form.getFieldValue('clinicId'),
             weekNumber: moment(data.startDay).week(),
             status: 'DRAFT'
           }
@@ -202,7 +258,11 @@ function GroupSimpleForm(props) {
           <Form.Item
             name="studyId"
             rules={[{ required: true, message: t('Select study, please') }]}>
-            <StudySelect placeholder={t('Select study')} />
+            <StudySelect
+              placeholder={t('Select study')}
+              query={studyQuery}
+              onChange={resetStudy}
+            />
           </Form.Item>
         </Col>
         <Col cw={12} mb={3}>
@@ -301,7 +361,8 @@ function GroupSimpleForm(props) {
           <Form.Item name="therapists">
             <TherapistAddForm
               clinicId={selectedClinic}
-              disabled={!selectedClinic}
+              studyId={selectedStudy}
+              disabled={!selectedClinic || !selectedStudy}
             />
           </Form.Item>
         </Col>

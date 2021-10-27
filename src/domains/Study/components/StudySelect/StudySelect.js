@@ -6,13 +6,15 @@ import { useTranslations } from '@qonsoll/translation'
 import { Select } from 'antd'
 import { STUDIES } from 'bioflow/constants/collections'
 
-function StudySelect({ placeholder, ...args }) {
+function StudySelect({
+  placeholder,
+  query = firebase.firestore().collection(STUDIES),
+  ...args
+}) {
   // [ADDITIONAL HOOKS
   const { t } = useTranslations()
   // [DATA FETCH]
-  const [list = [], loading] = useCollectionData(
-    firebase.firestore().collection(STUDIES)
-  )
+  const [list = [], loading] = useCollectionData(query)
 
   // [COMPUTED PROPERTIES]
   const sortedList = useMemo(() => {
