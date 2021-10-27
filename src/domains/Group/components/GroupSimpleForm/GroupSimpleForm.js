@@ -1,4 +1,4 @@
-import React, { useMemo, useState, memo } from 'react'
+import React, { useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
@@ -34,6 +34,9 @@ const exclamationIconStyles = {
   size: 'medium'
 }
 
+const MOMENT_FORMAT_FOR_TIMEPICKER = 'YYYY-MM-DD'
+const NEXT_COLLECT_DIFF = 3
+
 function GroupSimpleForm(props) {
   const {
     loading,
@@ -64,24 +67,26 @@ function GroupSimpleForm(props) {
   // [CLEAN_FUNCTIONS]
   const onDateChange = (e, field, amount) => {
     const value = e.target.value
-    value &&
+    if (value) {
       form.setFieldsValue({
-        [field]: moment(value).add(amount, 'day').format('yyyy-MM-DD')
+        [field]: moment(value)
+          .add(amount, 'day')
+          .format(MOMENT_FORMAT_FOR_TIMEPICKER)
       })
-    form.validateFields([field]).then(async (value) => {
-      if (groupId && value) {
-        await update({
-          collection: GROUPS,
-          id: groupId,
-          data: {
-            [Object.keys(value)[0]]: firebase.firestore.Timestamp.fromDate(
-              new Date(value[Object.keys(value)[0]])
-            )
-          },
-          withNotification: true
-        })
-      }
-    })
+      form.validateFields([field]).then(async (value) => {
+        if (groupId && value) {
+          await update({
+            collection: GROUPS,
+            id: groupId,
+            data: {
+              [Object.keys(value)[0]]: firebase.firestore.Timestamp.fromDate(
+                new Date(value[Object.keys(value)[0]])
+              )
+            }
+          })
+        }
+      })
+    }
   }
 
   const resetClinic = async (value) => {
@@ -114,8 +119,7 @@ function GroupSimpleForm(props) {
       update({
         collection: GROUPS,
         id: groupId,
-        data: resetedFields,
-        withNotification: true
+        data: resetedFields
       })
     }
     setSelectedClinic(value)
@@ -160,6 +164,21 @@ function GroupSimpleForm(props) {
         await saveData()
       }
     }
+  }
+
+  const checkInitialDate = () => {
+    const fourthDay = moment().add(3, 'day')
+    while (['Sun', 'Sat', 'Wed', 'Tue'].includes(fourthDay.format('ddd'))) {
+      fourthDay.add(1, 'day')
+    }
+    form.setFieldsValue({
+      startDay: fourthDay
+        .subtract(NEXT_COLLECT_DIFF, 'days')
+        .format(MOMENT_FORMAT_FOR_TIMEPICKER)
+    })
+    return fourthDay
+      .add(NEXT_COLLECT_DIFF, 'days')
+      .format(MOMENT_FORMAT_FOR_TIMEPICKER)
   }
 
   return (
@@ -213,7 +232,7 @@ function GroupSimpleForm(props) {
               </Box>
               <Form.Item
                 name="startDay"
-                initialValue={moment().format('yyyy-MM-DD')}
+                initialValue={moment().format(MOMENT_FORMAT_FOR_TIMEPICKER)}
                 rules={[
                   {
                     require: true,
@@ -232,16 +251,24 @@ function GroupSimpleForm(props) {
                   type="date"
                   placeholder={t('Start day')}
                   onChange={(e) => onDateChange(e, 'fourthDay', 3)}
-                  min={moment().format('YYYY-MM-DD')}
+                  min={moment().format(MOMENT_FORMAT_FOR_TIMEPICKER)}
                 />
               </Form.Item>
             </Col>
 
             <Col cw={[12, 12, 6]} mb={3}>
-              <Text mb={2}>{t('Fourth day')}</Text>
+              <Box display="flex" alignItems="center" mb={2}>
+                <Text mr={2}>{t('Fourth day')}</Text>
+                <Tooltip title={t('Available days: Mon, Thu, Fri')}>
+                  <Icon
+                    {...exclamationIconStyles}
+                    component={<ExclamationCircleOutlined />}
+                  />
+                </Tooltip>
+              </Box>
               <Form.Item
                 name="fourthDay"
-                initialValue={moment().add(3, 'day').format('yyyy-MM-DD')}
+                initialValue={checkInitialDate()}
                 rules={[
                   {
                     require: true,
@@ -259,8 +286,12 @@ function GroupSimpleForm(props) {
                 <Input
                   type="date"
                   placeholder={t('Fourth day')}
-                  onChange={(e) => onDateChange(e, 'startDay', -3)}
-                  min={moment().add(3, 'days').format('YYYY-MM-DD')}
+                  onChange={(e) =>
+                    onDateChange(e, 'startDay', -NEXT_COLLECT_DIFF)
+                  }
+                  min={moment()
+                    .add(NEXT_COLLECT_DIFF, 'days')
+                    .format(MOMENT_FORMAT_FOR_TIMEPICKER)}
                 />
               </Form.Item>
             </Col>
@@ -331,4 +362,4 @@ GroupSimpleForm.propTypes = {
   submitText: PropTypes.string
 }
 
-export default memo(GroupSimpleForm)
+export default GroupSimpleForm

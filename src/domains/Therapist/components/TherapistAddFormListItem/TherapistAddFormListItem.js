@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useTranslations } from '@qonsoll/translation'
@@ -8,7 +8,7 @@ import { useUserContext } from 'app/domains/User/contexts'
 import therapistRoles from 'bioflow/constants/therapistRoles'
 
 const TherapistAddFormListItem = (props) => {
-  const { therapists, therapistId, value, role, onChange } = props
+  const { therapist, therapistId, value, role, onChange } = props
 
   // [ADDITIONAL_HOOKS]
   const { _id } = useUserContext()
@@ -25,11 +25,6 @@ const TherapistAddFormListItem = (props) => {
     delete newValue[therapistId]
     onChange(newValue)
   }
-
-  const therapist = useMemo(
-    () => therapists?.find(({ _id }) => _id === therapistId),
-    [therapistId]
-  )
 
   return (
     <List.Item>

@@ -77,7 +77,7 @@ function TherapistAddForm(props) {
           dataSource={value && Object.keys(value)}
           renderItem={(therapistId) => (
             <TherapistAddFormListItem
-              therapists={therapists}
+              therapist={therapists?.find(({ _id }) => _id === therapistId)}
               role={value[therapistId]}
               value={value}
               therapistId={therapistId}

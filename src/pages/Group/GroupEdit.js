@@ -30,9 +30,18 @@ function GroupEdit() {
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
   const initialValues = groupData && {
-    ...groupData,
-    startDay: moment(groupData?.startDay?.toDate?.()).format('YYYY-MM-DD'),
-    fourthDay: moment(groupData?.fourthDay?.toDate?.()).format('YYYY-MM-DD')
+    ...groupData
+  }
+
+  if (groupData?.startDay) {
+    initialValues.startDay = moment(groupData?.startDay?.toDate?.()).format(
+      'YYYY-MM-DD'
+    )
+  }
+  if (groupData?.fourthDay) {
+    initialValues.fourthDay = moment(groupData?.fourthDay?.toDate?.()).format(
+      'YYYY-MM-DD'
+    )
   }
 
   // [COMPUTED_PROPERTIES]
