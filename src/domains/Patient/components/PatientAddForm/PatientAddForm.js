@@ -4,7 +4,6 @@ import firebase from 'firebase'
 import React from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import {
-  Box,
   Button,
   Card,
   Col,
@@ -16,7 +15,7 @@ import {
 import { useTranslations } from '@qonsoll/translation'
 
 const PatientAddForm = (props) => {
-  const { value, onChange } = props
+  const { value, onChange, form, saveData } = props
 
   // [ADDITIONAL_HOOKS]
   const { t } = useTranslations()
@@ -28,6 +27,13 @@ const PatientAddForm = (props) => {
       onChange?.([...value])
     }
   }
+  const saveDataToDB = async (e, index) => {
+    if (e.target.value.match(/^[A-Za-z]+$/) || e.target.value === '') {
+      value[index].initial = e.target.value
+      await saveData?.({ patients: [...value] }, form.getFieldsValue())
+    }
+  }
+
   const addPatient = () => {
     if (value?.length < 6 || !value) {
       const id = firebase.firestore().collection('test').doc().id
@@ -38,9 +44,11 @@ const PatientAddForm = (props) => {
       })
     }
   }
-  const removePatient = (patientId) =>
-    onChange?.(value.filter(({ id }) => id !== patientId))
-
+  const removePatient = (patientId) => {
+    const newPatientList = value.filter(({ id }) => id !== patientId)
+    onChange?.(newPatientList)
+    saveData?.({ patients: newPatientList }, form.getFieldsValue())
+  }
   return (
     <Row noGutters>
       <Col cw={6} v="center">
@@ -61,15 +69,24 @@ const PatientAddForm = (props) => {
                 shadowless
                 bg="var(--ql-color-dark-t-lighten6)"
                 width="100%">
-                <Box display="flex">
-                  <Input
-                    value={initial}
-                    placeholder={t('Initials')}
-                    onChange={(e) => onInputChange(e, index)}
-                    mr={3}
-                  />
-                  <Remove icon onSubmit={() => removePatient(id)} type="text" />
-                </Box>
+                <Row noGutters>
+                  <Col mr={2}>
+                    <Input
+                      value={initial}
+                      placeholder={t('Initials')}
+                      onChange={(e) => onInputChange(e, index)}
+                      mr={3}
+                      onBlur={(e) => saveDataToDB(e, index)}
+                    />
+                  </Col>
+                  <Col cw="auto">
+                    <Remove
+                      icon
+                      onSubmit={() => removePatient(id)}
+                      type="text"
+                    />
+                  </Col>
+                </Row>
               </Card>
             </List.Item>
           )}

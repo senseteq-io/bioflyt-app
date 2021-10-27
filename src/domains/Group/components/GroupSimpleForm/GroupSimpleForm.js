@@ -69,7 +69,7 @@ function GroupSimpleForm(props) {
   const [groupId, setGroupId] = useState(id)
 
   // [CLEAN_FUNCTIONS]
-  const onDateChange = (e, field, amount) => {
+  const onDateChange = async (e, field, amount) => {
     const value = e.target.value
     if (value) {
       form.setFieldsValue({
@@ -77,7 +77,8 @@ function GroupSimpleForm(props) {
           .add(amount, 'day')
           .format(MOMENT_FORMAT_FOR_TIMEPICKER)
       })
-      form.validateFields([field]).then(async (value) => {
+      try {
+        const value = await form.validateFields([field])
         if (groupId && value) {
           await update({
             collection: GROUPS,
@@ -89,7 +90,9 @@ function GroupSimpleForm(props) {
             }
           })
         }
-      })
+      } catch (notValidFormData) {
+        console.log(notValidFormData)
+      }
     }
   }
 
@@ -179,6 +182,37 @@ function GroupSimpleForm(props) {
     }
   }
 
+  const saveData = async (value, data) => {
+    console.log(value, data)
+    if (!groupId) {
+      const therapists = form.getFieldValue('therapists') || {}
+
+      const clinicId = selectedClinic
+        ? selectedClinic
+        : form.getFieldValue('clinicId')
+      const prepareData = {
+        ...value,
+        therapists,
+        weekNumber: moment(data.startDay).week(),
+        status: 'DRAFT'
+      }
+      if (clinicId) {
+        prepareData.clinicId = clinicId
+      }
+
+      const docId = await save({
+        collection: GROUPS,
+        data: prepareData
+      })
+      return setGroupId(docId)
+    }
+    await update({
+      collection: GROUPS,
+      id: groupId,
+      data: value
+    })
+  }
+
   const draftSave = async (value, data) => {
     const changedFieldName = Object.keys(value)[0]
     if (['fourthDay', 'startDay'].includes(changedFieldName)) {
@@ -186,38 +220,19 @@ function GroupSimpleForm(props) {
         new Date(value[changedFieldName])
       )
     }
-    const saveData = async () => {
-      if (!groupId) {
-        const therapists = form.getFieldValue('therapists')
 
-        const docId = await save({
-          collection: GROUPS,
-          data: {
-            ...value,
-            therapists,
-            clinicId: selectedClinic
-              ? selectedClinic
-              : form.getFieldValue('clinicId'),
-            weekNumber: moment(data.startDay).week(),
-            status: 'DRAFT'
-          }
-        })
-        return setGroupId(docId)
-      }
-      await update({
-        collection: GROUPS,
-        id: groupId,
-        data: value
-      })
+    if (changedFieldName === 'patients') {
+      return
     }
 
     try {
       await form.validateFields(Object.keys(value))
-      await saveData()
+      await saveData(value, data)
     } catch (formData) {
       const { errorFields } = formData
-      if (!errorFields.length) {
-        await saveData()
+      console.log(formData)
+      if (!errorFields?.length) {
+        await saveData(value, data)
       }
     }
   }
@@ -368,7 +383,7 @@ function GroupSimpleForm(props) {
         </Col>
         <Col cw={12} mb={3}>
           <Form.Item name="patients">
-            <PatientAddForm />
+            <PatientAddForm form={form} saveData={saveData} />
           </Form.Item>
         </Col>
       </Row>

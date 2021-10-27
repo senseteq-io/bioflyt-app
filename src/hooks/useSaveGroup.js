@@ -41,7 +41,7 @@ const generatePatients = async (data, weekNumber) => {
     ...data,
     generated: `${weekNumber}${clinicData?.name || ''}${
       disorderData?.name || ''
-    }${data.initial.toUpperCase()}`,
+    }${data.initial.toUpperCase()}`.replaceAll('', ''),
     initial: data.initial
   }))
 }
