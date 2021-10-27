@@ -1,5 +1,5 @@
 import { useSaveData } from 'app/hooks'
-import { GROUPS } from 'bioflow/constants/collections'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import _ from 'lodash'
 import moment from 'moment'
 import React from 'react'
@@ -24,7 +24,7 @@ function PatientsList(props) {
     }
 
     await update({
-      collection: GROUPS,
+      collection: GROUPS_MODEL_NAME,
       id,
       data: { patients: [...patients, patient] }
     })

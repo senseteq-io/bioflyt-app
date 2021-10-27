@@ -1,3 +1,6 @@
+import { Form } from 'antd'
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { useUserContext } from 'app/domains/User/contexts'
 import { FUTURE_STATUS, ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
 import { useSaveGroup } from 'bioflow/hooks'
 import React, { useMemo, useState } from 'react'
@@ -5,11 +8,17 @@ import moment from 'moment'
 import firebase from 'firebase'
 import { useTranslations } from '@qonsoll/translation'
 import { useHistory, useParams } from 'react-router-dom'
-import { useDocumentData } from 'react-firebase-hooks/firestore'
-import { Form } from 'antd'
+import {
+  useDocumentData,
+  useDocumentDataOnce
+} from 'react-firebase-hooks/firestore'
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
 import { GroupSimpleForm } from 'bioflow/domains/Group/components'
-import { GROUPS } from 'bioflow/constants/collections'
+import {
+  GROUPS_MODEL_NAME,
+  STUDIES_MODEL_NAME,
+  THERAPISTS_PROFILE_MODEL_NAME
+} from 'bioflow/constants/collections'
 
 function GroupEdit() {
   // [ADDITIONAL HOOKS]
@@ -18,18 +27,35 @@ function GroupEdit() {
   const { id } = useParams()
   const { updateDataWithStatus } = useSaveGroup()
   const [form] = Form.useForm()
+  const { clinics, bioflowTherapistProfileId } = useUserContext()
 
   // [DATA_FETCH]
   const [groupData] = useDocumentData(
-    firebase.firestore().collection(GROUPS).doc(id)
+    firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
+  )
+  const [therapistProfile] = useDocumentDataOnce(
+    bioflowTherapistProfileId &&
+      firebase
+        .firestore()
+        .collection(THERAPISTS_PROFILE_MODEL_NAME)
+        .doc(bioflowTherapistProfileId)
   )
 
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
   const initialValues = groupData && {
-    ...groupData,
-    startDay: moment(groupData?.startDay?.toDate?.()).format('YYYY-MM-DD'),
-    fourthDay: moment(groupData?.fourthDay?.toDate?.()).format('YYYY-MM-DD')
+    ...groupData
+  }
+
+  if (groupData?.startDay) {
+    initialValues.startDay = moment(groupData?.startDay?.toDate?.()).format(
+      'YYYY-MM-DD'
+    )
+  }
+  if (groupData?.fourthDay) {
+    initialValues.fourthDay = moment(groupData?.fourthDay?.toDate?.()).format(
+      'YYYY-MM-DD'
+    )
   }
 
   // [COMPUTED_PROPERTIES]
@@ -37,7 +63,7 @@ function GroupEdit() {
     () =>
       !(
         groupData?.clinicId &&
-        groupData?.therapists?.length &&
+        Object.keys(groupData?.therapists)?.length &&
         groupData?.patients?.length
       ) && t('Save'),
     []
@@ -77,6 +103,21 @@ function GroupEdit() {
               onFinish={onFinish}
               loading={loading}
               id={id}
+              clinicQuery={
+                clinics &&
+                Object.keys(clinics).length &&
+                firebase
+                  .firestore()
+                  .collection(CLINICS_MODEL_NAME)
+                  .where('_id', 'in', Object.keys(clinics))
+              }
+              studyQuery={
+                therapistProfile &&
+                firebase
+                  .firestore()
+                  .collection(STUDIES_MODEL_NAME)
+                  .where('_id', 'in', therapistProfile.studies)
+              }
             />
           )}
         </Col>

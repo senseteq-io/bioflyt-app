@@ -19,9 +19,7 @@ const TherapistForm = ({ form, onFinish, loading, value, therapists }) => {
             loading={loading}>
             {therapists
               ?.filter(({ _id }) =>
-                value
-                  ? !value.map(({ therapistId }) => therapistId)?.includes(_id)
-                  : true
+                value ? !Object.keys(value)?.includes(_id) : true
               )
               .map(({ _id, firstName, lastName }) => (
                 <Select.Option value={_id} key={_id}>
@@ -38,9 +36,7 @@ const TherapistForm = ({ form, onFinish, loading, value, therapists }) => {
           <Select placeholder={t('Select role')} style={{ width: '100%' }}>
             {Object.values(therapistRoles)
               ?.filter((roleName) =>
-                value
-                  ? !value.map(({ role }) => role)?.includes(roleName)
-                  : true
+                value ? !Object.values(value)?.includes(roleName) : true
               )
               .map((role) => (
                 <Select.Option value={role} key={role}>
