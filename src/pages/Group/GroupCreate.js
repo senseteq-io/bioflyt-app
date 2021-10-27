@@ -1,7 +1,10 @@
 import { Form } from 'antd'
 import { CLINICS_MODEL_NAME } from 'app/constants/models'
 import { useUserContext } from 'app/domains/User/contexts'
-import { STUDIES, THERAPISTS_PROFILE } from 'bioflow/constants/collections'
+import {
+  STUDIES_MODEL_NAME,
+  THERAPISTS_PROFILE_MODEL_NAME
+} from 'bioflow/constants/collections'
 import { ONGOING_STATUS, FUTURE_STATUS } from 'bioflow/constants/groupStatuses'
 import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
 import firebase from 'firebase'
@@ -31,7 +34,7 @@ function GroupCreate() {
     bioflowTherapistProfileId &&
       firebase
         .firestore()
-        .collection(THERAPISTS_PROFILE)
+        .collection(THERAPISTS_PROFILE_MODEL_NAME)
         .doc(bioflowTherapistProfileId)
   )
   // [COMPONENT_STATE_HOOKS]
@@ -76,7 +79,6 @@ function GroupCreate() {
             form={form}
             clinicQuery={
               clinics &&
-              Object.keys(clinics).length &&
               firebase
                 .firestore()
                 .collection(CLINICS_MODEL_NAME)
@@ -86,7 +88,7 @@ function GroupCreate() {
               therapistProfile &&
               firebase
                 .firestore()
-                .collection(STUDIES)
+                .collection(STUDIES_MODEL_NAME)
                 .where('_id', 'in', therapistProfile.studies)
             }
           />

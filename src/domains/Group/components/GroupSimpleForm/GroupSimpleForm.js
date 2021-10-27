@@ -25,7 +25,10 @@ import { ClinicSelect } from 'bioflow/domains/Clinic/components'
 import { StudySelect } from 'bioflow/domains/Study/components'
 import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import { CLINICS_MODEL_NAME, USERS_MODEL_NAME } from 'app/constants/models'
-import { GROUPS, THERAPISTS_PROFILE } from 'bioflow/constants/collections'
+import {
+  GROUPS_MODEL_NAME,
+  THERAPISTS_PROFILE_MODEL_NAME
+} from 'bioflow/constants/collections'
 
 const exclamationIconStyles = {
   cursor: 'help',
@@ -81,7 +84,7 @@ function GroupSimpleForm(props) {
         const value = await form.validateFields([field])
         if (groupId && value) {
           await update({
-            collection: GROUPS,
+            collection: GROUPS_MODEL_NAME,
             id: groupId,
             data: {
               [Object.keys(value)[0]]: firebase.firestore.Timestamp.fromDate(
@@ -114,7 +117,7 @@ function GroupSimpleForm(props) {
 
         const therapistProfileSnapshot = await firebase
           .firestore()
-          .collection(THERAPISTS_PROFILE)
+          .collection(THERAPISTS_PROFILE_MODEL_NAME)
           .doc(therapistData.bioflowTherapistProfileId)
           .get()
 
@@ -136,7 +139,7 @@ function GroupSimpleForm(props) {
     form.setFieldsValue(resetedFields)
     if (groupId) {
       await update({
-        collection: GROUPS,
+        collection: GROUPS_MODEL_NAME,
         id: groupId,
         data: resetedFields
       })
@@ -175,7 +178,7 @@ function GroupSimpleForm(props) {
     form.setFieldsValue(resetedFields)
     if (groupId) {
       await update({
-        collection: GROUPS,
+        collection: GROUPS_MODEL_NAME,
         id: groupId,
         data: resetedFields
       })
@@ -183,7 +186,6 @@ function GroupSimpleForm(props) {
   }
 
   const saveData = async (value, data) => {
-    console.log(value, data)
     if (!groupId) {
       const therapists = form.getFieldValue('therapists') || {}
 
@@ -201,13 +203,13 @@ function GroupSimpleForm(props) {
       }
 
       const docId = await save({
-        collection: GROUPS,
+        collection: GROUPS_MODEL_NAME,
         data: prepareData
       })
       return setGroupId(docId)
     }
     await update({
-      collection: GROUPS,
+      collection: GROUPS_MODEL_NAME,
       id: groupId,
       data: value
     })
@@ -407,7 +409,7 @@ function GroupSimpleForm(props) {
               onSubmit={async () => {
                 await firebase
                   .firestore()
-                  .collection(GROUPS)
+                  .collection(GROUPS_MODEL_NAME)
                   .doc(props.initialValues._id)
                   .delete()
                 history.goBack()

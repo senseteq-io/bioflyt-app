@@ -15,9 +15,9 @@ import {
 import { Col, PageWrapper, Row } from '@qonsoll/react-design'
 import { GroupSimpleForm } from 'bioflow/domains/Group/components'
 import {
-  GROUPS,
-  STUDIES,
-  THERAPISTS_PROFILE
+  GROUPS_MODEL_NAME,
+  STUDIES_MODEL_NAME,
+  THERAPISTS_PROFILE_MODEL_NAME
 } from 'bioflow/constants/collections'
 
 function GroupEdit() {
@@ -31,13 +31,13 @@ function GroupEdit() {
 
   // [DATA_FETCH]
   const [groupData] = useDocumentData(
-    firebase.firestore().collection(GROUPS).doc(id)
+    firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
   const [therapistProfile] = useDocumentDataOnce(
     bioflowTherapistProfileId &&
       firebase
         .firestore()
-        .collection(THERAPISTS_PROFILE)
+        .collection(THERAPISTS_PROFILE_MODEL_NAME)
         .doc(bioflowTherapistProfileId)
   )
 
@@ -115,7 +115,7 @@ function GroupEdit() {
                 therapistProfile &&
                 firebase
                   .firestore()
-                  .collection(STUDIES)
+                  .collection(STUDIES_MODEL_NAME)
                   .where('_id', 'in', therapistProfile.studies)
               }
             />

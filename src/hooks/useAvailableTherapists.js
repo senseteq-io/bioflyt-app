@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useCollectionDataOnce } from 'react-firebase-hooks/firestore'
 import { USERS_MODEL_NAME } from 'app/constants/models'
 import { BIOFLOW_THERAPIST_ROLE } from 'app/constants/userRoles'
-import { THERAPISTS_PROFILE } from 'bioflow/constants/collections'
+import { THERAPISTS_PROFILE_MODEL_NAME } from 'bioflow/constants/collections'
 
 const useAvailableTherapists = (clinicId, studyId, disabled) => {
   const [availableTherapists, setAvailableTherapists] = useState()
@@ -25,7 +25,7 @@ const useAvailableTherapists = (clinicId, studyId, disabled) => {
       for (const { bioflowTherapistProfileId } of therapists) {
         const snapshot = await firebase
           .firestore()
-          .collection(THERAPISTS_PROFILE)
+          .collection(THERAPISTS_PROFILE_MODEL_NAME)
           .doc(bioflowTherapistProfileId)
           .get()
         profiles[bioflowTherapistProfileId] = snapshot.data().studies

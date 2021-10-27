@@ -1,4 +1,3 @@
-import { ACTIVITIES, GROUPS } from 'bioflow/constants/collections'
 import firebase from 'firebase'
 import moment from 'moment'
 import React, { Fragment } from 'react'
@@ -15,6 +14,10 @@ import {
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
+import {
+  ACTIVITIES_MODEL_NAME,
+  GROUPS_MODEL_NAME
+} from 'bioflow/constants/collections'
 
 function GroupActivitiesAll() {
   // [ADDITIONAL HOOKS]
@@ -24,10 +27,10 @@ function GroupActivitiesAll() {
 
   // [DATA_FETCH]
   const [groupData] = useDocumentDataOnce(
-    firebase.firestore().collection(GROUPS).doc(id)
+    firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
   const [activities] = useCollectionData(
-    firebase.firestore().collection(ACTIVITIES)
+    firebase.firestore().collection(ACTIVITIES_MODEL_NAME)
   )
 
   // [COMPUTED PROPERTIES]

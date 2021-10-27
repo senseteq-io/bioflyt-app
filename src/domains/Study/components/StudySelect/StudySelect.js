@@ -4,11 +4,11 @@ import moment from 'moment'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useTranslations } from '@qonsoll/translation'
 import { Select } from 'antd'
-import { STUDIES } from 'bioflow/constants/collections'
+import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
 
 function StudySelect({
   placeholder,
-  query = firebase.firestore().collection(STUDIES),
+  query = firebase.firestore().collection(STUDIES_MODEL_NAME),
   ...args
 }) {
   // [ADDITIONAL HOOKS

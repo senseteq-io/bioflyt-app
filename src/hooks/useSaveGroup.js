@@ -3,7 +3,10 @@ import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { useTranslations } from '@qonsoll/translation'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useSaveData } from 'app/hooks'
-import { GROUPS, ACTIVITIES } from 'bioflow/constants/collections'
+import {
+  GROUPS_MODEL_NAME,
+  ACTIVITIES_MODEL_NAME
+} from 'bioflow/constants/collections'
 import {
   DRAFT_STATUS,
   FUTURE_STATUS,
@@ -104,7 +107,7 @@ const useSaveGroup = () => {
   const updateDataWithStatus = errorBoundary(async (args) => {
     const data = await normalizeData(args)
     await update({
-      collection: GROUPS,
+      collection: GROUPS_MODEL_NAME,
       id,
       data,
       withNotification: true
@@ -116,7 +119,7 @@ const useSaveGroup = () => {
       [FUTURE_STATUS]: 'Group was changed by'
     }
     await save({
-      collection: ACTIVITIES,
+      collection: ACTIVITIES_MODEL_NAME,
       data: {
         groupId: id,
         clinicId: args.data.clinicId,
@@ -127,7 +130,7 @@ const useSaveGroup = () => {
   const saveDataWithStatus = errorBoundary(async (args) => {
     const data = await normalizeData(args)
     const groupId = await save({
-      collection: GROUPS,
+      collection: GROUPS_MODEL_NAME,
       data,
       withNotification: true
     })
@@ -138,7 +141,7 @@ const useSaveGroup = () => {
       // [FUTURE_STATUS]: 'Group was finished by'
     }
     await save({
-      collection: ACTIVITIES,
+      collection: ACTIVITIES_MODEL_NAME,
       data: {
         groupId,
         clinicId: args.data.clinicId,

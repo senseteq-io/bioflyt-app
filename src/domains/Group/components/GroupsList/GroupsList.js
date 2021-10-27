@@ -16,7 +16,7 @@ import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { AddItem } from 'app/components'
-import { GROUPS } from 'bioflow/constants/collections'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import { useBioflowAccess } from 'bioflow/hooks'
 import {
   BIOFLOW_ADMIN_GROUP_CREATE_PATH,
@@ -30,7 +30,7 @@ function GroupsList() {
   const { isAdmin } = useBioflowAccess()
   const { _id: therapistId } = useUserContext()
 
-  const groupCollectionRef = firebase.firestore().collection(GROUPS)
+  const groupCollectionRef = firebase.firestore().collection(GROUPS_MODEL_NAME)
 
   // [DATA FETCH]
   const [list] = useCollectionData(
