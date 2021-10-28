@@ -4,16 +4,16 @@ import { PageWrapper, Title } from '@qonsoll/react-design'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import firebase from 'firebase'
-import { GROUPS } from 'bioflow/constants/collections'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import { ListWithCreate } from 'app/components'
 import { PatientSimpleView } from 'bioflow/domains/Patient/components'
 import { useSaveData } from 'app/hooks'
 import moment from 'moment'
 import _ from 'lodash'
 
-const dateFormat = 'DD-mm-yyyy'
-const todayDate = moment()
-const tomorrowDate = moment().add(1, 'days')
+const dateFormat = 'DD-MM-yyyy'
+const todayDate = moment().format(dateFormat)
+const tomorrowDate = moment().add(1, 'days').format(dateFormat)
 
 function PatientsAll() {
   // [ADDITIONAL HOOKS]
@@ -24,7 +24,7 @@ function PatientsAll() {
   const [groups = []] = useCollectionData(
     firebase
       .firestore()
-      .collection(GROUPS)
+      .collection(GROUPS_MODEL_NAME)
       .where(`therapists.${therapistId}`, '>=', '')
   )
 
@@ -65,7 +65,7 @@ function PatientsAll() {
     }
     if (patientData?.groupId) {
       await update({
-        collection: GROUPS,
+        collection: GROUPS_MODEL_NAME,
         id: patientData.groupId,
         data: { patients: [...patients, patient] }
       })
@@ -79,11 +79,11 @@ function PatientsAll() {
       const buf = {}
 
       dates.forEach((date) => {
-        buf[date] = _.filter(sortedPatientsList, (item) =>
+        buf[date] = sortedPatientsList?.filter((item) =>
           [
             moment(item?.startDay?.toDate?.()).format(dateFormat),
             moment(item?.fourthDay?.toDate?.()).format(dateFormat)
-          ].includes(date.format(dateFormat))
+          ].includes(date)
         )
       })
       setFilteredList(buf)
@@ -104,6 +104,7 @@ function PatientsAll() {
             {t('Today')}
           </Title>
           <ListWithCreate
+            emptyText={t('There is no patients for today')}
             withCreate={false}
             dataSource={filteredList[todayDate]}>
             <PatientSimpleView onDeliverBio={onDeliverBio} />
@@ -117,6 +118,7 @@ function PatientsAll() {
             {t('Tomorrow')}
           </Title>
           <ListWithCreate
+            emptyText={t('There is no patients for tomorrow')}
             withCreate={false}
             dataSource={filteredList[tomorrowDate]}>
             <PatientSimpleView onDeliverBio={onDeliverBio} />
