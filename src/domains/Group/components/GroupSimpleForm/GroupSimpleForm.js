@@ -43,18 +43,22 @@ const CORRECT_FIRST_DAYS = ['Mon', 'Tue', 'Fri']
 const WRONG_FOURTH_DAYS = ['Sun', 'Sat', 'Wed', 'Tue']
 const DEFAULT_VALUE_FOR_DATEPICKERS = {
   startDay: moment().format(MOMENT_FORMAT_FOR_TIMEPICKER),
-  fourthDay: moment().add(3, 'days').format(MOMENT_FORMAT_FOR_TIMEPICKER)
+  fourthDay: moment()
+    .add(NEXT_COLLECT_DIFF, 'days')
+    .format(MOMENT_FORMAT_FOR_TIMEPICKER)
 }
+
+const DEFAULT_BIOFLOW_ACCESS_CLINIC_QUERY = firebase
+  .firestore()
+  .collection(CLINICS_MODEL_NAME)
+  .where('bioflowAccess', '==', true)
 
 function GroupSimpleForm(props) {
   const {
     loading,
     submitText,
     id,
-    clinicQuery = firebase
-      .firestore()
-      .collection(CLINICS_MODEL_NAME)
-      .where('bioflowAccess', '==', true),
+    clinicQuery = DEFAULT_BIOFLOW_ACCESS_CLINIC_QUERY,
     studyQuery,
     initialValues = { ...DEFAULT_VALUE_FOR_DATEPICKERS }
   } = props
@@ -69,9 +73,9 @@ function GroupSimpleForm(props) {
   // [COMPONENT_STATE_HOOKS]
   const [selectedClinic, setSelectedClinic] = useState(
     initialValues?.clinicId || (bioflowAccess && clinicId)
-  )
-  const [selectedStudy, setSelectedStudy] = useState(initialValues?.studyId)
-  const [groupId, setGroupId] = useState(id)
+  ) // Need to show & filter correct therapists.
+  const [selectedStudy, setSelectedStudy] = useState(initialValues?.studyId) // Need to show & filter correct therapists.
+  const [groupId, setGroupId] = useState(id) // Used in draft save.
 
   // [COMPUTED_PROPERTIES]
   const form = useMemo(() => props.form || groupForm, [groupForm, props.form])
@@ -80,20 +84,23 @@ function GroupSimpleForm(props) {
   const onDateChange = async (e, field, amount) => {
     const value = e.target.value
     if (value) {
+      // Set calculated day into dependent input.
       form.setFieldsValue({
         [field]: moment(value)
           .add(amount, 'days')
           .format(MOMENT_FORMAT_FOR_TIMEPICKER)
       })
+      // Validate dependent field to show error if calculated day are forbidden.
       try {
         const value = await form.validateFields([field])
+        const fieldName = Object.keys(value)[0]
         if (groupId && value) {
           await update({
             collection: GROUPS_MODEL_NAME,
             id: groupId,
             data: {
-              [Object.keys(value)[0]]: firebase.firestore.Timestamp.fromDate(
-                new Date(value[Object.keys(value)[0]])
+              [fieldName]: firebase.firestore.Timestamp.fromDate(
+                new Date(value[fieldName])
               )
             }
           })
@@ -128,13 +135,13 @@ function GroupSimpleForm(props) {
 
         const therapistProfileData = therapistProfileSnapshot.data()
 
-        // Select therapists with selected study
+        // Select therapists with selected study.
         if (therapistProfileData.studies.includes(value)) {
           therapistsIds.push(therapistData._id)
         }
       }
 
-      // remove therapists witch don't have selected study
+      // remove therapists which don't have selected study.
       therapistsIds.length &&
         selectedTherapists.forEach((therapistId) => {
           if (!therapistsIds.includes(therapistId)) {
@@ -197,15 +204,15 @@ function GroupSimpleForm(props) {
     if (!groupId) {
       const therapists = form.getFieldValue('therapists') || {}
 
-      const clinicId = selectedClinic
-        ? selectedClinic
-        : form.getFieldValue('clinicId')
       const prepareData = {
         ...value,
         therapists,
         weekNumber: moment(data.startDay).week(),
         status: DRAFT_STATUS
       }
+      const clinicId = selectedClinic || form.getFieldValue('clinicId')
+
+      // If clinic selected add it to draft data.
       if (clinicId) {
         prepareData.clinicId = clinicId
       }
@@ -224,17 +231,22 @@ function GroupSimpleForm(props) {
   }
 
   const draftSave = async (value, data) => {
+    // Get field which was changed.
     const changedFieldName = Object.keys(value)[0]
+
+    // If there was date fields format it to save firestore timestamp not string.
     if (['fourthDay', 'startDay'].includes(changedFieldName)) {
       value[changedFieldName] = firebase.firestore.Timestamp.fromDate(
         new Date(value[changedFieldName])
       )
     }
 
+    // Patients has own implementation of draft save.
     if (changedFieldName === 'patients') {
       return
     }
 
+    // Validate changed field if has no errors save it to firestore.
     try {
       await form.validateFields(Object.keys(value))
       await saveData(value, data)
@@ -249,30 +261,32 @@ function GroupSimpleForm(props) {
 
   const checkInitialDate = () => {
     const fourthDay = moment().add(NEXT_COLLECT_DIFF, 'days')
+
+    // find next combination of days which are not forbidden
     while (WRONG_FOURTH_DAYS.includes(fourthDay.format('ddd'))) {
       fourthDay.add(1, 'days')
     }
 
     form.setFieldsValue({
-      startDay:
-        initialValues?.startDay ||
-        fourthDay
-          .subtract(NEXT_COLLECT_DIFF, 'days')
-          .format(MOMENT_FORMAT_FOR_TIMEPICKER),
-      fourthDay:
-        initialValues?.fourthDay ||
-        fourthDay
-          .add(NEXT_COLLECT_DIFF, 'days')
-          .format(MOMENT_FORMAT_FOR_TIMEPICKER)
+      startDay: fourthDay
+        .subtract(NEXT_COLLECT_DIFF, 'days')
+        .format(MOMENT_FORMAT_FOR_TIMEPICKER),
+      fourthDay: fourthDay
+        .add(NEXT_COLLECT_DIFF, 'days')
+        .format(MOMENT_FORMAT_FOR_TIMEPICKER)
     })
   }
 
+  // On form init - check if current day is not forbidden.
   useEffect(() => {
     if (!initialValues?.startDay) {
       checkInitialDate()
     }
   }, [])
 
+  /* After initial values get into component
+   * update selected study if it in initial values.
+   */
   useEffect(() => {
     form.setFieldsValue(initialValues)
     if (initialValues.studyId) {
@@ -453,6 +467,7 @@ function GroupSimpleForm(props) {
 
 GroupSimpleForm.propTypes = {
   clinicQuery: PropTypes.object,
+  studyQuery: PropTypes.object,
   loading: PropTypes.bool,
   id: PropTypes.string, // need on edit routes
   submitText: PropTypes.string

@@ -34,7 +34,7 @@ const useAvailableTherapists = (clinicId, studyId, disabled) => {
       }
       const filteredTherapists = []
 
-      //
+      // Filter therapists add only those which profile includes selected study
       therapists.forEach((therapistData) => {
         const { bioflowTherapistProfileId } = therapistData
         if (profiles[bioflowTherapistProfileId].includes(studyId)) {

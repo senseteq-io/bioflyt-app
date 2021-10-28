@@ -43,20 +43,22 @@ function GroupEdit() {
 
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
-  const initialValues = groupData && {
-    ...groupData
-  }
 
-  if (groupData?.startDay) {
-    initialValues.startDay = moment(groupData?.startDay?.toDate?.()).format(
-      'YYYY-MM-DD'
-    )
-  }
-  if (groupData?.fourthDay) {
-    initialValues.fourthDay = moment(groupData?.fourthDay?.toDate?.()).format(
-      'YYYY-MM-DD'
-    )
-  }
+  const initialValues = useMemo(() => {
+    const data = groupData
+
+    if (groupData?.startDay) {
+      initialValues.startDay = moment(groupData?.startDay?.toDate?.()).format(
+        'YYYY-MM-DD'
+      )
+    }
+    if (groupData?.fourthDay) {
+      initialValues.fourthDay = moment(groupData?.fourthDay?.toDate?.()).format(
+        'YYYY-MM-DD'
+      )
+    }
+    return data
+  }, [groupData])
 
   // [COMPUTED_PROPERTIES]
   const submitText = useMemo(
@@ -67,7 +69,7 @@ function GroupEdit() {
         groupData?.patients?.length
       ) && t('Save'),
     [groupData]
-  )
+  ) // If group has all necessary fields it can be "activated"
 
   // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
