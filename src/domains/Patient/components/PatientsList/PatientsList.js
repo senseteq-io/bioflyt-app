@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom'
 import { PatientSimpleView } from '..'
 import { ListWithCreate } from 'app/components'
 
-const DATE_FORMAT = 'DD-MM-yyyy'
+const DATE_FORMAT = 'D MMM YYYY'
 
 function PatientsList(props) {
   const { patients, startDay, fourthDay } = props

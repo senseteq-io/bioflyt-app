@@ -11,7 +11,7 @@ import firebase from 'firebase'
 import moment from 'moment'
 import _ from 'lodash'
 
-const DATE_FORMAT = 'DD-MM-yyyy'
+const DATE_FORMAT = 'D MMM YYYY'
 const TODAY_DATE = moment().format(DATE_FORMAT)
 const TOMORROW_DATE = moment().add(1, 'days').format(DATE_FORMAT)
 
@@ -101,33 +101,29 @@ function PatientsAll() {
         textAlign: 'left',
         marginBottom: 32
       }}>
-      {filteredList[TODAY_DATE] && (
-        <Fragment>
-          <Title level={4} mb={2}>
-            {t('Today')}
-          </Title>
-          <ListWithCreate
-            emptyText={t('There is no patients for today')}
-            withCreate={false}
-            dataSource={filteredList[TODAY_DATE]}>
-            <PatientSimpleView onDeliverBio={onDeliverBio} />
-          </ListWithCreate>
-        </Fragment>
-      )}
+      <Fragment>
+        <Title level={4} mb={2}>
+          {t('Today')}
+        </Title>
+        <ListWithCreate
+          emptyText={t('There is no patients for today')}
+          withCreate={false}
+          dataSource={filteredList[TODAY_DATE]}>
+          <PatientSimpleView onDeliverBio={onDeliverBio} />
+        </ListWithCreate>
+      </Fragment>
 
-      {filteredList[TOMORROW_DATE] && (
-        <Fragment>
-          <Title level={4} mb={2}>
-            {t('Tomorrow')}
-          </Title>
-          <ListWithCreate
-            emptyText={t('There is no patients for tomorrow')}
-            withCreate={false}
-            dataSource={filteredList[TOMORROW_DATE]}>
-            <PatientSimpleView onDeliverBio={onDeliverBio} />
-          </ListWithCreate>
-        </Fragment>
-      )}
+      <Fragment>
+        <Title level={4} mb={2}>
+          {t('Tomorrow')}
+        </Title>
+        <ListWithCreate
+          emptyText={t('There is no patients for tomorrow')}
+          withCreate={false}
+          dataSource={filteredList[TOMORROW_DATE]}>
+          <PatientSimpleView onDeliverBio={onDeliverBio} />
+        </ListWithCreate>
+      </Fragment>
     </PageWrapper>
   )
 }
