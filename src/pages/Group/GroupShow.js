@@ -9,7 +9,7 @@ import { useHistory, useParams, generatePath, Link } from 'react-router-dom'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
 import { useDocumentData } from 'react-firebase-hooks/firestore'
-import { GROUPS } from 'bioflow/constants/collections'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import {
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH,
@@ -28,7 +28,7 @@ function GroupShow() {
   const { isAdmin } = useBioflowAccess()
 
   const [groupData] = useDocumentData(
-    firebase.firestore().collection(GROUPS).doc(id)
+    firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
 
   //[COMPUTED PROPERTIES]
@@ -53,7 +53,7 @@ function GroupShow() {
   }
 
   const onRemoveGroup = async () => {
-    await remove({ collection: GROUPS, id, withNotification: true })
+    await remove({ collection: GROUPS_MODEL_NAME, id, withNotification: true })
     history.goBack()
   }
 
@@ -94,7 +94,7 @@ function GroupShow() {
 
   return (
     <PageWrapper
-      onBack={() => history.goBack()}
+      onBack={history.goBack}
       headingProps={{
         title: `${t('Week')} ${groupData?.weekNumber || ''}`,
         titleSize: 2,

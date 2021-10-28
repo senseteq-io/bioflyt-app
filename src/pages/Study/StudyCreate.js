@@ -1,12 +1,12 @@
-import { useSaveData } from 'app/hooks'
-import { STUDIES } from 'bioflow/constants/collections'
 import React, { useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { PageWrapper } from '@qonsoll/react-design'
+import { useSaveData } from 'app/hooks'
 import { StudySimpleForm } from 'bioflow/domains/Study/components'
-import { useHistory } from 'react-router'
+import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
 
-function StudyCreate(props) {
+function StudyCreate() {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const { t } = useTranslations()
@@ -17,7 +17,11 @@ function StudyCreate(props) {
   // [CLEAN FUNCTIONS]
   const onSubmit = async ({ name }) => {
     setLoading(true)
-    await save({ collection: STUDIES, data: { name }, withNotification: true })
+    await save({
+      collection: STUDIES_MODEL_NAME,
+      data: { name },
+      withNotification: true
+    })
     history.goBack()
     setLoading(false)
   }

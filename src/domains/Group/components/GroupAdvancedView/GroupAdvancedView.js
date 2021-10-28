@@ -1,5 +1,6 @@
 import { Badge, Tooltip } from 'antd'
-import { STUDIES } from 'bioflow/constants/collections'
+import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
+import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
 import {
   BIOFLOW_ADMIN_GROUP_EDIT_PATH,
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
@@ -15,7 +16,6 @@ import { useHistory, generatePath } from 'react-router-dom'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { Box, Card, Col, Row, Text, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
-import { useService } from 'bioflow/contexts/Service'
 
 const STATUS_COLOR_MAP = {
   DRAFT: 'gray',
@@ -39,7 +39,6 @@ function GroupAdvancedView(props) {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const { t } = useTranslations()
-  const { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } = useService()
   const { isAdmin } = useBioflowAccess()
 
   // [DATA_FETCH]
@@ -52,7 +51,7 @@ function GroupAdvancedView(props) {
       firebase.firestore().collection(DISORDERS_MODEL_NAME).doc(disorderId)
   )
   const [studyData] = useDocumentDataOnce(
-    studyId && firebase.firestore().collection(STUDIES).doc(studyId)
+    studyId && firebase.firestore().collection(STUDIES_MODEL_NAME).doc(studyId)
   )
 
   // [CLEAN_FUNCTIONS]
@@ -145,7 +144,9 @@ function GroupAdvancedView(props) {
                 {t('Patients')}:
               </Text>
               {patients?.length ? (
-                <Title level={3}>{patients?.length}</Title>
+                <Badge dot={patients?.length < 6}>
+                  <Title level={3}>{patients?.length}</Title>
+                </Badge>
               ) : (
                 <Text>{t('Not selected')}</Text>
               )}

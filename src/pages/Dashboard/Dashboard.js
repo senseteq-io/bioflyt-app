@@ -69,7 +69,7 @@ function Dashboard() {
     <PageWrapper
       onBack={goBack}
       headingProps={{
-        title: `${t('Bioflow')}(${t('Admin')})`,
+        title: t('Bioflow'),
         titleSize: 2,
         textAlign: 'left',
         marginBottom: '0px'

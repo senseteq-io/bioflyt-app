@@ -11,7 +11,7 @@ function ClinicSelect({ placeholder, query, ...args }) {
   const { t } = useTranslations()
   const { CLINICS_MODEL_NAME } = useService()
   // [DATA FETCH]
-  const [list = []] = useCollectionData(
+  const [list = [], loading] = useCollectionData(
     query || firebase.firestore().collection(CLINICS_MODEL_NAME)
   )
 
@@ -27,7 +27,10 @@ function ClinicSelect({ placeholder, query, ...args }) {
   }, [list])
 
   return (
-    <Select {...args} placeholder={placeholder || t('Clinic')}>
+    <Select
+      {...args}
+      placeholder={placeholder || t('Clinic')}
+      loading={loading}>
       {sortedList.map(({ name, _id }) => (
         <Select.Option key={_id} value={_id}>
           {name}

@@ -1,14 +1,11 @@
 import firebase from 'firebase'
 import React from 'react'
-import { ListWithCreate } from 'app/components'
-import { STUDIES } from 'bioflow/constants/collections'
-import {
-  useCollectionData,
-  useCollectionDataOnce
-} from 'react-firebase-hooks/firestore'
-import { StudySimpleView } from '..'
 import { useHistory } from 'react-router'
+import { useCollectionData } from 'react-firebase-hooks/firestore'
+import { ListWithCreate } from 'app/components'
+import { StudySimpleView } from '..'
 import { BIOFLOW_ADMIN_STUDY_CREATE_PATH } from 'bioflow/constants/paths'
+import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
 
 function StudyList() {
   // [ADDITIONAL HOOKS]
@@ -16,7 +13,7 @@ function StudyList() {
 
   // [DATA_FETCH]
   const [studies = []] = useCollectionData(
-    firebase.firestore().collection(STUDIES)
+    firebase.firestore().collection(STUDIES_MODEL_NAME)
   )
   // [CLEAN FUNCTIONS]
   const onCreate = () => {
