@@ -5,13 +5,7 @@ import { Box, Button, PageWrapper, Title } from '@qonsoll/react-design'
 import { Breadcrumb } from 'antd'
 import { PatientsList } from 'bioflow/domains/Patient/components'
 import { LineChartOutlined } from '@ant-design/icons'
-import {
-  useHistory,
-  useParams,
-  generatePath,
-  useLocation,
-  Link
-} from 'react-router-dom'
+import { useHistory, useParams, generatePath, Link } from 'react-router-dom'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
 import { useDocumentData } from 'react-firebase-hooks/firestore'

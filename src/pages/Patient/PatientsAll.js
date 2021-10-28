@@ -1,11 +1,94 @@
-import React from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslations } from '@qonsoll/translation'
-import { PageWrapper } from '@qonsoll/react-design'
-import { PatientsList } from 'bioflow/domains/Patient/components'
+import { PageWrapper, Title } from '@qonsoll/react-design'
+import { useUserContext } from 'app/domains/User/contexts'
+import { useCollectionData } from 'react-firebase-hooks/firestore'
+import firebase from 'firebase'
+import { GROUPS } from 'bioflow/constants/collections'
+import { ListWithCreate } from 'app/components'
+import { PatientSimpleView } from 'bioflow/domains/Patient/components'
+import { useSaveData } from 'app/hooks'
+import moment from 'moment'
+import _ from 'lodash'
+
+const dateFormat = 'DD-mm-yyyy'
+const todayDate = moment()
+const tomorrowDate = moment().add(1, 'days')
 
 function PatientsAll() {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
+  const { _id: therapistId } = useUserContext()
+  const { update } = useSaveData()
+
+  const [groups = []] = useCollectionData(
+    firebase
+      .firestore()
+      .collection(GROUPS)
+      .where(`therapists.${therapistId}`, '>=', '')
+  )
+
+  //[COMPONENT STATE HOOKS]
+  const [filteredList, setFilteredList] = useState({})
+
+  const patients = useMemo(
+    () =>
+      groups
+        ?.map((group) =>
+          group?.patients?.map((patient) => ({
+            ...patient,
+            name: patient?.generated,
+            groupId: group?._id,
+            startDay: group?.startDay,
+            fourthDay: group?.fourthDay
+          }))
+        )
+        .flat(),
+    [groups]
+  )
+  const sortedPatientsList = useMemo(() => {
+    return patients
+      ? patients.sort((a, b) =>
+          moment
+            .unix(b?.startDay?.seconds)
+            .diff(moment.unix(a?.startDay?.seconds))
+        )
+      : []
+  }, [patients])
+
+  const onDeliverBio = async (patientData) => {
+    const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
+    if (moment(patient.firstDay).isSame(moment())) {
+      patient.firstDayBIOCollect = true
+    } else if (moment(patient.fourthDay).isSame(moment())) {
+      patient.forthDayBIOCollect = true
+    }
+    if (patientData?.groupId) {
+      await update({
+        collection: GROUPS,
+        id: patientData.groupId,
+        data: { patients: [...patients, patient] }
+      })
+    }
+  }
+
+  // [USE_EFFECTS]
+  useEffect(() => {
+    if (sortedPatientsList) {
+      const dates = [todayDate, tomorrowDate]
+      const buf = {}
+
+      dates.forEach((date) => {
+        buf[date] = _.filter(sortedPatientsList, (item) =>
+          [
+            moment(item?.startDay?.toDate?.()).format(dateFormat),
+            moment(item?.fourthDay?.toDate?.()).format(dateFormat)
+          ].includes(date.format(dateFormat))
+        )
+      })
+      setFilteredList(buf)
+    }
+  }, [sortedPatientsList])
 
   return (
     <PageWrapper
@@ -15,7 +98,31 @@ function PatientsAll() {
         textAlign: 'left',
         marginBottom: 32
       }}>
-      <PatientsList />
+      {filteredList[todayDate] && (
+        <Fragment>
+          <Title level={4} mb={2}>
+            {t('Today')}
+          </Title>
+          <ListWithCreate
+            withCreate={false}
+            dataSource={filteredList[todayDate]}>
+            <PatientSimpleView onDeliverBio={onDeliverBio} />
+          </ListWithCreate>
+        </Fragment>
+      )}
+
+      {filteredList[tomorrowDate] && (
+        <Fragment>
+          <Title level={4} mb={2}>
+            {t('Tomorrow')}
+          </Title>
+          <ListWithCreate
+            withCreate={false}
+            dataSource={filteredList[tomorrowDate]}>
+            <PatientSimpleView onDeliverBio={onDeliverBio} />
+          </ListWithCreate>
+        </Fragment>
+      )}
     </PageWrapper>
   )
 }
