@@ -109,7 +109,6 @@ function GroupSimpleForm(props) {
     let therapists = form.getFieldValue('therapists') || {}
     const selectedTherapists = Object.keys(therapists)
     const therapistsIds = []
-    console.log('before', { ...therapists })
 
     if (selectedTherapists.length) {
       for (const therapistId of selectedTherapists) {
@@ -273,6 +272,13 @@ function GroupSimpleForm(props) {
       checkInitialDate()
     }
   }, [])
+
+  useEffect(() => {
+    form.setFieldsValue(initialValues)
+    if (initialValues.studyId) {
+      setSelectedStudy(initialValues.studyId)
+    }
+  }, [initialValues])
 
   return (
     <Form {...props} form={form} onValuesChange={draftSave}>

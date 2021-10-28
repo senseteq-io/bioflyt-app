@@ -10,7 +10,7 @@ import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
 import firebase from 'firebase'
 import moment from 'moment'
 import { useBioflowAccess, useSaveGroup } from 'bioflow/hooks'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
@@ -39,6 +39,7 @@ function GroupCreate() {
   )
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
+  const [initialState, setInitialState] = useState()
 
   // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
@@ -57,6 +58,14 @@ function GroupCreate() {
     setLoading(false)
   }
 
+  useEffect(() => {
+    therapistProfile &&
+      setInitialState({
+        studyId: therapistProfile.studies[0],
+        therapists: { [therapistId]: THERAPIST_ROLES.ADMIN }
+      })
+  }, [therapistProfile])
+
   return (
     <PageWrapper
       onBack={history.goBack}
@@ -69,11 +78,7 @@ function GroupCreate() {
       <Row noGutters h="center">
         <Col cw={[12, 8, 8, 6]}>
           <GroupSimpleForm
-            initialValues={
-              isTherapist && {
-                therapists: { [therapistId]: THERAPIST_ROLES.ADMIN }
-              }
-            }
+            initialValues={isTherapist && initialState}
             loading={loading}
             onFinish={onFinish}
             form={form}
