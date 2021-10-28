@@ -108,7 +108,8 @@ function GroupSimpleForm(props) {
     setSelectedStudy(value)
     let therapists = form.getFieldValue('therapists') || {}
     const selectedTherapists = Object.keys(therapists)
-    const therapistsData = []
+    const therapistsIds = []
+    console.log('before', { ...therapists })
 
     if (selectedTherapists.length) {
       for (const therapistId of selectedTherapists) {
@@ -128,16 +129,19 @@ function GroupSimpleForm(props) {
 
         const therapistProfileData = therapistProfileSnapshot.data()
 
-        if (Object.keys(therapistProfileData.studies).includes(value)) {
-          therapistsData.push(therapistData._id)
+        // Select therapists with selected study
+        if (therapistProfileData.studies.includes(value)) {
+          therapistsIds.push(therapistData._id)
         }
       }
 
-      selectedTherapists.forEach((therapistId) => {
-        if (!therapistsData.includes(therapistId)) {
-          delete therapists[therapistId]
-        }
-      })
+      // remove therapists witch don't have selected study
+      therapistsIds.length &&
+        selectedTherapists.forEach((therapistId) => {
+          if (!therapistsIds.includes(therapistId)) {
+            delete therapists[therapistId]
+          }
+        })
     }
 
     const resetedFields = { therapists }

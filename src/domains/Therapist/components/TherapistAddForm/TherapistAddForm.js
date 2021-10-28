@@ -75,6 +75,7 @@ function TherapistAddForm(props) {
               value={value}
               therapistId={therapistId}
               onChange={onChange}
+              loading={loading}
             />
           )}
         />

@@ -22,6 +22,8 @@ const useAvailableTherapists = (clinicId, studyId, disabled) => {
   useEffect(() => {
     const fetchData = async () => {
       const profiles = {}
+
+      // Fetch all bioflow therapists profiles from this clinic
       for (const { bioflowTherapistProfileId } of therapists) {
         const snapshot = await firebase
           .firestore()
@@ -31,6 +33,8 @@ const useAvailableTherapists = (clinicId, studyId, disabled) => {
         profiles[bioflowTherapistProfileId] = snapshot.data().studies
       }
       const filteredTherapists = []
+
+      //
       therapists.forEach((therapistData) => {
         const { bioflowTherapistProfileId } = therapistData
         if (profiles[bioflowTherapistProfileId].includes(studyId)) {

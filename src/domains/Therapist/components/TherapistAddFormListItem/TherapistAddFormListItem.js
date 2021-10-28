@@ -8,7 +8,7 @@ import { useUserContext } from 'app/domains/User/contexts'
 import therapistRoles from 'bioflow/constants/therapistRoles'
 
 const TherapistAddFormListItem = (props) => {
-  const { therapist, therapistId, value, role, onChange } = props
+  const { therapist, therapistId, value, role, onChange, loading } = props
 
   // [ADDITIONAL_HOOKS]
   const { _id } = useUserContext()
@@ -37,7 +37,9 @@ const TherapistAddFormListItem = (props) => {
         <Row v="center" negativeBlockMargin>
           <Col cw="auto" mb={2}>
             <Text>
-              {therapist?.firstName} {therapist?.lastName}
+              {loading
+                ? t('Loading...')
+                : `${therapist?.firstName} ${therapist?.lastName}`}
             </Text>
           </Col>
           <Col mb={2} h="right">

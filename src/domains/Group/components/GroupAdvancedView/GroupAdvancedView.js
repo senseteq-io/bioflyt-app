@@ -144,7 +144,9 @@ function GroupAdvancedView(props) {
                 {t('Patients')}:
               </Text>
               {patients?.length ? (
-                <Title level={3}>{patients?.length}</Title>
+                <Badge dot={patients?.length < 6}>
+                  <Title level={3}>{patients?.length}</Title>
+                </Badge>
               ) : (
                 <Text>{t('Not selected')}</Text>
               )}

@@ -66,7 +66,7 @@ function GroupEdit() {
         Object.keys(groupData?.therapists)?.length &&
         groupData?.patients?.length
       ) && t('Save'),
-    []
+    [groupData]
   )
 
   // [CLEAN_FUNCTIONS]
