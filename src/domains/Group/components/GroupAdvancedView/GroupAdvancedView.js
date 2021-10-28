@@ -1,3 +1,4 @@
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { Badge, Tooltip } from 'antd'
 import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
@@ -14,8 +15,19 @@ import firebase from 'firebase'
 import _ from 'lodash'
 import { useHistory, generatePath } from 'react-router-dom'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
-import { Box, Card, Col, Row, Text, Title } from '@qonsoll/react-design'
+import { Box, Card, Col, Icon, Row, Text, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
+
+const exclamationIconStyles = {
+  position: 'absolute',
+  left: '100%',
+  top: 0,
+  cursor: 'help',
+  color: 'var(--ql-color-danger)',
+  display: 'flex',
+  mr: 2,
+  size: 'small'
+}
 
 const STATUS_COLOR_MAP = {
   DRAFT: 'gray',
@@ -139,14 +151,21 @@ function GroupAdvancedView(props) {
               <Text
                 whiteSpace="noWrap"
                 type="secondary"
-                fontWeight="var(--ql-font-weight-medium)"
-                mr={1}>
+                fontWeight="var(--ql-font-weight-medium)">
                 {t('Patients')}:
               </Text>
               {patients?.length ? (
-                <Badge dot={patients?.length < 6}>
+                <Box position="relative">
+                  {patients?.length < 6 && (
+                    <Tooltip title={t('Ideally in group should be 6 patients')}>
+                      <Icon
+                        {...exclamationIconStyles}
+                        component={<ExclamationCircleOutlined />}
+                      />
+                    </Tooltip>
+                  )}
                   <Title level={3}>{patients?.length}</Title>
-                </Badge>
+                </Box>
               ) : (
                 <Text>{t('Not selected')}</Text>
               )}
