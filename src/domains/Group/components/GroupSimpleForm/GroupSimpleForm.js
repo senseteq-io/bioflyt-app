@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
@@ -39,6 +39,12 @@ const exclamationIconStyles = {
 
 const MOMENT_FORMAT_FOR_TIMEPICKER = 'YYYY-MM-DD'
 const NEXT_COLLECT_DIFF = 3
+const CORRECT_FIRST_DAYS = ['Mon', 'Tue', 'Fri']
+const WRONG_FOURTH_DAYS = ['Sun', 'Sat', 'Wed', 'Tue']
+const DEFAULT_VALUE_FOR_DATEPICKERS = {
+  startDay: moment().format(MOMENT_FORMAT_FOR_TIMEPICKER),
+  fourthDay: moment().add(3, 'days').format(MOMENT_FORMAT_FOR_TIMEPICKER)
+}
 
 function GroupSimpleForm(props) {
   const {
@@ -49,7 +55,8 @@ function GroupSimpleForm(props) {
       .firestore()
       .collection(CLINICS_MODEL_NAME)
       .where('bioflowAccess', '==', true),
-    studyQuery
+    studyQuery,
+    initialValues = { ...DEFAULT_VALUE_FOR_DATEPICKERS }
   } = props
 
   // [ADDITIONAL_HOOKS]
@@ -64,11 +71,9 @@ function GroupSimpleForm(props) {
 
   // [COMPONENT_STATE_HOOKS]
   const [selectedClinic, setSelectedClinic] = useState(
-    props?.initialValues?.clinicId || (bioflowAccess && clinicId)
+    initialValues?.clinicId || (bioflowAccess && clinicId)
   )
-  const [selectedStudy, setSelectedStudy] = useState(
-    props?.initialValues?.studyId
-  )
+  const [selectedStudy, setSelectedStudy] = useState(initialValues?.studyId)
   const [groupId, setGroupId] = useState(id)
 
   // [CLEAN_FUNCTIONS]
@@ -77,7 +82,7 @@ function GroupSimpleForm(props) {
     if (value) {
       form.setFieldsValue({
         [field]: moment(value)
-          .add(amount, 'day')
+          .add(amount, 'days')
           .format(MOMENT_FORMAT_FOR_TIMEPICKER)
       })
       try {
@@ -196,7 +201,7 @@ function GroupSimpleForm(props) {
         ...value,
         therapists,
         weekNumber: moment(data.startDay).week(),
-        status: 'DRAFT'
+        status: DRAFT_STATUS
       }
       if (clinicId) {
         prepareData.clinicId = clinicId
@@ -240,19 +245,30 @@ function GroupSimpleForm(props) {
   }
 
   const checkInitialDate = () => {
-    const fourthDay = moment().add(3, 'day')
-    while (['Sun', 'Sat', 'Wed', 'Tue'].includes(fourthDay.format('ddd'))) {
-      fourthDay.add(1, 'day')
+    const fourthDay = moment().add(3, 'days')
+    while (WRONG_FOURTH_DAYS.includes(fourthDay.format('ddd'))) {
+      fourthDay.add(1, 'days')
     }
+
     form.setFieldsValue({
-      startDay: fourthDay
-        .subtract(NEXT_COLLECT_DIFF, 'days')
-        .format(MOMENT_FORMAT_FOR_TIMEPICKER)
+      startDay:
+        initialValues?.startDay ||
+        fourthDay
+          .subtract(NEXT_COLLECT_DIFF, 'days')
+          .format(MOMENT_FORMAT_FOR_TIMEPICKER),
+      fourthDay:
+        initialValues?.fourthDay ||
+        fourthDay
+          .add(NEXT_COLLECT_DIFF, 'days')
+          .format(MOMENT_FORMAT_FOR_TIMEPICKER)
     })
-    return fourthDay
-      .add(NEXT_COLLECT_DIFF, 'days')
-      .format(MOMENT_FORMAT_FOR_TIMEPICKER)
   }
+
+  useEffect(() => {
+    if (!initialValues?.startDay) {
+      checkInitialDate()
+    }
+  }, [])
 
   return (
     <Form {...props} form={form} onValuesChange={draftSave}>
@@ -309,7 +325,6 @@ function GroupSimpleForm(props) {
               </Box>
               <Form.Item
                 name="startDay"
-                initialValue={moment().format(MOMENT_FORMAT_FOR_TIMEPICKER)}
                 rules={[
                   {
                     require: true,
@@ -317,9 +332,7 @@ function GroupSimpleForm(props) {
                   },
                   {
                     validator: (_, value) =>
-                      ['Mon', 'Tue', 'Fri'].includes(
-                        moment(value).format('ddd')
-                      )
+                      CORRECT_FIRST_DAYS.includes(moment(value).format('ddd'))
                         ? Promise.resolve()
                         : Promise.reject(new Error(t('Select correct day')))
                   }
@@ -328,7 +341,7 @@ function GroupSimpleForm(props) {
                   type="date"
                   placeholder={t('Start day')}
                   onChange={(e) => onDateChange(e, 'fourthDay', 3)}
-                  min={moment().format(MOMENT_FORMAT_FOR_TIMEPICKER)}
+                  min={DEFAULT_VALUE_FOR_DATEPICKERS.startDay}
                 />
               </Form.Item>
             </Col>
@@ -345,7 +358,6 @@ function GroupSimpleForm(props) {
               </Box>
               <Form.Item
                 name="fourthDay"
-                initialValue={checkInitialDate()}
                 rules={[
                   {
                     require: true,
@@ -353,9 +365,7 @@ function GroupSimpleForm(props) {
                   },
                   {
                     validator: (_, value) =>
-                      ['Sun', 'Sat', 'Wed', 'Tue'].includes(
-                        moment(value).format('ddd')
-                      )
+                      WRONG_FOURTH_DAYS.includes(moment(value).format('ddd'))
                         ? Promise.reject(new Error(t('Select correct day')))
                         : Promise.resolve()
                   }
@@ -366,9 +376,7 @@ function GroupSimpleForm(props) {
                   onChange={(e) =>
                     onDateChange(e, 'startDay', -NEXT_COLLECT_DIFF)
                   }
-                  min={moment()
-                    .add(NEXT_COLLECT_DIFF, 'days')
-                    .format(MOMENT_FORMAT_FOR_TIMEPICKER)}
+                  min={DEFAULT_VALUE_FOR_DATEPICKERS.fourthDay}
                 />
               </Form.Item>
             </Col>
@@ -400,7 +408,7 @@ function GroupSimpleForm(props) {
             {t('Cancel')}
           </Button>
         </Col>
-        {props.initialValues?.status === DRAFT_STATUS && (
+        {initialValues?.status === DRAFT_STATUS && (
           <Col cw="auto" mr={3}>
             <Remove
               icon
@@ -410,7 +418,7 @@ function GroupSimpleForm(props) {
                 await firebase
                   .firestore()
                   .collection(GROUPS_MODEL_NAME)
-                  .doc(props.initialValues._id)
+                  .doc(initialValues._id)
                   .delete()
                 history.goBack()
               }}
