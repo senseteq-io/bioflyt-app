@@ -38,7 +38,7 @@ const TherapistAddFormListItem = (props) => {
           <Col cw="auto" mb={2}>
             <Text>
               {loading
-                ? t('Loading...')
+                ? `${t('Loading')}...`
                 : `${therapist?.firstName} ${therapist?.lastName}`}
             </Text>
           </Col>
