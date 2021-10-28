@@ -66,15 +66,15 @@ function GroupSimpleForm(props) {
   const { _id: clinicId, bioflowAccess } = useClinicContext()
   const { save, update } = useSaveData()
 
-  // [COMPUTED_PROPERTIES]
-  const form = useMemo(() => props.form || groupForm, [groupForm, props.form])
-
   // [COMPONENT_STATE_HOOKS]
   const [selectedClinic, setSelectedClinic] = useState(
     initialValues?.clinicId || (bioflowAccess && clinicId)
   )
   const [selectedStudy, setSelectedStudy] = useState(initialValues?.studyId)
   const [groupId, setGroupId] = useState(id)
+
+  // [COMPUTED_PROPERTIES]
+  const form = useMemo(() => props.form || groupForm, [groupForm, props.form])
 
   // [CLEAN_FUNCTIONS]
   const onDateChange = async (e, field, amount) => {
@@ -245,7 +245,7 @@ function GroupSimpleForm(props) {
   }
 
   const checkInitialDate = () => {
-    const fourthDay = moment().add(3, 'days')
+    const fourthDay = moment().add(NEXT_COLLECT_DIFF, 'days')
     while (WRONG_FOURTH_DAYS.includes(fourthDay.format('ddd'))) {
       fourthDay.add(1, 'days')
     }
