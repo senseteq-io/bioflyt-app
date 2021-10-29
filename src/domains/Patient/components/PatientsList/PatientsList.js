@@ -7,6 +7,8 @@ import { useParams } from 'react-router-dom'
 import { PatientSimpleView } from '..'
 import { ListWithCreate } from 'app/components'
 
+const DATE_FORMAT = 'D MMM YYYY'
+
 function PatientsList(props) {
   const { patients, startDay, fourthDay } = props
 
@@ -17,9 +19,15 @@ function PatientsList(props) {
   // [CLEAN_FUNCTIONS]
   const onDeliverBio = async (patientData) => {
     const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
-    if (moment(patient.firstDay).isSame(moment())) {
+    if (
+      moment(patient.firstDay).format(DATE_FORMAT) ===
+      moment().format(DATE_FORMAT)
+    ) {
       patient.firstDayBIOCollect = true
-    } else if (moment(patient.fourthDay).isSame(moment())) {
+    } else if (
+      moment(patient.fourthDay).format(DATE_FORMAT) ===
+      moment().format(DATE_FORMAT)
+    ) {
       patient.forthDayBIOCollect = true
     }
 
