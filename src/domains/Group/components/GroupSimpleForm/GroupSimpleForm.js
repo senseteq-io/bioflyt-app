@@ -48,17 +48,15 @@ const DEFAULT_VALUE_FOR_DATEPICKERS = {
     .format(MOMENT_FORMAT_FOR_TIMEPICKER)
 }
 
-const DEFAULT_BIOFLOW_ACCESS_CLINIC_QUERY = firebase
-  .firestore()
-  .collection(CLINICS_MODEL_NAME)
-  .where('bioflowAccess', '==', true)
-
 function GroupSimpleForm(props) {
   const {
     loading,
     submitText,
     id,
-    clinicQuery = DEFAULT_BIOFLOW_ACCESS_CLINIC_QUERY,
+    clinicQuery = firebase
+      .firestore()
+      .collection(CLINICS_MODEL_NAME)
+      .where('bioflowAccess', '==', true),
     studyQuery,
     initialValues = { ...DEFAULT_VALUE_FOR_DATEPICKERS }
   } = props
