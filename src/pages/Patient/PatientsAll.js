@@ -22,10 +22,11 @@ function PatientsAll() {
   const { update } = useSaveData()
 
   const [groups = []] = useCollectionData(
-    firebase
-      .firestore()
-      .collection(GROUPS_MODEL_NAME)
-      .where(`therapists.${therapistId}`, '>=', '')
+    therapistId &&
+      firebase
+        .firestore()
+        .collection(GROUPS_MODEL_NAME)
+        .where(`therapists.${therapistId}`, '>=', '')
   )
 
   //[COMPONENT STATE HOOKS]
@@ -44,9 +45,11 @@ function PatientsAll() {
             fourthDay: group?.fourthDay
           }))
         )
-        .flat(),
+        ?.flat()
+        ?.filter((patient) => patient),
     [groups]
   )
+
   const sortedPatientsList = useMemo(() => {
     return patients
       ? patients.sort((a, b) =>
@@ -76,7 +79,7 @@ function PatientsAll() {
 
   // [USE_EFFECTS]
   useEffect(() => {
-    if (sortedPatientsList) {
+    if (sortedPatientsList?.length) {
       const dates = [TODAY_DATE, TOMORROW_DATE]
       const buf = {}
       //create lists of patients for current day and tomorrow
@@ -101,29 +104,25 @@ function PatientsAll() {
         textAlign: 'left',
         marginBottom: 32
       }}>
-      <Fragment>
-        <Title level={4} mb={2}>
-          {t('Today')}
-        </Title>
-        <ListWithCreate
-          emptyText={t('There is no patients for today')}
-          withCreate={false}
-          dataSource={filteredList[TODAY_DATE]}>
-          <PatientSimpleView onDeliverBio={onDeliverBio} />
-        </ListWithCreate>
-      </Fragment>
+      <Title level={4} mb={2}>
+        {t('Today')}
+      </Title>
+      <ListWithCreate
+        emptyText={t('There is no patients for today')}
+        withCreate={false}
+        dataSource={filteredList[TODAY_DATE]}>
+        <PatientSimpleView onDeliverBio={onDeliverBio} />
+      </ListWithCreate>
 
-      <Fragment>
-        <Title level={4} mb={2}>
-          {t('Tomorrow')}
-        </Title>
-        <ListWithCreate
-          emptyText={t('There is no patients for tomorrow')}
-          withCreate={false}
-          dataSource={filteredList[TOMORROW_DATE]}>
-          <PatientSimpleView onDeliverBio={onDeliverBio} />
-        </ListWithCreate>
-      </Fragment>
+      <Title level={4} mb={2}>
+        {t('Tomorrow')}
+      </Title>
+      <ListWithCreate
+        emptyText={t('There is no patients for tomorrow')}
+        withCreate={false}
+        dataSource={filteredList[TOMORROW_DATE]}>
+        <PatientSimpleView onDeliverBio={onDeliverBio} />
+      </ListWithCreate>
     </PageWrapper>
   )
 }
