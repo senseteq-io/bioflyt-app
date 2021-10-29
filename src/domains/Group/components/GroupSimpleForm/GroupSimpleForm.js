@@ -275,13 +275,6 @@ function GroupSimpleForm(props) {
     })
   }
 
-  // On form init - check if current day is not forbidden.
-  useEffect(() => {
-    if (!initialValues?.startDay) {
-      checkInitialDate()
-    }
-  }, [])
-
   /* After initial values get into component
    * update selected study if it in initial values.
    */
@@ -289,6 +282,10 @@ function GroupSimpleForm(props) {
     form.setFieldsValue(initialValues)
     if (initialValues.studyId) {
       setSelectedStudy(initialValues.studyId)
+    }
+    // On form init - check if current day is not forbidden.
+    if (!initialValues?.startDay) {
+      checkInitialDate()
     }
   }, [initialValues])
 

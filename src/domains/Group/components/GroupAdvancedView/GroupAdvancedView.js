@@ -86,7 +86,7 @@ function GroupAdvancedView(props) {
 
   return (
     <Badge.Ribbon
-      text={_.upperFirst(_.toLower(status))}
+      text={t(_.upperFirst(_.toLower(status)))}
       color={STATUS_COLOR_MAP[status]}>
       <Card
         size="small"

@@ -1,12 +1,24 @@
 import { Box } from '@qonsoll/react-design'
 import { Form, Select } from 'antd'
 import { useTranslations } from '@qonsoll/translation'
+import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
 import therapistRoles from 'bioflow/constants/therapistRoles'
 import _ from 'lodash'
 import React from 'react'
 
-const TherapistForm = ({ form, onFinish, loading, value, therapists }) => {
+const TherapistForm = (props) => {
+  const { form, onFinish, loading, value, therapists } = props
+  // [ADDITIONAL_HOOKS]
   const { t } = useTranslations()
+
+  // [HELPER_FUNCTIONS]
+  // Interns & Members - unlimited. Admin, Leader, Vice leader - each by 1
+  const checkIfRoleAvailable = (roleName) =>
+    value
+      ? [THERAPIST_ROLES.MEMBER, THERAPIST_ROLES.INTERN].includes(roleName) ||
+        !Object.values(value)?.includes(roleName)
+      : true
+
   return (
     <Form form={form} onFinish={onFinish} preserve={false}>
       <Box mb={4}>
@@ -33,23 +45,19 @@ const TherapistForm = ({ form, onFinish, loading, value, therapists }) => {
         <Form.Item
           name="role"
           rules={[{ required: true, message: t('Select role, please') }]}>
-          <Select placeholder={t('Select role')} style={{ width: '100%' }}>
-            {Object.values(therapistRoles)
-              ?.filter((roleName) =>
-                value ? !Object.values(value)?.includes(roleName) : true
-              )
-              .map((role) => (
-                <Select.Option value={role} key={role}>
-                  {_.upperFirst(_.lowerCase(role))}
-                </Select.Option>
-              ))}
-          </Select>
+          <Select
+            placeholder={t('Select role')}
+            options={Object.values(therapistRoles)
+              .filter(checkIfRoleAvailable)
+              .map((role) => ({
+                label: t(_.upperFirst(_.lowerCase(role))),
+                value: role
+              }))}
+          />
         </Form.Item>
       </Box>
     </Form>
   )
 }
-
-TherapistForm.propTypes = {}
 
 export default TherapistForm

@@ -7,6 +7,7 @@ import {
   GROUPS_MODEL_NAME,
   ACTIVITIES_MODEL_NAME
 } from 'bioflow/constants/collections'
+import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
 import {
   DRAFT_STATUS,
   FUTURE_STATUS,
@@ -59,9 +60,22 @@ const useSaveGroup = () => {
     const { form, data: formData } = args
     const data = formData || form.getFieldsValue()
 
+    const isAllRoleAvailable = Object.values(data.therapists).map((role) =>
+      [
+        THERAPIST_ROLES.ADMIN,
+        THERAPIST_ROLES.DEPUTY_VICE_LEADER,
+        THERAPIST_ROLES.GROUP_LEADER
+      ].includes(role)
+    )
+
+    const isAllTherapistAdded =
+      isAllRoleAvailable.length === 3 &&
+      _.every(isAllRoleAvailable, (value) => value === true)
+
     if (
       data.clinicId &&
       Object.keys(data.therapists)?.length &&
+      isAllTherapistAdded &&
       data.patients?.length
     ) {
       try {
@@ -72,9 +86,11 @@ const useSaveGroup = () => {
       }
     } else {
       notification.warn({
-        message: t(
-          'Need at least one therapist and one patient in group to activate it'
-        )
+        message: isAllTherapistAdded
+          ? t(
+              'Need at least one therapist and one patient in group to activate it'
+            )
+          : t('Group should have Admin, Leader and Vice leader therapists')
       })
     }
   }

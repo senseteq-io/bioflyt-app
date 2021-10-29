@@ -1,3 +1,4 @@
+import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
@@ -26,6 +27,19 @@ const TherapistAddFormListItem = (props) => {
     onChange(newValue)
   }
 
+  /*
+   * Interns & Members - unlimited. Admin, Leader, Vice leader - each by 1
+   * don't remove item with current therapist role to correct select work.
+   */
+  const checkIfRoleAvailable = (roleName) =>
+    value
+      ? [
+          THERAPIST_ROLES.MEMBER,
+          THERAPIST_ROLES.INTERN,
+          value[therapistId]
+        ].includes(roleName) || !Object.values(value)?.includes(roleName)
+      : true
+
   return (
     <List.Item>
       <Card
@@ -51,13 +65,14 @@ const TherapistAddFormListItem = (props) => {
             <Select
               defaultValue={role}
               onChange={changeRole}
-              placeholder={t('Select role')}>
-              {Object.values(therapistRoles).map((role) => (
-                <Select.Option value={role} key={role}>
-                  {_.upperFirst(_.lowerCase(role))}
-                </Select.Option>
-              ))}
-            </Select>
+              placeholder={t('Select role')}
+              options={Object.values(therapistRoles)
+                .filter(checkIfRoleAvailable)
+                .map((role) => ({
+                  label: t(_.upperFirst(_.lowerCase(role))),
+                  value: role
+                }))}
+            />
           </Col>
         </Row>
       </Card>
