@@ -1,12 +1,13 @@
-import { CLINICS_MODEL_NAME } from 'app/constants/models'
-import { GROUPS } from 'bioflow/constants/collections'
-import moment from 'moment'
-import React from 'react'
-import { Box, Col, Row, Text } from '@qonsoll/react-design'
-import { Tooltip } from 'antd'
-import { useTranslations } from '@qonsoll/translation'
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import firebase from 'firebase'
+import React from 'react'
+import moment from 'moment'
+import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
+import { useTranslations } from '@qonsoll/translation'
+import { Tooltip } from 'antd'
+import { Box, Col, Row, Text } from '@qonsoll/react-design'
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+
 function ActivitySimpleView(props) {
   const { isGroupActivity, _createdAt, text, clinicId, groupId } = props
 
@@ -18,7 +19,7 @@ function ActivitySimpleView(props) {
     firebase.firestore().collection(CLINICS_MODEL_NAME).doc(clinicId)
   )
   const [groupData] = useDocumentDataOnce(
-    firebase.firestore().collection(GROUPS).doc(groupId)
+    firebase.firestore().collection(GROUPS_MODEL_NAME).doc(groupId)
   )
   const tooltipContent = (
     <>

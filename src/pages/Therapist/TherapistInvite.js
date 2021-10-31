@@ -5,8 +5,7 @@ import { useHistory } from 'react-router'
 import { useTranslations } from '@qonsoll/translation'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import firebase from 'firebase'
-import { STUDIES } from 'bioflow/constants/collections'
-import { useClinicContext } from 'app/domains/Clinic/contexts'
+import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useSaveData } from 'app/hooks'
 import {
@@ -28,7 +27,7 @@ import { FOI_ADMIN_APP } from 'app/constants/applications'
 
 const EMAIL_TO_PASSWORD_RDB_COLLECTION_NAME = 'userEmailExistance'
 
-function TherapistInvite(props) {
+function TherapistInvite() {
   //[ADDITIONAl HOOKS]
   const history = useHistory()
   const { t } = useTranslations()
@@ -39,7 +38,9 @@ function TherapistInvite(props) {
 
   const RDB = firebase.database()
 
-  const [studies] = useCollectionData(firebase.firestore().collection(STUDIES))
+  const [studies] = useCollectionData(
+    firebase.firestore().collection(STUDIES_MODEL_NAME)
+  )
   const [clinics] = useCollectionData(
     firebase
       .firestore()
@@ -184,7 +185,5 @@ function TherapistInvite(props) {
     </PageWrapper>
   )
 }
-
-TherapistInvite.propTypes = {}
 
 export default TherapistInvite

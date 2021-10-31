@@ -1,3 +1,4 @@
+import { useUserContext } from 'app/domains/User/contexts'
 import {
   DRAFT_STATUS,
   FINISHED_STATUS,
@@ -5,7 +6,7 @@ import {
   ONGOING_STATUS
 } from 'bioflow/constants/groupStatuses'
 import React, { useEffect, useMemo, useState, Fragment } from 'react'
-import { Box, Title } from '@qonsoll/react-design'
+import { Box, NoData, Title } from '@qonsoll/react-design'
 import { List } from 'antd'
 import { GroupAdvancedView } from 'bioflow/domains/Group/components'
 import firebase from 'firebase'
@@ -15,7 +16,7 @@ import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { AddItem } from 'app/components'
-import { GROUPS } from 'bioflow/constants/collections'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import { useBioflowAccess } from 'bioflow/hooks'
 import {
   BIOFLOW_ADMIN_GROUP_CREATE_PATH,
@@ -27,10 +28,16 @@ function GroupsList() {
   const { t } = useTranslations()
   const history = useHistory()
   const { isAdmin } = useBioflowAccess()
-  // const { _id: clinicId } = useClinicContext()
+  const { _id: therapistId } = useUserContext()
+
+  const groupCollectionRef = firebase.firestore().collection(GROUPS_MODEL_NAME)
 
   // [DATA FETCH]
-  const [list] = useCollectionData(firebase.firestore().collection(GROUPS))
+  const [list] = useCollectionData(
+    isAdmin
+      ? groupCollectionRef
+      : groupCollectionRef.where(`therapists.${therapistId}`, '>=', '')
+  )
 
   // [COMPONENT_STATE_HOOKS]
   const [filteredList, setFilteredList] = useState({})
@@ -75,6 +82,7 @@ function GroupsList() {
           createText={t('Add group')}
         />
       </Box>
+      {!Object.keys(filteredList).length && <NoData />}
 
       {filteredList[DRAFT_STATUS] && (
         <GroupFilteredList

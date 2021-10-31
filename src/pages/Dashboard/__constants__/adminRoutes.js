@@ -7,6 +7,6 @@ export default [
     name: 'Dashboard',
     path: BIOFLOW_ADMIN_PATH,
     exact: false,
-    component: (props) => <Dashboard isAdmin {...props} />
+    component: Dashboard
   }
 ]

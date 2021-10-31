@@ -1,8 +1,7 @@
 import { CheckOutlined } from '@ant-design/icons'
 import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
-import { STUDIES } from 'bioflow/constants/collections'
-import firebase from 'firebase'
+import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
 import React, { useState } from 'react'
 import { Box, Card, Input, Text } from '@qonsoll/react-design'
 import { notification, Tooltip } from 'antd'
@@ -26,7 +25,7 @@ function StudySimpleView(props) {
     } else {
       if (newName && name !== newName) {
         await save({
-          collection: STUDIES,
+          collection: STUDIES_MODEL_NAME,
           id: _id,
           data: { name: newName },
           withNotification: true
@@ -42,7 +41,7 @@ function StudySimpleView(props) {
     }
   }
   const handleRemove = async () => {
-    await remove({ collection: STUDIES, id: _id })
+    await remove({ collection: STUDIES_MODEL_NAME, id: _id })
     notification.success({
       message: t(`Study successfully deleted`)
     })

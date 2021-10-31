@@ -1,20 +1,34 @@
+import React from 'react'
+import PropTypes from 'prop-types'
+import firebase from 'firebase'
+import _ from 'lodash'
+import { useTranslations } from '@qonsoll/translation'
+import { useHistory, generatePath } from 'react-router-dom'
+import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { Badge, Tooltip } from 'antd'
-import { STUDIES } from 'bioflow/constants/collections'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
+import { Box, Card, Col, Icon, Row, Text, Title } from '@qonsoll/react-design'
+import { useBioflowAccess } from 'bioflow/hooks'
+import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
+import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
+import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import {
   BIOFLOW_ADMIN_GROUP_EDIT_PATH,
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
   BIOFLOW_GROUP_EDIT_PATH,
   BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
-import { useBioflowAccess } from 'bioflow/hooks'
-import React from 'react'
-import PropTypes from 'prop-types'
-import firebase from 'firebase'
-import { useHistory, generatePath } from 'react-router-dom'
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
-import { Box, Card, Col, Row, Text, Title } from '@qonsoll/react-design'
-import { useTranslations } from '@qonsoll/translation'
-import { useService } from 'bioflow/contexts/Service'
+
+const exclamationIconStyles = {
+  position: 'absolute',
+  left: '100%',
+  top: 0,
+  cursor: 'help',
+  color: 'var(--ql-color-danger)',
+  display: 'flex',
+  mr: 2,
+  size: 'small'
+}
 
 const STATUS_COLOR_MAP = {
   DRAFT: 'gray',
@@ -31,31 +45,30 @@ function GroupAdvancedView(props) {
     disorderId,
     studyId,
     patients,
-    status,
-    place
+    status
   } = props
 
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const { t } = useTranslations()
-  const { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } = useService()
   const { isAdmin } = useBioflowAccess()
 
   // [DATA_FETCH]
   const [clinicData] = useDocumentDataOnce(
-    firebase.firestore().collection(CLINICS_MODEL_NAME).doc(clinicId)
+    clinicId &&
+      firebase.firestore().collection(CLINICS_MODEL_NAME).doc(clinicId)
   )
   const [disorderData] = useDocumentDataOnce(
     disorderId &&
       firebase.firestore().collection(DISORDERS_MODEL_NAME).doc(disorderId)
   )
   const [studyData] = useDocumentDataOnce(
-    studyId && firebase.firestore().collection(STUDIES).doc(studyId)
+    studyId && firebase.firestore().collection(STUDIES_MODEL_NAME).doc(studyId)
   )
 
   // [CLEAN_FUNCTIONS]
   const goToGroup = () => {
-    if (status === 'DRAFT') {
+    if (status === DRAFT_STATUS) {
       return history.push(
         generatePath(
           isAdmin ? BIOFLOW_ADMIN_GROUP_EDIT_PATH : BIOFLOW_GROUP_EDIT_PATH,
@@ -72,7 +85,9 @@ function GroupAdvancedView(props) {
   }
 
   return (
-    <Badge.Ribbon text={status} color={STATUS_COLOR_MAP[status]}>
+    <Badge.Ribbon
+      text={t(_.upperFirst(_.toLower(status)))}
+      color={STATUS_COLOR_MAP[status]}>
       <Card
         size="small"
         bordered={false}
@@ -96,10 +111,7 @@ function GroupAdvancedView(props) {
                   mr={1}>
                   {t('Clinic')}:
                 </Text>
-                <Text>
-                  {clinicData?.name}
-                  {place ? ` (${place})` : ''}
-                </Text>
+                <Text>{clinicData?.name}</Text>
               </Col>
               <Col flexDirection="row" cw={12}>
                 <Text
@@ -136,11 +148,24 @@ function GroupAdvancedView(props) {
               <Text
                 whiteSpace="noWrap"
                 type="secondary"
-                fontWeight="var(--ql-font-weight-medium)"
-                mr={1}>
+                fontWeight="var(--ql-font-weight-medium)">
                 {t('Patients')}:
               </Text>
-              <Title level={3}>{patients.length}</Title>
+              {patients?.length ? (
+                <Box position="relative">
+                  {patients?.length < 6 && (
+                    <Tooltip title={t('Ideally in group should be 6 patients')}>
+                      <Icon
+                        {...exclamationIconStyles}
+                        component={<ExclamationCircleOutlined />}
+                      />
+                    </Tooltip>
+                  )}
+                  <Title level={3}>{patients?.length}</Title>
+                </Box>
+              ) : (
+                <Text>{t('Not selected')}</Text>
+              )}
             </Box>
           </Col>
         </Row>
