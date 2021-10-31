@@ -1,9 +1,10 @@
-import moment from 'moment'
 import React from 'react'
-import { Box, Button, Card, Icon, Text } from '@qonsoll/react-design'
+import moment from 'moment'
 import { useTranslations } from '@qonsoll/translation'
-import { CheckOutlined } from '@ant-design/icons'
 import { Tooltip } from 'antd'
+import { Box, Button, Card, Icon, Text } from '@qonsoll/react-design'
+import { CheckOutlined } from '@ant-design/icons'
+import { useBioflowAccess } from 'bioflow/hooks'
 
 const successIconStyles = {
   display: 'flex',
@@ -26,6 +27,7 @@ function PatientSimpleView(props) {
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
+  const { isAdmin } = useBioflowAccess()
 
   const isBIOCollectEnabled =
     moment(startDay?.toDate()).format('DD-MM-YYYY') ===
@@ -47,13 +49,17 @@ function PatientSimpleView(props) {
         </Tooltip>
         <Box>
           {!(firstDayBIOCollect || fourthDayBIOCollect || lastBIOCollect) && (
-            <Button
-              ghost
-              type="primary"
-              onClick={() => onDeliverBio(props)}
-              disabled={!isBIOCollectEnabled}>
-              {t('Deliver Bio')}
-            </Button>
+            <Tooltip title={isAdmin && "Admin can't collect BIO"}>
+              <Box>
+                <Button
+                  ghost
+                  type="primary"
+                  onClick={() => onDeliverBio(props)}
+                  disabled={!isBIOCollectEnabled || isAdmin}>
+                  {t('Deliver Bio')}
+                </Button>
+              </Box>
+            </Tooltip>
           )}
           {(firstDayBIOCollect || fourthDayBIOCollect || lastBIOCollect) &&
             isBIOCollectEnabled && (

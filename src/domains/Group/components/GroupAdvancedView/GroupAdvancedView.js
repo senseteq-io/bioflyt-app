@@ -1,22 +1,23 @@
-import { ExclamationCircleOutlined } from '@ant-design/icons'
+import React from 'react'
+import PropTypes from 'prop-types'
+import firebase from 'firebase'
+import _ from 'lodash'
+import { useTranslations } from '@qonsoll/translation'
+import { useHistory, generatePath } from 'react-router-dom'
+import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { Badge, Tooltip } from 'antd'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
+import { Box, Card, Col, Icon, Row, Text, Title } from '@qonsoll/react-design'
+import { useBioflowAccess } from 'bioflow/hooks'
 import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
+import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import {
   BIOFLOW_ADMIN_GROUP_EDIT_PATH,
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
   BIOFLOW_GROUP_EDIT_PATH,
   BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
-import { useBioflowAccess } from 'bioflow/hooks'
-import React from 'react'
-import PropTypes from 'prop-types'
-import firebase from 'firebase'
-import _ from 'lodash'
-import { useHistory, generatePath } from 'react-router-dom'
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
-import { Box, Card, Col, Icon, Row, Text, Title } from '@qonsoll/react-design'
-import { useTranslations } from '@qonsoll/translation'
 
 const exclamationIconStyles = {
   position: 'absolute',
@@ -44,8 +45,7 @@ function GroupAdvancedView(props) {
     disorderId,
     studyId,
     patients,
-    status,
-    place
+    status
   } = props
 
   // [ADDITIONAL HOOKS]
@@ -68,7 +68,7 @@ function GroupAdvancedView(props) {
 
   // [CLEAN_FUNCTIONS]
   const goToGroup = () => {
-    if (status === 'DRAFT') {
+    if (status === DRAFT_STATUS) {
       return history.push(
         generatePath(
           isAdmin ? BIOFLOW_ADMIN_GROUP_EDIT_PATH : BIOFLOW_GROUP_EDIT_PATH,
@@ -111,10 +111,7 @@ function GroupAdvancedView(props) {
                   mr={1}>
                   {t('Clinic')}:
                 </Text>
-                <Text>
-                  {clinicData?.name}
-                  {place ? ` (${place})` : ''}
-                </Text>
+                <Text>{clinicData?.name}</Text>
               </Col>
               <Col flexDirection="row" cw={12}>
                 <Text
