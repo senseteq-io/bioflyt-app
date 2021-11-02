@@ -145,9 +145,10 @@ const useSaveGroup = () => {
   })
   const saveDataWithStatus = errorBoundary(async (args) => {
     const data = await normalizeData(args)
-    const groupId = await save({
+    await save({
       collection: GROUPS_MODEL_NAME,
       data,
+      id: data._id,
       withNotification: true
     })
 
@@ -159,13 +160,18 @@ const useSaveGroup = () => {
     await save({
       collection: ACTIVITIES_MODEL_NAME,
       data: {
-        groupId,
+        groupId: data._id,
         clinicId: args.data.clinicId,
         text: `${t(
           args.isActivate ? 'Group was activated by' : messages[args.status]
         )} ${_.lowerCase(role)} ${firstName} ${lastName}`
       }
     })
+
+    const func = await firebase
+      .functions()
+      .httpsCallable('sendInviteNotifications')
+    await func({ groupId: data._id })
   })
 
   return { updateDataWithStatus, saveDataWithStatus }
