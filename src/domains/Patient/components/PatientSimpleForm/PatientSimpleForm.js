@@ -3,7 +3,6 @@ import { Form, Tooltip } from 'antd'
 import { Box, Button, Col, Icon, Input, Row, Text } from '@qonsoll/react-design'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { useTranslations } from '@qonsoll/translation'
-import { useHistory } from 'react-router'
 import moment from 'moment'
 
 const WRONG_DAYS = ['Sat', 'Sun']
@@ -23,7 +22,6 @@ const PatientSimpleForm = (props) => {
 
   //[ADDITIONAL HOOKS]
   const { t } = useTranslations()
-  const history = useHistory()
   const [form] = Form.useForm()
 
   //[CLEAN FUNCTIONS]
