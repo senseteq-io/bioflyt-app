@@ -31,10 +31,7 @@ function NotificationSimpleView(props) {
   const { update } = useSaveData()
 
   const [groupData] = useDocumentData(
-    firebase
-      .firestore()
-      .collection(GROUPS_MODEL_NAME)
-      .where('_id', '==', groupId)
+    firebase.firestore().collection(GROUPS_MODEL_NAME).doc(groupId)
   )
 
   // [COMPUTED PROPERTIES]

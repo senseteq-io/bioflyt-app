@@ -112,6 +112,7 @@ function GroupShow() {
         </Box>
         <PatientsList
           patients={groupData?.patients}
+          groupId={groupData?._id}
           startDay={groupData?.startDay}
           fourthDay={groupData?.fourthDay}
         />

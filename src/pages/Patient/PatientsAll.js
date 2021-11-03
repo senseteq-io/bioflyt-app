@@ -10,6 +10,7 @@ import { useSaveData } from 'app/hooks'
 import firebase from 'firebase'
 import moment from 'moment'
 import _ from 'lodash'
+import { ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
 
 const DATE_FORMAT = 'D MMM YYYY'
 const TODAY_DATE = moment().format(DATE_FORMAT)
@@ -21,33 +22,38 @@ function PatientsAll() {
   const { _id: therapistId } = useUserContext()
   const { update } = useSaveData()
 
-  const [groups = []] = useCollectionData(
+  const [groups] = useCollectionData(
     therapistId &&
       firebase
         .firestore()
         .collection(GROUPS_MODEL_NAME)
-        .where(`therapists.${therapistId}`, '>=', '')
+        .where(`therapists.${therapistId}`, '!=', '')
   )
 
   //[COMPONENT STATE HOOKS]
   const [filteredList, setFilteredList] = useState({})
 
   //[COMPUTED PROPERTIES]
+  const filteredGroups = useMemo(
+    () => groups?.filter((group) => group?.status === ONGOING_STATUS),
+    [groups]
+  )
   const patients = useMemo(
     () =>
-      groups
+      filteredGroups
         ?.map((group) =>
           group?.patients?.map((patient) => ({
             ...patient,
             name: patient?.generated,
             groupId: group?._id,
+            patients: group?.patients,
             startDay: group?.startDay,
             fourthDay: group?.fourthDay
           }))
         )
         ?.flat()
         ?.filter((patient) => patient),
-    [groups]
+    [filteredGroups]
   )
 
   const sortedPatientsList = useMemo(() => {
@@ -63,11 +69,26 @@ function PatientsAll() {
   //[CLEAN FUNCTIONS]
   const onDeliverBio = async (patientData) => {
     const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
-    if (moment(patient.firstDay).format(DATE_FORMAT) === TODAY_DATE) {
+    const { startDay, fourthDay, threeMonthDay } = patientData || {}
+    const todayDate = moment().format(DATE_FORMAT)
+
+    if (
+      startDay &&
+      moment(startDay.toDate()).format(DATE_FORMAT) === todayDate
+    ) {
       patient.firstDayBIOCollect = true
-    } else if (moment(patient.fourthDay).format(DATE_FORMAT) === TODAY_DATE) {
+    } else if (
+      fourthDay &&
+      moment(fourthDay.toDate()).format(DATE_FORMAT) === todayDate
+    ) {
       patient.forthDayBIOCollect = true
+    } else if (
+      threeMonthDay &&
+      moment(threeMonthDay.toDate()).format(DATE_FORMAT) === todayDate
+    ) {
+      patient.lastBIOCollect = true
     }
+
     if (patientData?.groupId) {
       await update({
         collection: GROUPS_MODEL_NAME,
