@@ -45,7 +45,7 @@ const generatePatients = async (data, weekNumber) => {
     ...data,
     generated: `${weekNumber}${clinicData?.name || ''}${
       disorderData?.name || ''
-    }${data.initial.toUpperCase()}`.replaceAll('', ''),
+    }${data.initial.toUpperCase()}`.replaceAll(' ', ''),
     initial: data.initial
   }))
 }
@@ -152,6 +152,10 @@ const useSaveGroup = () => {
       withNotification: true
     })
 
+    await firebase.functions().httpsCallable('sendInviteNotifications')({
+      groupId: data._id
+    })
+
     const messages = {
       [DRAFT_STATUS]: 'Group was saved as a draft by',
       [ONGOING_STATUS]: 'Group was created by'
@@ -167,11 +171,6 @@ const useSaveGroup = () => {
         )} ${_.lowerCase(role)} ${firstName} ${lastName}`
       }
     })
-
-    const func = await firebase
-      .functions()
-      .httpsCallable('sendInviteNotifications')
-    await func({ groupId: data._id })
   })
 
   return { updateDataWithStatus, saveDataWithStatus }
