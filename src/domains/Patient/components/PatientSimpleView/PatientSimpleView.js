@@ -55,57 +55,42 @@ function PatientSimpleView(props) {
     [startDay, fourthDay]
   )
 
-  const nextTimeBIOCollect = useMemo(
-    () =>
-      `${t('Next bio collect on')} ${moment(fourthDay?.toDate()).format(
-        'D MMM YYYY'
-      )}`,
-    [fourthDay]
-  )
+  const nextTimeBIOCollect = useMemo(() => {
+    const nextBioDate =
+      (isTodayFirstDay && fourthDay) || (isTodayFourthDay && threeMonthDay)
 
-  //button always visible except situations when today deliver bio day
-  //and today bio was sent
-  const isDeliverBioButtonVisible = useMemo(
-    () =>
-      !isBIOCollectEnabled ||
-      (isTodayFirstDay && !firstDayBIOCollect) ||
-      (isTodayFourthDay && !fourthDayBIOCollect) ||
-      (isTodayThreeMonthDay && !lastBIOCollect),
-    [
-      firstDayBIOCollect,
-      fourthDayBIOCollect,
-      lastBIOCollect,
-      isBIOCollectEnabled,
-      isTodayFirstDay,
-      isTodayFourthDay,
-      isTodayThreeMonthDay
-    ]
-  )
+    return nextBioDate
+      ? `${t('Next bio collect on')} ${moment(nextBioDate?.toDate()).format(
+          'D MMM YYYY'
+        )}`
+      : t('All stages of bio were collected')
+  }, [fourthDay, isTodayFirstDay, isTodayFourthDay, threeMonthDay])
 
   //if today collect bio day and bio was collected
-  //for any of dates(start day, fourth day or three months)
-  //and also date for three month was set - show success icon
+  //and when fourth day and date for three month was set - show success icon
   const isSuccessIconVisible = useMemo(
     () =>
-      (firstDayBIOCollect ||
-        (fourthDayBIOCollect && threeMonthDay) ||
-        lastBIOCollect) &&
-      isBIOCollectEnabled,
+      (isTodayFirstDay && firstDayBIOCollect) ||
+      (isTodayFourthDay && fourthDayBIOCollect) ||
+      lastBIOCollect,
     [
       firstDayBIOCollect,
       fourthDayBIOCollect,
       lastBIOCollect,
-      threeMonthDay,
-      isBIOCollectEnabled
+      isTodayFirstDay,
+      isTodayFourthDay
     ]
   )
 
-  //if user is therapist and today is fourth day when we collect bio
+  const isDeliverBioButtonVisible = useMemo(() => !isSuccessIconVisible, [
+    isSuccessIconVisible
+  ])
+
+  //if user is therapist and today is fourth collect bio day
   //and date for three month visit wasn`t set - show set date button
   const setThreeMonthDateButtonVisible = useMemo(
-    () =>
-      !isAdmin && fourthDayBIOCollect && !threeMonthDay && isBIOCollectEnabled,
-    [isAdmin, fourthDayBIOCollect, threeMonthDay, isBIOCollectEnabled]
+    () => !isAdmin && isTodayFourthDay && fourthDayBIOCollect && !threeMonthDay,
+    [isAdmin, isTodayFourthDay, fourthDayBIOCollect, threeMonthDay]
   )
 
   //[CLEAN FUNCTIONS]
@@ -123,20 +108,25 @@ function PatientSimpleView(props) {
       (patient) => patient?.id === patientId
     )
 
-    const updatedPatientData = { ...patients[patientIndex] }
     //set three month date visit to patient data in firebase timestamp format
     if (patientIndex >= 0 && threeMonthDay && groupId && patientId) {
-      updatedPatientData.threeMonthDay = firebase.firestore.Timestamp.fromDate(
+      patients[
+        patientIndex
+      ].threeMonthDay = firebase.firestore.Timestamp.fromDate(
         new Date(threeMonthDay)
       )
 
       update({
         collection: GROUPS_MODEL_NAME,
         id: groupId,
-        data: { patients: [...patients, updatedPatientData] }
+        data: { patients }
       })
     }
     setIsModalVisible(false)
+  }
+
+  const onClickDeliverBio = () => {
+    onDeliverBio(props)
   }
 
   return (
@@ -159,14 +149,14 @@ function PatientSimpleView(props) {
                   <Button
                     ghost
                     type="primary"
-                    onClick={() => onDeliverBio(props)}
+                    onClick={onClickDeliverBio}
                     disabled={!isBIOCollectEnabled || isAdmin}>
                     {t('Deliver Bio')}
                   </Button>
                 </Box>
               </Tooltip>
             )}
-            {isSuccessIconVisible && (
+            {isSuccessIconVisible && !setThreeMonthDateButtonVisible && (
               <Tooltip title={nextTimeBIOCollect}>
                 <Icon {...successIconStyles} component={<CheckOutlined />} />
               </Tooltip>
