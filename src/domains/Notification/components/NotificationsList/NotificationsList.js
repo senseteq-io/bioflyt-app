@@ -16,6 +16,8 @@ function NotificationsList(props) {
     .firestore()
     .collection(NOTIFICATIONS_MODEL_NAME)
 
+  //Get notifications for therapist if his id in receivers field
+  //or just get all notifications for super admin
   const [notifications] = useCollectionData(
     isAdmin
       ? notificationsCollectionRef

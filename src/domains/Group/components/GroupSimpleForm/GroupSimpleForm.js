@@ -58,7 +58,8 @@ function GroupSimpleForm(props) {
       .collection(CLINICS_MODEL_NAME)
       .where('bioflowAccess', '==', true),
     studyQuery,
-    initialValues = { ...DEFAULT_VALUE_FOR_DATEPICKERS }
+    initialValues = { ...DEFAULT_VALUE_FOR_DATEPICKERS },
+    onFinish
   } = props
 
   // [ADDITIONAL_HOOKS]
@@ -290,7 +291,11 @@ function GroupSimpleForm(props) {
   }, [initialValues])
 
   return (
-    <Form {...props} form={form} onValuesChange={draftSave}>
+    <Form
+      {...props}
+      onFinish={(data) => onFinish({ ...data, _id: groupId })}
+      form={form}
+      onValuesChange={draftSave}>
       <Row noGutters>
         <Col cw={12} mb={3}>
           <Text mb={2}>{t('Clinic')}</Text>

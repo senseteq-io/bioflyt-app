@@ -35,9 +35,13 @@ function NotificationSimpleView(props) {
   )
 
   // [COMPUTED PROPERTIES]
-  const groupName = useMemo(() => `${t('Group')} ${groupData?.weekNumber}`, [
-    groupData
-  ])
+  const groupName = useMemo(
+    () =>
+      groupData?.weekNumber
+        ? `${t('Group')}: ${t('Week')} ${groupData?.weekNumber}`
+        : t('Group was deleted'),
+    [groupData]
+  )
 
   const isSeen = useMemo(() => receivers?.[therapistId] || answer, [
     receivers,
