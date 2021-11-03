@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { PageWrapper, Title } from '@qonsoll/react-design'
 import { ListWithCreate } from 'app/components'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
@@ -57,18 +57,17 @@ function PatientsAll() {
   )
 
   const sortedPatientsList = useMemo(() => {
-    return patients
-      ? patients.sort((a, b) =>
-          moment
-            .unix(b?.startDay?.seconds)
-            .diff(moment.unix(a?.startDay?.seconds))
-        )
+    return patients?.length
+      ? patients.sort((a, b) => (a?.id > b?.id && 1) || -1)
       : []
   }, [patients])
 
   //[CLEAN FUNCTIONS]
   const onDeliverBio = async (patientData) => {
-    const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
+    const patient = _.remove(
+      patientData?.patients,
+      ({ id }) => id === patientData.id
+    )[0]
     const { startDay, fourthDay, threeMonthDay } = patientData || {}
     const todayDate = moment().format(DATE_FORMAT)
 
@@ -81,7 +80,7 @@ function PatientsAll() {
       fourthDay &&
       moment(fourthDay.toDate()).format(DATE_FORMAT) === todayDate
     ) {
-      patient.forthDayBIOCollect = true
+      patient.fourthDayBIOCollect = true
     } else if (
       threeMonthDay &&
       moment(threeMonthDay.toDate()).format(DATE_FORMAT) === todayDate
@@ -89,11 +88,11 @@ function PatientsAll() {
       patient.lastBIOCollect = true
     }
 
-    if (patientData?.groupId) {
+    if (patientData?.groupId && patientData?.patients?.length) {
       await update({
         collection: GROUPS_MODEL_NAME,
         id: patientData.groupId,
-        data: { patients: [...patients, patient] }
+        data: { patients: [...patientData.patients, patient] }
       })
     }
   }
@@ -106,10 +105,12 @@ function PatientsAll() {
       //create lists of patients for current day and tomorrow
 
       dates.forEach((date) => {
-        buf[date] = sortedPatientsList?.filter((item) =>
+        buf[date] = sortedPatientsList?.filter((patient) =>
           [
-            moment(item?.startDay?.toDate?.()).format(DATE_FORMAT),
-            moment(item?.fourthDay?.toDate?.()).format(DATE_FORMAT)
+            moment(patient?.startDay?.toDate?.()).format(DATE_FORMAT),
+            moment(patient?.fourthDay?.toDate?.()).format(DATE_FORMAT),
+            patient?.threeMonthDay &&
+              moment(patient.threeMonthDay.toDate()).format(DATE_FORMAT)
           ].includes(date)
         )
       })
@@ -142,7 +143,7 @@ function PatientsAll() {
         emptyText={t('There is no patients for tomorrow')}
         withCreate={false}
         dataSource={filteredList[TOMORROW_DATE]}>
-        <PatientSimpleView onDeliverBio={onDeliverBio} />
+        <PatientSimpleView on DeliverBio={onDeliverBio} />
       </ListWithCreate>
     </PageWrapper>
   )
