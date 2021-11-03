@@ -12,19 +12,21 @@ import { Link, useHistory, useParams, generatePath } from 'react-router-dom'
 import { Breadcrumb } from 'antd'
 import {
   BIOFLOW_ADMIN_GROUPS_PATH,
-  BIOFLOW_ADMIN_GROUP_SHOW_PATH
+  BIOFLOW_ADMIN_GROUP_SHOW_PATH,
+  BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
 import {
   ACTIVITIES_MODEL_NAME,
   GROUPS_MODEL_NAME
 } from 'bioflow/constants/collections'
+import { useBioflowAccess } from 'bioflow/hooks'
 
 function GroupActivitiesAll() {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
   const history = useHistory()
   const { id } = useParams()
-
+  const { isAdmin } = useBioflowAccess()
   // [DATA_FETCH]
   const [groupData] = useDocumentDataOnce(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
@@ -42,7 +44,10 @@ function GroupActivitiesAll() {
   const uniqueDates = actionsDates?.filter(
     (day, index, self) => self.indexOf(day) === index
   )
-  const groupShowPath = generatePath(BIOFLOW_ADMIN_GROUP_SHOW_PATH, { id })
+  const groupShowPath = generatePath(
+    isAdmin ? BIOFLOW_ADMIN_GROUP_SHOW_PATH : BIOFLOW_GROUP_SHOW_PATH,
+    { id }
+  )
 
   const groupActivitiesBreadcrumbs = (
     <Fragment>

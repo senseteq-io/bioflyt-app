@@ -13,6 +13,7 @@ import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import {
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH,
+  BIOFLOW_ADMIN_GROUP_EDIT_PATH,
   BIOFLOW_GROUP_ACTIVITIES_PATH,
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
@@ -49,7 +50,12 @@ function GroupShow() {
   }
 
   const goToGroupEdit = () => {
-    history.push(generatePath(BIOFLOW_GROUP_EDIT_PATH, { id }))
+    history.push(
+      generatePath(
+        isAdmin ? BIOFLOW_ADMIN_GROUP_EDIT_PATH : BIOFLOW_GROUP_EDIT_PATH,
+        { id }
+      )
+    )
   }
 
   const onRemoveGroup = async () => {
