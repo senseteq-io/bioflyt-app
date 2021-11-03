@@ -28,8 +28,6 @@ function PatientsList(props) {
     const { startDay, fourthDay, threeMonthDay } = patientData || {}
     const todayDate = moment().format(DATE_FORMAT)
 
-    // console.log(startDay, fourthDay, threeMonthDay)
-
     if (
       startDay &&
       moment(startDay.toDate()).format(DATE_FORMAT) === todayDate
@@ -39,7 +37,7 @@ function PatientsList(props) {
       fourthDay &&
       moment(fourthDay.toDate()).format(DATE_FORMAT) === todayDate
     ) {
-      patient.forthDayBIOCollect = true
+      patient.fourthDayBIOCollect = true
     } else if (
       threeMonthDay &&
       moment(threeMonthDay.toDate()).format(DATE_FORMAT) === todayDate
