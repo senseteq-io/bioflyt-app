@@ -28,12 +28,12 @@ function PatientSimpleView(props) {
     name,
     groupId,
     patients,
-    startDay,
+    firstDay,
     fourthDay,
     threeMonthDay,
-    firstDayBIOCollect,
-    fourthDayBIOCollect,
-    lastBIOCollect,
+    firstDayBIOCollected,
+    fourthDayBIOCollected,
+    threeMonthDayBIOCollected,
     onDeliverBio
   } = props
 
@@ -46,13 +46,13 @@ function PatientSimpleView(props) {
   const [isModalVisible, setIsModalVisible] = useState(false)
 
   //[COMPUTED PROPERTIES]
-  const isTodayFirstDay = checkIsTodayDate(startDay)
+  const isTodayFirstDay = checkIsTodayDate(firstDay)
   const isTodayFourthDay = checkIsTodayDate(fourthDay)
   const isTodayThreeMonthDay = threeMonthDay && checkIsTodayDate(threeMonthDay)
 
   const isBIOCollectEnabled = useMemo(
     () => isTodayFirstDay || isTodayFourthDay || isTodayThreeMonthDay,
-    [startDay, fourthDay]
+    [firstDay, fourthDay]
   )
 
   const nextTimeBIOCollect = useMemo(() => {
@@ -70,13 +70,13 @@ function PatientSimpleView(props) {
   //and when fourth day and date for three month was set - show success icon
   const isSuccessIconVisible = useMemo(
     () =>
-      (isTodayFirstDay && firstDayBIOCollect) ||
-      (isTodayFourthDay && fourthDayBIOCollect) ||
-      lastBIOCollect,
+      (isTodayFirstDay && firstDayBIOCollected) ||
+      (isTodayFourthDay && fourthDayBIOCollected) ||
+      threeMonthDayBIOCollected,
     [
-      firstDayBIOCollect,
-      fourthDayBIOCollect,
-      lastBIOCollect,
+      firstDayBIOCollected,
+      fourthDayBIOCollected,
+      threeMonthDayBIOCollected,
       isTodayFirstDay,
       isTodayFourthDay
     ]
@@ -89,8 +89,9 @@ function PatientSimpleView(props) {
   //if user is therapist and today is fourth collect bio day
   //and date for three month visit wasn`t set - show set date button
   const setThreeMonthDateButtonVisible = useMemo(
-    () => !isAdmin && isTodayFourthDay && fourthDayBIOCollect && !threeMonthDay,
-    [isAdmin, isTodayFourthDay, fourthDayBIOCollect, threeMonthDay]
+    () =>
+      !isAdmin && isTodayFourthDay && fourthDayBIOCollected && !threeMonthDay,
+    [isAdmin, isTodayFourthDay, fourthDayBIOCollected, threeMonthDay]
   )
 
   //[CLEAN FUNCTIONS]

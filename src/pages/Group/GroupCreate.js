@@ -45,7 +45,7 @@ function GroupCreate() {
   const onFinish = async (data) => {
     setLoading(true)
 
-    const status = moment(data.startDay).isSame(moment(), 'week')
+    const status = moment(data.firstDay).isSame(moment(), 'week')
 
     await saveDataWithStatus({
       data,

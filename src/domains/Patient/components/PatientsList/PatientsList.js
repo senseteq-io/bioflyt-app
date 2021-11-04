@@ -10,7 +10,7 @@ import { ListWithCreate } from 'app/components'
 const DATE_FORMAT = 'D MMM YYYY'
 
 function PatientsList(props) {
-  const { patients, groupId, startDay, fourthDay } = props
+  const { patients, groupId, firstDay, fourthDay } = props
 
   // [ADDITIONAL_HOOKS]
   const { id } = useParams()
@@ -25,25 +25,20 @@ function PatientsList(props) {
   // [CLEAN_FUNCTIONS]
   const onDeliverBio = async (patientData) => {
     const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
-    const { startDay, fourthDay, threeMonthDay } = patientData || {}
+    const { firstDay, fourthDay, threeMonthDay } = patientData || {}
     const todayDate = moment().format(DATE_FORMAT)
+    const colectedBioFieldNames = [
+      'firstDayBIOCollected',
+      'fourthDayBIOCollected',
+      'threeMonthDayBIOCollected'
+    ]
+    const dates = [firstDay, fourthDay, threeMonthDay]
 
-    if (
-      startDay &&
-      moment(startDay.toDate()).format(DATE_FORMAT) === todayDate
-    ) {
-      patient.firstDayBIOCollect = true
-    } else if (
-      fourthDay &&
-      moment(fourthDay.toDate()).format(DATE_FORMAT) === todayDate
-    ) {
-      patient.fourthDayBIOCollect = true
-    } else if (
-      threeMonthDay &&
-      moment(threeMonthDay.toDate()).format(DATE_FORMAT) === todayDate
-    ) {
-      patient.lastBIOCollect = true
-    }
+    dates.forEach((date, index) => {
+      if (date && moment(date.toDate()).format(DATE_FORMAT) === todayDate) {
+        patient[colectedBioFieldNames[index]] = true
+      }
+    })
 
     await update({
       collection: GROUPS_MODEL_NAME,
@@ -60,7 +55,7 @@ function PatientsList(props) {
         ...rest
       }))}>
       <PatientSimpleView
-        startDay={startDay}
+        firstDay={firstDay}
         fourthDay={fourthDay}
         groupId={groupId}
         patients={sortedPatientsList}

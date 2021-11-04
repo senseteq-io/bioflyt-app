@@ -47,7 +47,7 @@ function PatientsAll() {
             name: patient?.generated,
             groupId: group?._id,
             patients: group?.patients,
-            startDay: group?.startDay,
+            firstDay: group?.firstDay,
             fourthDay: group?.fourthDay
           }))
         )
@@ -68,25 +68,37 @@ function PatientsAll() {
       patientData?.patients,
       ({ id }) => id === patientData.id
     )[0]
-    const { startDay, fourthDay, threeMonthDay } = patientData || {}
+    const { firstDay, fourthDay, threeMonthDay } = patientData || {}
     const todayDate = moment().format(DATE_FORMAT)
+    const colectedBioFieldNames = [
+      'firstDayBIOCollected',
+      'fourthDayBIOCollected',
+      'threeMonthDayBIOCollected'
+    ]
+    const dates = [firstDay, fourthDay, threeMonthDay]
 
-    if (
-      startDay &&
-      moment(startDay.toDate()).format(DATE_FORMAT) === todayDate
-    ) {
-      patient.firstDayBIOCollect = true
-    } else if (
-      fourthDay &&
-      moment(fourthDay.toDate()).format(DATE_FORMAT) === todayDate
-    ) {
-      patient.fourthDayBIOCollect = true
-    } else if (
-      threeMonthDay &&
-      moment(threeMonthDay.toDate()).format(DATE_FORMAT) === todayDate
-    ) {
-      patient.lastBIOCollect = true
-    }
+    dates.forEach((date, index) => {
+      if (date && moment(date.toDate()).format(DATE_FORMAT) === todayDate) {
+        patient[colectedBioFieldNames[index]] = true
+      }
+    })
+
+    // if (
+    //   firstDay &&
+    //   moment(firstDay.toDate()).format(DATE_FORMAT) === todayDate
+    // ) {
+    //   patient.firstDayBIOCollected = true
+    // } else if (
+    //   fourthDay &&
+    //   moment(fourthDay.toDate()).format(DATE_FORMAT) === todayDate
+    // ) {
+    //   patient.fourthDayBIOCollected = true
+    // } else if (
+    //   threeMonthDay &&
+    //   moment(threeMonthDay.toDate()).format(DATE_FORMAT) === todayDate
+    // ) {
+    //   patient.threeMonthDayBIOCollected = true
+    // }
 
     if (patientData?.groupId && patientData?.patients?.length) {
       await update({
@@ -107,7 +119,7 @@ function PatientsAll() {
       dates.forEach((date) => {
         buf[date] = sortedPatientsList?.filter((patient) =>
           [
-            moment(patient?.startDay?.toDate?.()).format(DATE_FORMAT),
+            moment(patient?.firstDay?.toDate?.()).format(DATE_FORMAT),
             moment(patient?.fourthDay?.toDate?.()).format(DATE_FORMAT),
             patient?.threeMonthDay &&
               moment(patient.threeMonthDay.toDate()).format(DATE_FORMAT)

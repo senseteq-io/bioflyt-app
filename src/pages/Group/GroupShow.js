@@ -119,7 +119,7 @@ function GroupShow() {
         <PatientsList
           patients={groupData?.patients}
           groupId={groupData?._id}
-          startDay={groupData?.startDay}
+          firstDay={groupData?.firstDay}
           fourthDay={groupData?.fourthDay}
         />
       </Box>
