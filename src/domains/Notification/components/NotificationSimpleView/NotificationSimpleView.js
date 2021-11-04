@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import {
   Button,
   Col,
@@ -20,12 +20,24 @@ import {
 } from 'bioflow/constants/collections'
 import { useDocumentData } from 'react-firebase-hooks/firestore'
 import firebase from 'firebase'
+import { generatePath, useHistory } from 'react-router'
+import {
+  BIOFLOW_ADMIN_GROUP_SHOW_PATH,
+  BIOFLOW_GROUP_SHOW_PATH
+} from 'bioflow/constants/paths'
+
+const NOTIFICATION_TYPES = {
+  INVITE: 'INVITE',
+  DID_YOU_REMEMBER: 'DID YOU REMEMBER',
+  IS_READY: 'IS READY'
+}
 
 function NotificationSimpleView(props) {
-  const { _id, groupId, text, withConfirm, receivers, answer } = props
+  const { _id, groupId, text, type, withConfirm, receivers, answer } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
+  const history = useHistory()
   const { isTherapist } = useBioflowAccess()
   const { _id: therapistId } = useUserContext()
   const { update } = useSaveData()
@@ -43,10 +55,10 @@ function NotificationSimpleView(props) {
     [groupData]
   )
 
-  const isSeen = useMemo(() => receivers?.[therapistId] || answer, [
-    receivers,
-    answer
-  ])
+  const isSeen = useMemo(
+    () => receivers?.[therapistId] || answer,
+    [receivers, answer]
+  )
 
   // [CLEAN FUNCTIONS]
   const onMarkAsSeen = () => {
@@ -58,9 +70,32 @@ function NotificationSimpleView(props) {
       })
   }
 
-  const onDeny = () => {}
+  const onDecline = async () => {
+    firebase.functions().httpsCallable('adminAndDeputyNotify')({
+      text: `${text} - deputy leader answered no`,
+      groupId,
+      roles: ['ADMIN'],
+      answer: 'no'
+    })
+  }
 
-  const onConfirm = () => {}
+  const onApprove = () => {
+    firebase.functions().httpsCallable('adminAndDeputyNotify')({
+      text: `${text} - deputy leader answered yes`,
+      groupId,
+      roles: ['ADMIN'],
+      answer: 'yes'
+    })
+
+    if (type === NOTIFICATION_TYPES.DID_YOU_REMEMBER) {
+      history.push(
+        generatePath(
+          isTherapist ? BIOFLOW_GROUP_SHOW_PATH : BIOFLOW_ADMIN_GROUP_SHOW_PATH,
+          { id: groupId }
+        )
+      )
+    }
+  }
 
   return (
     <Container>
@@ -92,12 +127,12 @@ function NotificationSimpleView(props) {
           <Col>
             <Row h="right" noGutters>
               <Col cw="auto" mr={3}>
-                <Button size="middle" type="text" onClick={onDeny} danger>
+                <Button size="middle" type="text" onClick={onDecline} danger>
                   {t(`No`)}
                 </Button>
               </Col>
               <Col cw="auto">
-                <Button size="middle" type="primary" onClick={onConfirm}>
+                <Button size="middle" type="primary" onClick={onApprove}>
                   {t('yes')}
                 </Button>
               </Col>
