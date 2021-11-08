@@ -83,23 +83,6 @@ function PatientsAll() {
       }
     })
 
-    // if (
-    //   firstDay &&
-    //   moment(firstDay.toDate()).format(DATE_FORMAT) === todayDate
-    // ) {
-    //   patient.firstDayBIOCollected = true
-    // } else if (
-    //   fourthDay &&
-    //   moment(fourthDay.toDate()).format(DATE_FORMAT) === todayDate
-    // ) {
-    //   patient.fourthDayBIOCollected = true
-    // } else if (
-    //   threeMonthDay &&
-    //   moment(threeMonthDay.toDate()).format(DATE_FORMAT) === todayDate
-    // ) {
-    //   patient.threeMonthDayBIOCollected = true
-    // }
-
     if (patientData?.groupId && patientData?.patients?.length) {
       await update({
         collection: GROUPS_MODEL_NAME,
@@ -155,7 +138,7 @@ function PatientsAll() {
         emptyText={t('There is no patients for tomorrow')}
         withCreate={false}
         dataSource={filteredList[TOMORROW_DATE]}>
-        <PatientSimpleView on DeliverBio={onDeliverBio} />
+        <PatientSimpleView onDeliverBio={onDeliverBio} />
       </ListWithCreate>
     </PageWrapper>
   )

@@ -34,10 +34,9 @@ function GroupShow() {
   )
 
   //[COMPUTED PROPERTIES]
-  const isActivateDisabled = useMemo(
-    () => groupData?.status !== DRAFT_STATUS,
-    [groupData]
-  )
+  const isActivateDisabled = useMemo(() => groupData?.status !== DRAFT_STATUS, [
+    groupData
+  ])
 
   // [CLEAN FUNCTIONS]
   const goToActivities = () => {

@@ -25,7 +25,7 @@ function NotificationSimpleView(props) {
   const { _id, groupId, text, withConfirm, receivers, answer } = props
 
   // [ADDITIONAL HOOKS]
-  const { t } = useTranslations()
+  const { t, language } = useTranslations()
   const { isTherapist } = useBioflowAccess()
   const { _id: therapistId } = useUserContext()
   const { update } = useSaveData()
@@ -42,6 +42,10 @@ function NotificationSimpleView(props) {
         : t('Group was deleted'),
     [groupData]
   )
+  const notificationText = useMemo(() => text[language.toUpperCase()], [
+    text,
+    language
+  ])
 
   const isSeen = useMemo(() => receivers?.[therapistId] || answer, [
     receivers,
@@ -84,8 +88,8 @@ function NotificationSimpleView(props) {
           </Tooltip>
         </Col>
         <Col cw="auto">
-          <Tooltip title={text}>
-            <Text isEllipsis>{text}</Text>
+          <Tooltip title={notificationText}>
+            <Text isEllipsis>{notificationText}</Text>
           </Tooltip>
         </Col>
         {withConfirm && isTherapist && (
