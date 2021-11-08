@@ -36,6 +36,7 @@ function NotificationSimpleView(props) {
   const { _id, groupId, text, type, withConfirm, receivers, answer } = props
 
   // [ADDITIONAL HOOKS]
+  const history = useHistory()
   const { t, language } = useTranslations()
   const { isTherapist } = useBioflowAccess()
   const { _id: therapistId } = useUserContext()
