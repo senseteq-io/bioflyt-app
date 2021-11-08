@@ -97,7 +97,9 @@ function GroupShow() {
           {t('Groups')}
         </Link>
       </Breadcrumb.Item>
-      <Breadcrumb.Item>Week {groupData?.weekNumber}</Breadcrumb.Item>
+      <Breadcrumb.Item>{`${t('Week')} ${
+        groupData?.weekNumber
+      }`}</Breadcrumb.Item>
     </Fragment>
   )
 

@@ -10,7 +10,10 @@ import { useSaveData } from 'app/hooks'
 import firebase from 'firebase'
 import moment from 'moment'
 import _ from 'lodash'
-import { ONGOING_STATUS } from 'bioflow/constants/groupStatuses'
+import {
+  FINISHED_STATUS,
+  ONGOING_STATUS
+} from 'bioflow/constants/groupStatuses'
 
 const DATE_FORMAT = 'D MMM YYYY'
 const TODAY_DATE = moment().format(DATE_FORMAT)
@@ -63,6 +66,24 @@ function PatientsAll() {
   }, [patients])
 
   //[CLEAN FUNCTIONS]
+  const changeToFinishedGroupStatus = (threeMonthDay, groupId, patients) => {
+    const isTodayLastDayBioCollect =
+      threeMonthDay &&
+      moment(threeMonthDay.toDate()).format(DATE_FORMAT) === TODAY_DATE
+
+    if (isTodayLastDayBioCollect) {
+      const isAllPatientsBioDelivered = patients?.every(
+        (patient) => !!patient?.threeMonthDayBIOCollected
+      )
+      isAllPatientsBioDelivered &&
+        update({
+          collection: GROUPS_MODEL_NAME,
+          id: groupId,
+          data: { status: FINISHED_STATUS }
+        })
+    }
+  }
+
   const onDeliverBio = async (patientData) => {
     const patient = _.remove(
       patientData?.patients,
@@ -89,6 +110,14 @@ function PatientsAll() {
         id: patientData.groupId,
         data: { patients: [...patientData.patients, patient] }
       })
+
+      //if today three month day and bio was delivered for all patients
+      //set group status as finished
+      changeToFinishedGroupStatus(
+        threeMonthDay,
+        patientData?.groupId,
+        patientData?.patients
+      )
     }
   }
 
