@@ -20,11 +20,34 @@ import {
 } from 'bioflow/constants/collections'
 import { useDocumentData } from 'react-firebase-hooks/firestore'
 import firebase from 'firebase'
+import { generatePath, useHistory } from 'react-router'
+import {
+  BIOFLOW_ADMIN_GROUP_SHOW_PATH,
+  BIOFLOW_GROUP_SHOW_PATH
+} from 'bioflow/constants/paths'
+import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
+import moment from 'moment'
+
+const NOTIFICATION_TYPES = {
+  INVITE: 'INVITE',
+  DID_YOU_REMEMBER: 'DID YOU REMEMBER',
+  IS_READY: 'IS READY'
+}
 
 function NotificationSimpleView(props) {
-  const { _id, groupId, text, withConfirm, receivers, answer } = props
+  const {
+    _id,
+    _createdAt,
+    groupId,
+    text,
+    type,
+    withConfirm,
+    receivers,
+    answer
+  } = props
 
   // [ADDITIONAL HOOKS]
+  const history = useHistory()
   const { t, language } = useTranslations()
   const { isTherapist } = useBioflowAccess()
   const { _id: therapistId } = useUserContext()
@@ -62,9 +85,50 @@ function NotificationSimpleView(props) {
       })
   }
 
-  const onDeny = () => {}
+  const onDecline = async () => {
+    //check if notification was created at ~9:00
+    //we should send notification for admin and leader,
+    //in another time only leader recieve with negative answer
+    const isAdminShouldRecieveNotification =
+      moment(_createdAt?.toDate?.()).format('H') === '9'
 
-  const onConfirm = () => {}
+    const personsThatRecieveNotifications = isAdminShouldRecieveNotification
+      ? [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER]
+      : [THERAPIST_ROLES.GROUP_LEADER]
+
+    firebase.functions().httpsCallable('adminAndDeputyNotify')({
+      text: {
+        EN: `${text.EN} - deputy leader answered no`,
+        NO: `${text.NO} - nestleder svarte nei`
+      },
+      groupId,
+      roles: personsThatRecieveNotifications,
+      answer: 'no'
+    })
+    onMarkAsSeen()
+  }
+
+  const onApprove = () => {
+    firebase.functions().httpsCallable('adminAndDeputyNotify')({
+      text: {
+        EN: `${text.EN} - deputy leader answered yes`,
+        NO: `${text.NO} - nestleder svarte ja`
+      },
+      groupId,
+      roles: [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER],
+      answer: 'yes'
+    })
+    onMarkAsSeen()
+
+    if (type === NOTIFICATION_TYPES.DID_YOU_REMEMBER) {
+      history.push(
+        generatePath(
+          isTherapist ? BIOFLOW_GROUP_SHOW_PATH : BIOFLOW_ADMIN_GROUP_SHOW_PATH,
+          { id: groupId }
+        )
+      )
+    }
+  }
 
   return (
     <Container>
@@ -80,28 +144,28 @@ function NotificationSimpleView(props) {
             />
           </Col>
         )}
-        <Col cw="auto" mr={4}>
+        <Col>
           <Tooltip title={groupName}>
             <Title variant="h5" isEllipsis>
               {groupName}
             </Title>
           </Tooltip>
         </Col>
-        <Col cw="auto">
+        <Col>
           <Tooltip title={notificationText}>
             <Text isEllipsis>{notificationText}</Text>
           </Tooltip>
         </Col>
         {withConfirm && isTherapist && (
-          <Col>
+          <Col cw="auto">
             <Row h="right" noGutters>
               <Col cw="auto" mr={3}>
-                <Button size="middle" type="text" onClick={onDeny} danger>
+                <Button size="middle" type="text" onClick={onDecline} danger>
                   {t(`No`)}
                 </Button>
               </Col>
               <Col cw="auto">
-                <Button size="middle" type="primary" onClick={onConfirm}>
+                <Button size="middle" type="primary" onClick={onApprove}>
                   {t('yes')}
                 </Button>
               </Col>

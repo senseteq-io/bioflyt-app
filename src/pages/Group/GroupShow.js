@@ -8,8 +8,14 @@ import { LineChartOutlined } from '@ant-design/icons'
 import { useHistory, useParams, generatePath, Link } from 'react-router-dom'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
-import { useDocumentData } from 'react-firebase-hooks/firestore'
-import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+import {
+  useDocumentData,
+  useCollectionData
+} from 'react-firebase-hooks/firestore'
+import {
+  GROUPS_MODEL_NAME,
+  NOTIFICATIONS_MODEL_NAME
+} from 'bioflow/constants/collections'
 import {
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH,
@@ -32,7 +38,12 @@ function GroupShow() {
   const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
-
+  const [notifications = []] = useCollectionData(
+    firebase
+      .firestore()
+      .collection(NOTIFICATIONS_MODEL_NAME)
+      .where('groupId', '==', id)
+  )
   //[COMPUTED PROPERTIES]
   const isActivateDisabled = useMemo(() => groupData?.status !== DRAFT_STATUS, [
     groupData
@@ -61,6 +72,14 @@ function GroupShow() {
 
   const onRemoveGroup = async () => {
     await remove({ collection: GROUPS_MODEL_NAME, id, withNotification: true })
+    notifications?.forEach((notification) => {
+      remove({
+        collection: NOTIFICATIONS_MODEL_NAME,
+        id: notification._id,
+        withNotification: false
+      })
+    })
+
     history.goBack()
   }
 
