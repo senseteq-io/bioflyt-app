@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import {
   Button,
   Col,
@@ -25,6 +25,8 @@ import {
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
   BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
+import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
+import moment from 'moment'
 
 const NOTIFICATION_TYPES = {
   INVITE: 'INVITE',
@@ -33,7 +35,16 @@ const NOTIFICATION_TYPES = {
 }
 
 function NotificationSimpleView(props) {
-  const { _id, groupId, text, type, withConfirm, receivers, answer } = props
+  const {
+    _id,
+    _createdAt,
+    groupId,
+    text,
+    type,
+    withConfirm,
+    receivers,
+    answer
+  } = props
 
   // [ADDITIONAL HOOKS]
   const history = useHistory()
@@ -75,21 +86,33 @@ function NotificationSimpleView(props) {
   }
 
   const onDecline = async () => {
+    //check if notification was created at ~9:00
+    //we should send notification for admin and leader,
+    //in another time only leader recieve with negative answer
+    const isAdminShouldRecieveNotification =
+      moment(_createdAt?.toDate?.()).format('H') === '9'
+
+    const personsThatRecieveNotifications = isAdminShouldRecieveNotification
+      ? [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER]
+      : [THERAPIST_ROLES.GROUP_LEADER]
+
     firebase.functions().httpsCallable('adminAndDeputyNotify')({
       text: `${text} - deputy leader answered no`,
       groupId,
-      roles: ['ADMIN'],
+      roles: personsThatRecieveNotifications,
       answer: 'no'
     })
+    onMarkAsSeen()
   }
 
   const onApprove = () => {
     firebase.functions().httpsCallable('adminAndDeputyNotify')({
       text: `${text} - deputy leader answered yes`,
       groupId,
-      roles: ['ADMIN'],
+      roles: [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER],
       answer: 'yes'
     })
+    onMarkAsSeen()
 
     if (type === NOTIFICATION_TYPES.DID_YOU_REMEMBER) {
       history.push(
@@ -115,20 +138,20 @@ function NotificationSimpleView(props) {
             />
           </Col>
         )}
-        <Col cw="auto" mr={4}>
+        <Col>
           <Tooltip title={groupName}>
             <Title variant="h5" isEllipsis>
               {groupName}
             </Title>
           </Tooltip>
         </Col>
-        <Col cw="auto">
+        <Col>
           <Tooltip title={notificationText}>
             <Text isEllipsis>{notificationText}</Text>
           </Tooltip>
         </Col>
         {withConfirm && isTherapist && (
-          <Col>
+          <Col cw="auto">
             <Row h="right" noGutters>
               <Col cw="auto" mr={3}>
                 <Button size="middle" type="text" onClick={onDecline} danger>
