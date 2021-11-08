@@ -42,7 +42,7 @@ const NEXT_COLLECT_DIFF = 3
 const CORRECT_FIRST_DAYS = ['Mon', 'Tue', 'Fri']
 const WRONG_FOURTH_DAYS = ['Sun', 'Sat', 'Wed', 'Tue']
 const DEFAULT_VALUE_FOR_DATEPICKERS = {
-  startDay: moment().format(MOMENT_FORMAT_FOR_TIMEPICKER),
+  firstDay: moment().format(MOMENT_FORMAT_FOR_TIMEPICKER),
   fourthDay: moment()
     .add(NEXT_COLLECT_DIFF, 'days')
     .format(MOMENT_FORMAT_FOR_TIMEPICKER)
@@ -206,7 +206,7 @@ function GroupSimpleForm(props) {
       const prepareData = {
         ...value,
         therapists,
-        weekNumber: moment(data.startDay).week(),
+        weekNumber: moment(data.firstDay).week(),
         status: DRAFT_STATUS
       }
       const clinicId = selectedClinic || form.getFieldValue('clinicId')
@@ -234,7 +234,7 @@ function GroupSimpleForm(props) {
     const changedFieldName = Object.keys(value)[0]
 
     // If there was date fields format it to save firestore timestamp not string.
-    if (['fourthDay', 'startDay'].includes(changedFieldName)) {
+    if (['fourthDay', 'firstDay'].includes(changedFieldName)) {
       value[changedFieldName] = firebase.firestore.Timestamp.fromDate(
         new Date(value[changedFieldName])
       )
@@ -267,7 +267,7 @@ function GroupSimpleForm(props) {
     }
 
     form.setFieldsValue({
-      startDay: fourthDay
+      firstDay: fourthDay
         .subtract(NEXT_COLLECT_DIFF, 'days')
         .format(MOMENT_FORMAT_FOR_TIMEPICKER),
       fourthDay: fourthDay
@@ -285,7 +285,7 @@ function GroupSimpleForm(props) {
       setSelectedStudy(initialValues.studyId)
     }
     // On form init - check if current day is not forbidden.
-    if (!initialValues?.startDay) {
+    if (!initialValues?.firstDay) {
       checkInitialDate()
     }
   }, [initialValues])
@@ -348,7 +348,7 @@ function GroupSimpleForm(props) {
                 </Tooltip>
               </Box>
               <Form.Item
-                name="startDay"
+                name="firstDay"
                 rules={[
                   {
                     require: true,
@@ -365,7 +365,7 @@ function GroupSimpleForm(props) {
                   type="date"
                   placeholder={t('Start day')}
                   onChange={(e) => onDateChange(e, 'fourthDay', 3)}
-                  min={DEFAULT_VALUE_FOR_DATEPICKERS.startDay}
+                  min={DEFAULT_VALUE_FOR_DATEPICKERS.firstDay}
                 />
               </Form.Item>
             </Col>
@@ -398,7 +398,7 @@ function GroupSimpleForm(props) {
                   type="date"
                   placeholder={t('Fourth day')}
                   onChange={(e) =>
-                    onDateChange(e, 'startDay', -NEXT_COLLECT_DIFF)
+                    onDateChange(e, 'firstDay', -NEXT_COLLECT_DIFF)
                   }
                   min={DEFAULT_VALUE_FOR_DATEPICKERS.fourthDay}
                 />

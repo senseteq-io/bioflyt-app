@@ -20,6 +20,7 @@ import {
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH,
   BIOFLOW_ADMIN_GROUP_EDIT_PATH,
+  BIOFLOW_GROUPS_PATH,
   BIOFLOW_GROUP_ACTIVITIES_PATH,
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
@@ -111,9 +112,13 @@ function GroupShow() {
   const groupShowBreadcrumbs = (
     <Fragment>
       <Breadcrumb.Item>
-        <Link to={BIOFLOW_ADMIN_GROUPS_PATH}>{t('Groups')}</Link>
+        <Link to={isAdmin ? BIOFLOW_ADMIN_GROUPS_PATH : BIOFLOW_GROUPS_PATH}>
+          {t('Groups')}
+        </Link>
       </Breadcrumb.Item>
-      <Breadcrumb.Item>Week {groupData?.weekNumber}</Breadcrumb.Item>
+      <Breadcrumb.Item>{`${t('Week')} ${
+        groupData?.weekNumber
+      }`}</Breadcrumb.Item>
     </Fragment>
   )
 
@@ -137,7 +142,8 @@ function GroupShow() {
         </Box>
         <PatientsList
           patients={groupData?.patients}
-          startDay={groupData?.startDay}
+          groupId={groupData?._id}
+          firstDay={groupData?.firstDay}
           fourthDay={groupData?.fourthDay}
         />
       </Box>
