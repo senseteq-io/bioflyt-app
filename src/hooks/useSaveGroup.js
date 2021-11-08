@@ -96,7 +96,7 @@ const useSaveGroup = () => {
   }
 
   const normalizeData = async ({ data, status }) => {
-    const weekNumber = moment(data.startDay).week()
+    const weekNumber = moment(data.firstDay).week()
     for (const { initial } of data.patients) {
       if (initial === '') return
     }
@@ -108,8 +108,8 @@ const useSaveGroup = () => {
         ...data,
         patients,
         weekNumber,
-        startDay: firebase.firestore.Timestamp.fromDate(
-          new Date(data.startDay)
+        firstDay: firebase.firestore.Timestamp.fromDate(
+          new Date(data.firstDay)
         ),
         fourthDay: firebase.firestore.Timestamp.fromDate(
           new Date(data.fourthDay)

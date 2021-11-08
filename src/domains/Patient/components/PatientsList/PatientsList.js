@@ -2,7 +2,7 @@ import { useSaveData } from 'app/hooks'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import _ from 'lodash'
 import moment from 'moment'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { PatientSimpleView } from '..'
 import { ListWithCreate } from 'app/components'
@@ -10,26 +10,35 @@ import { ListWithCreate } from 'app/components'
 const DATE_FORMAT = 'D MMM YYYY'
 
 function PatientsList(props) {
-  const { patients, startDay, fourthDay } = props
+  const { patients, groupId, firstDay, fourthDay } = props
 
   // [ADDITIONAL_HOOKS]
   const { id } = useParams()
   const { update } = useSaveData()
 
+  //[COMPUTED PROPERTIES]
+  const sortedPatientsList = useMemo(
+    () => patients?.sort((a, b) => (a?.id > b?.id && 1) || -1),
+    [patients]
+  )
+
   // [CLEAN_FUNCTIONS]
   const onDeliverBio = async (patientData) => {
     const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
-    if (
-      moment(patient.firstDay).format(DATE_FORMAT) ===
-      moment().format(DATE_FORMAT)
-    ) {
-      patient.firstDayBIOCollect = true
-    } else if (
-      moment(patient.fourthDay).format(DATE_FORMAT) ===
-      moment().format(DATE_FORMAT)
-    ) {
-      patient.forthDayBIOCollect = true
-    }
+    const { firstDay, fourthDay, threeMonthDay } = patientData || {}
+    const todayDate = moment().format(DATE_FORMAT)
+    const colectedBioFieldNames = [
+      'firstDayBIOCollected',
+      'fourthDayBIOCollected',
+      'threeMonthDayBIOCollected'
+    ]
+    const dates = [firstDay, fourthDay, threeMonthDay]
+
+    dates.forEach((date, index) => {
+      if (date && moment(date.toDate()).format(DATE_FORMAT) === todayDate) {
+        patient[colectedBioFieldNames[index]] = true
+      }
+    })
 
     await update({
       collection: GROUPS_MODEL_NAME,
@@ -41,13 +50,15 @@ function PatientsList(props) {
   return (
     <ListWithCreate
       withCreate={false}
-      dataSource={patients?.map(({ generated, ...rest }) => ({
+      dataSource={sortedPatientsList?.map(({ generated, ...rest }) => ({
         name: generated,
         ...rest
       }))}>
       <PatientSimpleView
-        startDay={startDay}
+        firstDay={firstDay}
         fourthDay={fourthDay}
+        groupId={groupId}
+        patients={sortedPatientsList}
         onDeliverBio={onDeliverBio}
       />
     </ListWithCreate>

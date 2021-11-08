@@ -58,8 +58,8 @@ function GroupEdit() {
   const initialValues = useMemo(() => {
     const data = groupData
 
-    if (groupData?.startDay) {
-      data.startDay = moment(groupData?.startDay?.toDate?.()).format(
+    if (groupData?.firstDay) {
+      data.firstDay = moment(groupData?.firstDay?.toDate?.()).format(
         'YYYY-MM-DD'
       )
     }
@@ -74,7 +74,7 @@ function GroupEdit() {
   // [CLEAN_FUNCTIONS]
   const onFinish = async (data) => {
     setLoading(true)
-    const status = moment(data.startDay).isSame(moment(), 'week')
+    const status = moment(data.firstDay).isSame(moment(), 'week')
 
     await updateDataWithStatus({
       data,
