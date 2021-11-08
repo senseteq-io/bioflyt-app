@@ -97,7 +97,10 @@ function NotificationSimpleView(props) {
       : [THERAPIST_ROLES.GROUP_LEADER]
 
     firebase.functions().httpsCallable('adminAndDeputyNotify')({
-      text: `${text} - deputy leader answered no`,
+      text: {
+        EN: `${text.EN} - deputy leader answered no`,
+        NO: `${text.NO} - nestleder svarte nei`
+      },
       groupId,
       roles: personsThatRecieveNotifications,
       answer: 'no'
@@ -107,7 +110,10 @@ function NotificationSimpleView(props) {
 
   const onApprove = () => {
     firebase.functions().httpsCallable('adminAndDeputyNotify')({
-      text: `${text} - deputy leader answered yes`,
+      text: {
+        EN: `${text.EN} - deputy leader answered yes`,
+        NO: `${text.NO} - nestleder svarte ja`
+      },
       groupId,
       roles: [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER],
       answer: 'yes'
