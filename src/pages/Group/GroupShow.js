@@ -75,7 +75,7 @@ function GroupShow() {
     notifications?.forEach((notification) => {
       remove({
         collection: NOTIFICATIONS_MODEL_NAME,
-        id: notification.id,
+        id: notification._id,
         withNotification: false
       })
     })
