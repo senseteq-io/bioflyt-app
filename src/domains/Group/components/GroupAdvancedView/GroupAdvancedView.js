@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { useTranslations } from '@qonsoll/translation'
 import { useHistory, generatePath } from 'react-router-dom'
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
-import { Badge, Tooltip } from 'antd'
+import { Badge, Tooltip, Grid } from 'antd'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { Box, Card, Col, Icon, Row, Text, Title } from '@qonsoll/react-design'
 import { useBioflowAccess } from 'bioflow/hooks'
@@ -18,6 +18,8 @@ import {
   BIOFLOW_GROUP_EDIT_PATH,
   BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
+
+const { useBreakpoint } = Grid
 
 const exclamationIconStyles = {
   position: 'absolute',
@@ -52,7 +54,7 @@ function GroupAdvancedView(props) {
   const history = useHistory()
   const { t } = useTranslations()
   const { isAdmin } = useBioflowAccess()
-
+  const screen = useBreakpoint()
   // [DATA_FETCH]
   const [clinicData] = useDocumentDataOnce(
     clinicId &&
@@ -96,50 +98,52 @@ function GroupAdvancedView(props) {
         onClick={goToGroup}
         cursor="pointer">
         <Row>
-          <Col h="left" v="center" cw={[2, 2, 2, 3]}>
+          <Col h="left" v="center" cw={[2, 2, 2, 3]} mr={screen.xs && 3}>
             <Box display="flex" flexDirection="column" alignItems="center">
               <Text>{t('Week')}</Text> <Title level={2}>{weekNumber}</Title>
             </Box>
           </Col>
-          <Col>
-            <Row noGutters>
-              <Col flexDirection="row" cw={12}>
-                <Text
-                  whiteSpace="noWrap"
-                  type="secondary"
-                  fontWeight="var(--ql-font-weight-medium)"
-                  mr={1}>
-                  {t('Clinic')}:
-                </Text>
-                <Text>{clinicData?.name}</Text>
-              </Col>
-              <Col flexDirection="row" cw={12}>
-                <Text
-                  whiteSpace="noWrap"
-                  type="secondary"
-                  fontWeight="var(--ql-font-weight-medium)"
-                  mr={1}>
-                  {t('Study')}:
-                </Text>
-                <Text>{studyData?.name || t('Not selected')}</Text>
-              </Col>
-              <Col flexDirection="row" cw={12}>
-                <Text
-                  whiteSpace="noWrap"
-                  type="secondary"
-                  fontWeight="var(--ql-font-weight-medium)"
-                  mr={1}>
-                  {t('Disorder')}:
-                </Text>
-                <Tooltip title={disorderData?.name || ''}>
-                  <Text whiteSpace="noWrap" isEllipsis>
-                    {disorderData?.name || t('Not selected')}
+          {!screen.xs && (
+            <Col>
+              <Row noGutters>
+                <Col flexDirection="row" cw={12}>
+                  <Text
+                    whiteSpace="noWrap"
+                    type="secondary"
+                    fontWeight="var(--ql-font-weight-medium)"
+                    mr={1}>
+                    {t('Clinic')}:
                   </Text>
-                </Tooltip>
-              </Col>
-            </Row>
-          </Col>
-          <Col v="center" h="center">
+                  <Text>{clinicData?.name}</Text>
+                </Col>
+                <Col flexDirection="row" cw={12}>
+                  <Text
+                    whiteSpace="noWrap"
+                    type="secondary"
+                    fontWeight="var(--ql-font-weight-medium)"
+                    mr={1}>
+                    {t('Study')}:
+                  </Text>
+                  <Text>{studyData?.name || t('Not selected')}</Text>
+                </Col>
+                <Col flexDirection="row" cw={12}>
+                  <Text
+                    whiteSpace="noWrap"
+                    type="secondary"
+                    fontWeight="var(--ql-font-weight-medium)"
+                    mr={1}>
+                    {t('Disorder')}:
+                  </Text>
+                  <Tooltip title={disorderData?.name || ''}>
+                    <Text whiteSpace="noWrap" isEllipsis>
+                      {disorderData?.name || t('Not selected')}
+                    </Text>
+                  </Tooltip>
+                </Col>
+              </Row>
+            </Col>
+          )}
+          <Col h="center" cw={screen.xs && 'auto'}>
             <Box
               display="flex"
               alignItems="center"
@@ -168,6 +172,46 @@ function GroupAdvancedView(props) {
               )}
             </Box>
           </Col>
+          {screen.xs && (
+            <Col cw={12}>
+              <Row noGutters>
+                <Col cw={12} flexDirection="row" mb={1}>
+                  <Text
+                    whiteSpace="noWrap"
+                    type="secondary"
+                    fontWeight="var(--ql-font-weight-medium)"
+                    mr={1}>
+                    {t('Clinic')}:
+                  </Text>
+                  <Text>{clinicData?.name}</Text>
+                </Col>
+                <Col flexDirection="row" mb={1}>
+                  <Text
+                    whiteSpace="noWrap"
+                    type="secondary"
+                    fontWeight="var(--ql-font-weight-medium)"
+                    mr={1}>
+                    {t('Study')}:
+                  </Text>
+                  <Text>{studyData?.name || t('Not selected')}</Text>
+                </Col>
+                <Col flexDirection="row">
+                  <Text
+                    whiteSpace="noWrap"
+                    type="secondary"
+                    fontWeight="var(--ql-font-weight-medium)"
+                    mr={1}>
+                    {t('Disorder')}:
+                  </Text>
+                  <Tooltip title={disorderData?.name || ''}>
+                    <Text whiteSpace="noWrap" isEllipsis>
+                      {disorderData?.name || t('Not selected')}
+                    </Text>
+                  </Tooltip>
+                </Col>
+              </Row>
+            </Col>
+          )}
         </Row>
       </Card>
     </Badge.Ribbon>
