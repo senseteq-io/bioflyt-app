@@ -7,7 +7,7 @@ import {
 } from 'bioflow/constants/groupStatuses'
 import React, { useEffect, useMemo, useState, Fragment } from 'react'
 import { Box, NoData, Title } from '@qonsoll/react-design'
-import { List } from 'antd'
+import { Collapse, List } from 'antd'
 import { GroupAdvancedView } from 'bioflow/domains/Group/components'
 import firebase from 'firebase'
 import _ from 'lodash'
@@ -114,19 +114,20 @@ function GroupsList() {
 
 //xs: 1, sm: 1, md: 1, lg: 2, xl: 2, xxl: 3
 const GroupFilteredList = ({ status, data }) => (
-  <Box mb={1}>
-    <Title level={4} mb={2}>
-      {status}
-    </Title>
-    <List
-      grid={{ gutter: [32, 4], column: 1 }}
-      dataSource={data}
-      renderItem={(item) => (
-        <List.Item key={item._id} style={{ width: '100%' }}>
-          <GroupAdvancedView {...item} />
-        </List.Item>
-      )}
-    />
+  <Box mb={1} mx="calc(var(--collapse-header-padding-extra)*-1)">
+    <Collapse bordered={false} ghost={true}>
+      <Collapse.Panel header={<Title level={4}>{status}</Title>} key={1}>
+        <List
+          grid={{ gutter: [32, 4], column: 1 }}
+          dataSource={data}
+          renderItem={(item) => (
+            <List.Item key={item._id} style={{ width: '100%' }}>
+              <GroupAdvancedView {...item} />
+            </List.Item>
+          )}
+        />
+      </Collapse.Panel>
+    </Collapse>
   </Box>
 )
 
