@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { PageWrapper } from '@qonsoll/react-design'
+import React, { useMemo, useState } from 'react'
+import { Button, PageWrapper } from '@qonsoll/react-design'
 import { Tabs } from 'antd'
 import {
   Route,
@@ -20,6 +20,8 @@ import {
   BIOFLOW_ADMIN_SETTINGS_PATH,
   BIOFLOW_ADMIN_PATH
 } from 'bioflow/constants/paths'
+import { FilterOutlined } from '@ant-design/icons'
+import { GroupsAll } from 'bioflow/pages/Group'
 
 const routesWithTabs = [
   ...AdminGroupRoutes.filter(({ name }) => name === 'GroupsAll'),
@@ -37,6 +39,9 @@ function Dashboard() {
   const history = useHistory()
   const location = useLocation()
   const { t } = useTranslations()
+
+  //[COMPONENT STATE HOOKS]
+  const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false)
 
   // [COMPUTED PROPERTIES]
   const activeRoute = useMemo(
@@ -60,20 +65,31 @@ function Dashboard() {
   )
 
   // [CLEAN FUNCTIONS]
-  function onChange(key) {
+  const onChange = (key) => {
     history.push(key)
   }
-  const goBack = () => history.goBack()
+
+  const onOpenFilterDrawer = () => {
+    setIsFilterDrawerVisible(true)
+  }
 
   return isWithTabsRoute ? (
     <PageWrapper
-      onBack={goBack}
+      onBack={history.goBack}
       headingProps={{
         title: t('Bioflow'),
         titleSize: 2,
         textAlign: 'left',
         marginBottom: '0px'
       }}
+      action={
+        <Button
+          icon={<FilterOutlined />}
+          type="primary"
+          onClick={onOpenFilterDrawer}>
+          {t('Filter')}
+        </Button>
+      }
       isBottomSticky>
       <Tabs
         size="large"
@@ -88,9 +104,24 @@ function Dashboard() {
         <Tabs.TabPane tab={t('Settings')} key={BIOFLOW_ADMIN_SETTINGS_PATH} />
       </Tabs>
 
-      {routesWithTabs.map(({ path, exact, component }) => (
-        <Route key={path} path={path} exact={exact} component={component} />
-      ))}
+      {routesWithTabs.map(({ path, exact, component }) => {
+        if (path === BIOFLOW_ADMIN_GROUPS_PATH) {
+          return (
+            <Route key={path} path={path} exact={exact}>
+              <GroupsAll
+                inTab
+                isDrawerVisible={isFilterDrawerVisible}
+                setIsDrawerVisible={setIsFilterDrawerVisible}
+                onOpenFilterDrawer={onOpenFilterDrawer}
+              />
+            </Route>
+          )
+        } else {
+          return (
+            <Route key={path} path={path} exact={exact} component={component} />
+          )
+        }
+      })}
 
       {computedRedirectRule && <Redirect to={BIOFLOW_ADMIN_GROUPS_PATH} />}
     </PageWrapper>
