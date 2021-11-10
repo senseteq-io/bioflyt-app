@@ -210,10 +210,14 @@ function GroupSimpleForm(props) {
         status: DRAFT_STATUS
       }
       const clinicId = selectedClinic || form.getFieldValue('clinicId')
+      const studyId = selectedStudy || form.getFieldValue('studyId')
 
       // If clinic selected add it to draft data.
       if (clinicId) {
         prepareData.clinicId = clinicId
+      }
+      if (studyId) {
+        prepareData.studyId = studyId
       }
 
       const docId = await save({
