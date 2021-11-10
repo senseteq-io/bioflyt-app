@@ -2,12 +2,11 @@ import React from 'react'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { ListWithCreate } from 'app/components'
 import { ClinicSimpleView } from '..'
-import { useService } from 'bioflow/contexts/Service'
 import firebase from 'firebase'
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
 
-function ClinicsList(props) {
-  // [ADDITIONAL HOOKS]
-  const { CLINICS_MODEL_NAME } = useService()
+function ClinicsList() {
+  // [DATA_FETCH]
   const [clinics] = useCollectionData(
     firebase.firestore().collection(CLINICS_MODEL_NAME)
   )

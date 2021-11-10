@@ -1,4 +1,9 @@
+import { useNotificationActions } from 'bioflow/domains/Notification/hooks'
 import React, { useMemo } from 'react'
+import firebase from 'firebase'
+import { useTranslations } from '@qonsoll/translation'
+import { useDocumentData } from 'react-firebase-hooks/firestore'
+import { Tooltip } from 'antd'
 import {
   Button,
   Col,
@@ -8,51 +13,19 @@ import {
   Text,
   Title
 } from '@qonsoll/react-design'
-import { Tooltip } from 'antd'
-import { useTranslations } from '@qonsoll/translation'
-import { useBioflowAccess } from 'bioflow/hooks'
 import { EyeOutlined } from '@ant-design/icons'
+import { useBioflowAccess } from 'bioflow/hooks'
 import { useUserContext } from 'app/domains/User/contexts'
-import { useSaveData } from 'app/hooks'
-import {
-  GROUPS_MODEL_NAME,
-  NOTIFICATIONS_MODEL_NAME
-} from 'bioflow/constants/collections'
-import { useDocumentData } from 'react-firebase-hooks/firestore'
-import firebase from 'firebase'
-import { generatePath, useHistory } from 'react-router'
-import {
-  BIOFLOW_ADMIN_GROUP_SHOW_PATH,
-  BIOFLOW_GROUP_SHOW_PATH
-} from 'bioflow/constants/paths'
-import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
-import moment from 'moment'
-
-const NOTIFICATION_TYPES = {
-  INVITE: 'INVITE',
-  DID_YOU_REMEMBER: 'DID YOU REMEMBER',
-  IS_READY: 'IS READY'
-}
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 
 function NotificationSimpleView(props) {
-  const {
-    _id,
-    _createdAt,
-    groupId,
-    text,
-    type,
-    withConfirm,
-    receivers,
-    answer
-  } = props
+  const { groupId, text, withConfirm, receivers, answer } = props
 
   // [ADDITIONAL HOOKS]
-  const history = useHistory()
   const { t, language } = useTranslations()
   const { isTherapist } = useBioflowAccess()
   const { _id: therapistId } = useUserContext()
-  const { update } = useSaveData()
-
+  const { onMarkAsSeen, onApprove, onDecline } = useNotificationActions(props)
   const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(groupId)
   )
@@ -76,59 +49,6 @@ function NotificationSimpleView(props) {
   ])
 
   // [CLEAN FUNCTIONS]
-  const onMarkAsSeen = () => {
-    _id &&
-      update({
-        collection: NOTIFICATIONS_MODEL_NAME,
-        id: _id,
-        data: { receivers: { [therapistId]: true } }
-      })
-  }
-
-  const onDecline = async () => {
-    //check if notification was created at ~9:00
-    //we should send notification for admin and leader,
-    //in another time only leader recieve with negative answer
-    const isAdminShouldRecieveNotification =
-      moment(_createdAt?.toDate?.()).format('H') === '9'
-
-    const personsThatRecieveNotifications = isAdminShouldRecieveNotification
-      ? [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER]
-      : [THERAPIST_ROLES.GROUP_LEADER]
-
-    firebase.functions().httpsCallable('adminAndDeputyNotify')({
-      text: {
-        EN: `${text.EN} - deputy leader answered no`,
-        NO: `${text.NO} - nestleder svarte nei`
-      },
-      groupId,
-      roles: personsThatRecieveNotifications,
-      answer: 'no'
-    })
-    onMarkAsSeen()
-  }
-
-  const onApprove = () => {
-    firebase.functions().httpsCallable('adminAndDeputyNotify')({
-      text: {
-        EN: `${text.EN} - deputy leader answered yes`,
-        NO: `${text.NO} - nestleder svarte ja`
-      },
-      groupId,
-      roles: [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER],
-      answer: 'yes'
-    })
-    onMarkAsSeen()
-
-    if (type === NOTIFICATION_TYPES.DID_YOU_REMEMBER) {
-      history.push(
-        generatePath(
-          isTherapist ? BIOFLOW_GROUP_SHOW_PATH : BIOFLOW_ADMIN_GROUP_SHOW_PATH,
-          { id: groupId }
-        )
-      )
-    }
-  }
 
   return (
     <Container>

@@ -39,7 +39,7 @@ const exclamationIconStyles = {
 
 const MOMENT_FORMAT_FOR_TIMEPICKER = 'YYYY-MM-DD'
 const NEXT_COLLECT_DIFF = 3
-const CORRECT_FIRST_DAYS = ['Mon', 'Tue', 'Fri']
+const CORRECT_FIRST_DAYS = ['Mon', 'Tue']
 const WRONG_FOURTH_DAYS = ['Sun', 'Sat', 'Wed', 'Tue']
 const DEFAULT_VALUE_FOR_DATEPICKERS = {
   firstDay: moment().format(MOMENT_FORMAT_FOR_TIMEPICKER),
@@ -210,10 +210,14 @@ function GroupSimpleForm(props) {
         status: DRAFT_STATUS
       }
       const clinicId = selectedClinic || form.getFieldValue('clinicId')
+      const studyId = selectedStudy || form.getFieldValue('studyId')
 
       // If clinic selected add it to draft data.
       if (clinicId) {
         prepareData.clinicId = clinicId
+      }
+      if (studyId) {
+        prepareData.studyId = studyId
       }
 
       const docId = await save({
