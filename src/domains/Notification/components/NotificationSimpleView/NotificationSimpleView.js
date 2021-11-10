@@ -3,8 +3,8 @@ import React, { useMemo } from 'react'
 import firebase from 'firebase'
 import { useTranslations } from '@qonsoll/translation'
 import { useDocumentData } from 'react-firebase-hooks/firestore'
-import { Tooltip } from 'antd'
 import {
+  Badge,
   Button,
   Col,
   Container,
@@ -13,7 +13,6 @@ import {
   Text,
   Title
 } from '@qonsoll/react-design'
-import { EyeOutlined } from '@ant-design/icons'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useUserContext } from 'app/domains/User/contexts'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
@@ -26,6 +25,7 @@ function NotificationSimpleView(props) {
   const { isTherapist } = useBioflowAccess()
   const { _id: therapistId } = useUserContext()
   const { onMarkAsSeen, onApprove, onDecline } = useNotificationActions(props)
+
   const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(groupId)
   )
@@ -48,50 +48,53 @@ function NotificationSimpleView(props) {
     answer
   ])
 
-  // [CLEAN FUNCTIONS]
-
   return (
     <Container>
-      <Row v="center" height="var(--btn-height-base)" noGutters>
+      <Row
+        noGutters
+        v="center"
+        minHeight="var(--btn-height-base)"
+        flexWrap="nowrap"
+        style={{ cursor: 'pointer' }}
+        onClick={onMarkAsSeen}>
         {isTherapist && (
           <Col cw="auto" mr={3}>
-            <Button
-              type="text"
-              shape="circle"
-              icon={<EyeOutlined />}
-              onClick={onMarkAsSeen}
-              disabled={isSeen}
-            />
+            <Badge status={!isSeen ? 'processing' : 'default'} />
           </Col>
         )}
         <Col>
-          <Tooltip title={groupName}>
-            <Title variant="h5" isEllipsis>
-              {groupName}
-            </Title>
-          </Tooltip>
-        </Col>
-        <Col>
-          <Tooltip title={notificationText}>
-            <Text isEllipsis>{notificationText}</Text>
-          </Tooltip>
-        </Col>
-        {withConfirm && isTherapist && (
-          <Col cw="auto">
-            <Row h="right" noGutters>
-              <Col cw="auto" mr={3}>
-                <Button size="middle" type="text" onClick={onDecline} danger>
-                  {t(`No`)}
-                </Button>
+          <Row noGutters v="center">
+            <Col cw={[12, 12, 3, 3, 2]} mr={3}>
+              <Title variant="h5" whiteSpace="wrap">
+                {groupName}
+              </Title>
+            </Col>
+            <Col cw={[12, 12, 8, 6, 7]}>
+              <Text whiteSpace="wrap">{notificationText}</Text>
+            </Col>
+            {withConfirm && isTherapist && (
+              // && !isSeen
+              <Col mt={[3, 3, 0, 0, 0]}>
+                <Row flexWrap="nowrap" h="right" noGutters>
+                  <Col cw="auto" mr={3}>
+                    <Button
+                      size="middle"
+                      type="text"
+                      onClick={onDecline}
+                      danger>
+                      {t(`No`)}
+                    </Button>
+                  </Col>
+                  <Col cw="auto">
+                    <Button size="middle" type="primary" onClick={onApprove}>
+                      {t('yes')}
+                    </Button>
+                  </Col>
+                </Row>
               </Col>
-              <Col cw="auto">
-                <Button size="middle" type="primary" onClick={onApprove}>
-                  {t('yes')}
-                </Button>
-              </Col>
-            </Row>
-          </Col>
-        )}
+            )}
+          </Row>
+        </Col>
       </Row>
       <Row noGutters>
         <Col>
