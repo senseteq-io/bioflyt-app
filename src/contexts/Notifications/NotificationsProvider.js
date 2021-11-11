@@ -32,7 +32,7 @@ const NotificationsProvider = (props) => {
   const { _id } = useUserContext()
   const history = useHistory()
   const { t } = useTranslations()
-  const { onDecline, onApprove } = useNotificationActions()
+  const { onDecline, onApprove, onMarkAsSeen } = useNotificationActions()
   const { isTherapist, isAdmin } = useBioflowAccess()
   const { language } = useTranslations()
 
@@ -73,6 +73,7 @@ const NotificationsProvider = (props) => {
                   })
                 )
                 notification.close(_id)
+                onMarkAsSeen(data)
               }}>
               Go to Group
             </Button>

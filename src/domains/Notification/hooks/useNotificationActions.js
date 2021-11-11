@@ -27,10 +27,12 @@ const UseNotificationActions = (notificationData = {}) => {
 
   const onMarkAsSeen = (args) => {
     if (args?._id || _id) {
+      const therapists = args?.receivers || receivers
+
       update({
         collection: NOTIFICATIONS_MODEL_NAME,
-        id: _id,
-        data: { receivers: { ...receivers, [therapistId]: true } }
+        id: args?._id || _id,
+        data: { receivers: { ...therapists, [therapistId]: true } }
       })
     }
   }

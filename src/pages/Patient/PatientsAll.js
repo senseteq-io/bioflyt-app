@@ -47,7 +47,15 @@ function PatientsAll() {
         ?.map((group) =>
           group?.patients?.map((patient) => ({
             ...patient,
-            name: patient?.generated,
+            name: (
+              <>
+                {_.trimEnd(
+                  _.initial(patient.generated).join(''),
+                  patient.initial.toUpperCase()
+                )}
+                <strong>{patient.initial.toUpperCase()}</strong>
+              </>
+            ),
             groupId: group?._id,
             patients: group?.patients,
             firstDay: group?.firstDay,
