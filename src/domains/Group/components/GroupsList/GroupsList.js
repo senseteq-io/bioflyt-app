@@ -185,8 +185,8 @@ function GroupsList(props) {
 //xs: 1, sm: 1, md: 1, lg: 2, xl: 2, xxl: 3
 const GroupFilteredList = ({ status, data }) => (
   <Box mb={1} mx="calc(var(--collapse-header-padding-extra)*-1)">
-    <Collapse bordered={false} ghost={true}>
-      <Collapse.Panel header={<Title level={4}>{status}</Title>} key={1}>
+    <Collapse bordered={false} ghost={true} defaultActiveKey={status}>
+      <Collapse.Panel header={<Title level={4}>{status}</Title>} key={status}>
         <List
           grid={{ gutter: [32, 4], column: 1 }}
           dataSource={data}
