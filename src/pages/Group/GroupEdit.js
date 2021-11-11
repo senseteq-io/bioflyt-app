@@ -76,12 +76,15 @@ function GroupEdit() {
     setLoading(true)
     const status = moment(data.firstDay).isSame(moment(), 'week')
 
-    await updateDataWithStatus({
-      data,
-      status: status ? ONGOING_STATUS : FUTURE_STATUS
-    })
-
-    history.goBack()
+    try {
+      await updateDataWithStatus({
+        data,
+        status: status ? ONGOING_STATUS : FUTURE_STATUS
+      })
+      history.goBack()
+    } catch (e) {
+      console.log(e)
+    }
 
     setLoading(false)
   }

@@ -40,7 +40,7 @@ const exclamationIconStyles = {
 const MOMENT_FORMAT_FOR_TIMEPICKER = 'YYYY-MM-DD'
 const NEXT_COLLECT_DIFF = 3
 const CORRECT_FIRST_DAYS = ['Mon', 'Tue']
-const WRONG_FOURTH_DAYS = ['Sun', 'Sat', 'Wed', 'Tue']
+const WRONG_FOURTH_DAYS = ['Sun', 'Sat', 'Wed', 'Tue', 'Mon']
 const DEFAULT_VALUE_FOR_DATEPICKERS = {
   firstDay: moment().format(MOMENT_FORMAT_FOR_TIMEPICKER),
   fourthDay: moment()
@@ -344,7 +344,7 @@ function GroupSimpleForm(props) {
             <Col cw={[12, 12, 6]} mb={3}>
               <Box display="flex" alignItems="center" mb={2}>
                 <Text mr={2}>{t('Start day')}</Text>
-                <Tooltip title={t('Available days: Mon, Tue, Fri')}>
+                <Tooltip title={t('Available days: Mon, Tue')}>
                   <Icon
                     {...exclamationIconStyles}
                     component={<ExclamationCircleOutlined />}
@@ -377,7 +377,7 @@ function GroupSimpleForm(props) {
             <Col cw={[12, 12, 6]} mb={3}>
               <Box display="flex" alignItems="center" mb={2}>
                 <Text mr={2}>{t('Fourth day')}</Text>
-                <Tooltip title={t('Available days: Mon, Thu, Fri')}>
+                <Tooltip title={t('Available days: Thu, Fri')}>
                   <Icon
                     {...exclamationIconStyles}
                     component={<ExclamationCircleOutlined />}

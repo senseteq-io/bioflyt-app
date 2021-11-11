@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react'
+import React, { Fragment } from 'react'
 import { EditRemove } from 'app/components'
 import { useSaveData } from 'app/hooks'
 import { Box, Button, PageWrapper, Title } from '@qonsoll/react-design'
@@ -24,7 +24,6 @@ import {
   BIOFLOW_GROUP_ACTIVITIES_PATH,
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
-import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import firebase from 'firebase'
 
 function GroupShow() {
@@ -44,10 +43,6 @@ function GroupShow() {
       .collection(NOTIFICATIONS_MODEL_NAME)
       .where('groupId', '==', id)
   )
-  //[COMPUTED PROPERTIES]
-  const isActivateDisabled = useMemo(() => groupData?.status !== DRAFT_STATUS, [
-    groupData
-  ])
 
   // [CLEAN FUNCTIONS]
   const goToActivities = () => {
@@ -83,12 +78,8 @@ function GroupShow() {
     history.goBack()
   }
 
-  const activateGroup = () => {
-    // setIsActivated(true)
-  }
-
   const actionPanel = (
-    <Box display="flex" alignItems="center">
+    <Box display="flex" alignItems="flex-start">
       <Button
         mr={3}
         type="text"
@@ -99,13 +90,6 @@ function GroupShow() {
       <Box mr={3}>
         <EditRemove onEdit={goToGroupEdit} onRemove={onRemoveGroup} />
       </Box>
-
-      <Button
-        type="primary"
-        disabled={isActivateDisabled}
-        onClick={activateGroup}>
-        {t('Activate')}
-      </Button>
     </Box>
   )
 
