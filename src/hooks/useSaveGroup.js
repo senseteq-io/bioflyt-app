@@ -1,3 +1,5 @@
+import { Text } from '@qonsoll/react-design'
+import React from 'react'
 import { notification } from 'antd'
 import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { useTranslations } from '@qonsoll/translation'
@@ -59,6 +61,29 @@ const useSaveGroup = () => {
   const errorBoundary = (callback) => async (args) => {
     const { form, data: formData } = args
     const data = formData || form.getFieldsValue()
+
+    const uniqInitials = {}
+    data.patients.forEach(({ initial }) => {
+      uniqInitials[initial] = (uniqInitials[initial] || 0) + 1
+    })
+
+    const notUniqueInitials = []
+    Object.keys(uniqInitials).forEach(
+      (initial) => uniqInitials[initial] > 1 && notUniqueInitials.push(initial)
+    )
+
+    if (notUniqueInitials.length) {
+      notification.error({
+        message: (
+          <>
+            {t('You have non unique initial in')}:{' '}
+            <Text fontWeight={500}>{notUniqueInitials.join(', ')}</Text>{' '}
+            {t('patients, please add an extra letter or number to them')}.
+          </>
+        )
+      })
+      throw new Error('not uniq patients')
+    }
 
     const isAllRoleAvailable = Object.values(data.therapists).map((role) =>
       [
@@ -128,6 +153,10 @@ const useSaveGroup = () => {
       data,
       withNotification: true
     })
+    await firebase.functions().httpsCallable('sendInviteNotifications')({
+      groupId: id
+    })
+
     const messages = {
       [DRAFT_STATUS]: 'Group was changed and save as a draft by',
       ACTIVATE: 'Group was activated by',
@@ -158,8 +187,8 @@ const useSaveGroup = () => {
 
     const messages = {
       [DRAFT_STATUS]: 'Group was saved as a draft by',
-      [ONGOING_STATUS]: 'Group was created by'
-      // [FUTURE_STATUS]: 'Group was finished by'
+      [ONGOING_STATUS]: 'Group was created by',
+      [FUTURE_STATUS]: 'Group was finished by'
     }
     await save({
       collection: ACTIVITIES_MODEL_NAME,

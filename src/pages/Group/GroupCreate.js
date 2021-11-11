@@ -47,13 +47,17 @@ function GroupCreate() {
 
     const status = moment(data.firstDay).isSame(moment(), 'week')
 
-    await saveDataWithStatus({
-      data,
-      status: status ? ONGOING_STATUS : FUTURE_STATUS,
-      isActivate: true
-    })
+    try {
+      await saveDataWithStatus({
+        data,
+        status: status ? ONGOING_STATUS : FUTURE_STATUS,
+        isActivate: true
+      })
 
-    history.goBack()
+      history.goBack()
+    } catch (e) {
+      console.log(e)
+    }
 
     setLoading(false)
   }

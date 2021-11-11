@@ -18,7 +18,7 @@ import {
  * @constructor
  */
 const UseNotificationActions = (notificationData = {}) => {
-  const { _id, _createdAt, groupId, text, type } = notificationData
+  const { _id, _createdAt, groupId, text, type, receivers } = notificationData
   const history = useHistory()
   const { update } = useSaveData()
   const { isTherapist } = useBioflowAccess()
@@ -30,7 +30,7 @@ const UseNotificationActions = (notificationData = {}) => {
       update({
         collection: NOTIFICATIONS_MODEL_NAME,
         id: _id,
-        data: { receivers: { [therapistId]: true } }
+        data: { receivers: { ...receivers, [therapistId]: true } }
       })
     }
   }

@@ -73,7 +73,15 @@ function PatientsList(props) {
     <ListWithCreate
       withCreate={false}
       dataSource={sortedPatientsList?.map(({ generated, ...rest }) => ({
-        name: generated,
+        name: (
+          <>
+            {_.trimEnd(
+              _.initial(generated).join(''),
+              rest.initial.toUpperCase()
+            )}
+            <strong>{rest.initial.toUpperCase()}</strong>
+          </>
+        ),
         ...rest
       }))}>
       <PatientSimpleView

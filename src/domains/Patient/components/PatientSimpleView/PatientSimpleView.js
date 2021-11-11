@@ -1,14 +1,15 @@
 import React, { Fragment, useMemo, useState } from 'react'
+import PropTypes from 'prop-types'
 import moment from 'moment'
-import { useTranslations } from '@qonsoll/translation'
+import firebase from 'firebase'
 import { Modal, Tooltip } from 'antd'
+import { useTranslations } from '@qonsoll/translation'
 import { Box, Button, Card, Icon, Text } from '@qonsoll/react-design'
-import { CheckOutlined } from '@ant-design/icons'
+import { CheckOutlined, SendOutlined } from '@ant-design/icons'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { PatientSimpleForm } from '..'
 import { useSaveData } from 'app/hooks'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
-import firebase from 'firebase'
 
 const successIconStyles = {
   display: 'flex',
@@ -145,15 +146,18 @@ function PatientSimpleView(props) {
           </Tooltip>
           <Box>
             {isDeliverBioButtonVisible && (
-              <Tooltip title={isAdmin && "Admin can't collect BIO"}>
+              <Tooltip
+                title={
+                  isAdmin ? t("Admin can't collect BIO") : t('Deliver Bio')
+                }>
                 <Box>
                   <Button
                     ghost
                     type="primary"
                     onClick={onClickDeliverBio}
-                    disabled={!isBIOCollectEnabled || isAdmin}>
-                    {t('Deliver Bio')}
-                  </Button>
+                    disabled={!isBIOCollectEnabled || isAdmin}
+                    icon={<SendOutlined />}
+                  />
                 </Box>
               </Tooltip>
             )}
@@ -181,6 +185,18 @@ function PatientSimpleView(props) {
   )
 }
 
-PatientSimpleView.propTypes = {}
+PatientSimpleView.propTypes = {
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  groupId: PropTypes.string.isRequired,
+  patients: PropTypes.array.isRequired,
+  firstDay: PropTypes.object.isRequired,
+  fourthDay: PropTypes.object.isRequired,
+  threeMonthDay: PropTypes.object.isRequired,
+  firstDayBIOCollected: PropTypes.bool.isRequired,
+  fourthDayBIOCollected: PropTypes.bool.isRequired,
+  threeMonthDayBIOCollected: PropTypes.bool.isRequired,
+  onDeliverBio: PropTypes.func
+}
 
 export default PatientSimpleView
