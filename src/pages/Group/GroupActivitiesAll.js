@@ -13,6 +13,7 @@ import { Breadcrumb } from 'antd'
 import {
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_SHOW_PATH,
+  BIOFLOW_GROUPS_PATH,
   BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
 import {
@@ -52,7 +53,9 @@ function GroupActivitiesAll() {
   const groupActivitiesBreadcrumbs = (
     <Fragment>
       <Breadcrumb.Item>
-        <Link to={BIOFLOW_ADMIN_GROUPS_PATH}>{t('Groups')}</Link>
+        <Link to={isAdmin ? BIOFLOW_ADMIN_GROUPS_PATH : BIOFLOW_GROUPS_PATH}>
+          {t('Groups')}
+        </Link>
       </Breadcrumb.Item>
       <Breadcrumb.Item>
         <Link to={groupShowPath}>Week {groupData?.weekNumber}</Link>

@@ -14,6 +14,19 @@ import {
 } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 
+const validateField = (value, callback) => {
+  if (value.length <= 2) {
+    if (/^[A-Za-z]+$/.test(value) || value === '') {
+      callback(value)
+    }
+  }
+  if (value.length === 3) {
+    if (/^[A-Za-z0-9]$/.test(value[value.length - 1])) {
+      callback(value)
+    }
+  }
+}
+
 const PatientAddForm = (props) => {
   const { value, onChange, form, saveData } = props
 
@@ -22,16 +35,16 @@ const PatientAddForm = (props) => {
 
   // [CLEAN_FUNCTIONS]
   const onInputChange = (e, index) => {
-    if (e.target.value.match(/^[A-Za-z]+$/) || e.target.value === '') {
-      value[index].initial = e.target.value
+    validateField(e.target.value, (initial) => {
+      value[index].initial = initial
       onChange?.([...value])
-    }
+    })
   }
-  const saveDataToDB = async (e, index) => {
-    if (e.target.value.match(/^[A-Za-z]+$/) || e.target.value === '') {
-      value[index].initial = e.target.value
+  const saveDataToDB = (e, index) => {
+    validateField(e.target.value, async (initial) => {
+      value[index].initial = initial
       await saveData?.({ patients: [...value] }, form.getFieldsValue())
-    }
+    })
   }
 
   const addPatient = () => {
@@ -72,6 +85,7 @@ const PatientAddForm = (props) => {
                 <Row noGutters>
                   <Col mr={2}>
                     <Input
+                      max={3}
                       value={initial}
                       placeholder={t('Initials')}
                       onChange={(e) => onInputChange(e, index)}

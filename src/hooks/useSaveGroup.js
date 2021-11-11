@@ -1,3 +1,5 @@
+import { Text } from '@qonsoll/react-design'
+import React from 'react'
 import { notification } from 'antd'
 import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { useTranslations } from '@qonsoll/translation'
@@ -45,7 +47,7 @@ const generatePatients = async (data, weekNumber) => {
     ...data,
     generated: `${weekNumber}${clinicData?.name || ''}${
       disorderData?.name || ''
-    }${data.initial.toUpperCase()}`.replaceAll('', ''),
+    }${data.initial.toUpperCase()}`.replaceAll(' ', ''),
     initial: data.initial
   }))
 }
@@ -59,6 +61,29 @@ const useSaveGroup = () => {
   const errorBoundary = (callback) => async (args) => {
     const { form, data: formData } = args
     const data = formData || form.getFieldsValue()
+
+    const uniqInitials = {}
+    data.patients.forEach(({ initial }) => {
+      uniqInitials[initial] = (uniqInitials[initial] || 0) + 1
+    })
+
+    const notUniqueInitials = []
+    Object.keys(uniqInitials).forEach(
+      (initial) => uniqInitials[initial] > 1 && notUniqueInitials.push(initial)
+    )
+
+    if (notUniqueInitials.length) {
+      notification.error({
+        message: (
+          <>
+            {t('You have non unique initial in')}:{' '}
+            <Text fontWeight={500}>{notUniqueInitials.join(', ')}</Text>{' '}
+            {t('patients, please add an extra letter or number to them')}.
+          </>
+        )
+      })
+      throw new Error('not uniq patients')
+    }
 
     const isAllRoleAvailable = Object.values(data.therapists).map((role) =>
       [
@@ -96,7 +121,7 @@ const useSaveGroup = () => {
   }
 
   const normalizeData = async ({ data, status }) => {
-    const weekNumber = moment(data.startDay).week()
+    const weekNumber = moment(data.firstDay).week()
     for (const { initial } of data.patients) {
       if (initial === '') return
     }
@@ -108,8 +133,8 @@ const useSaveGroup = () => {
         ...data,
         patients,
         weekNumber,
-        startDay: firebase.firestore.Timestamp.fromDate(
-          new Date(data.startDay)
+        firstDay: firebase.firestore.Timestamp.fromDate(
+          new Date(data.firstDay)
         ),
         fourthDay: firebase.firestore.Timestamp.fromDate(
           new Date(data.fourthDay)
@@ -128,6 +153,10 @@ const useSaveGroup = () => {
       data,
       withNotification: true
     })
+    await firebase.functions().httpsCallable('sendInviteNotifications')({
+      groupId: id
+    })
+
     const messages = {
       [DRAFT_STATUS]: 'Group was changed and save as a draft by',
       ACTIVATE: 'Group was activated by',
@@ -152,10 +181,14 @@ const useSaveGroup = () => {
       withNotification: true
     })
 
+    await firebase.functions().httpsCallable('sendInviteNotifications')({
+      groupId: data._id
+    })
+
     const messages = {
       [DRAFT_STATUS]: 'Group was saved as a draft by',
-      [ONGOING_STATUS]: 'Group was created by'
-      // [FUTURE_STATUS]: 'Group was finished by'
+      [ONGOING_STATUS]: 'Group was created by',
+      [FUTURE_STATUS]: 'Group was finished by'
     }
     await save({
       collection: ACTIVITIES_MODEL_NAME,
@@ -167,11 +200,6 @@ const useSaveGroup = () => {
         )} ${_.lowerCase(role)} ${firstName} ${lastName}`
       }
     })
-
-    const func = await firebase
-      .functions()
-      .httpsCallable('sendInviteNotifications')
-    await func({ groupId: data._id })
   })
 
   return { updateDataWithStatus, saveDataWithStatus }

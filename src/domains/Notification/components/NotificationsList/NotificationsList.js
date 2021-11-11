@@ -1,28 +1,11 @@
 import React, { useMemo } from 'react'
+import moment from 'moment'
+import { useNotifications } from 'bioflow/contexts/Notifications'
 import { ListWithCreate } from 'app/components'
 import { NotificationSimpleView } from '..'
-import { useCollectionData } from 'react-firebase-hooks/firestore'
-import { NOTIFICATIONS_MODEL_NAME } from 'bioflow/constants/collections'
-import { useUserContext } from 'app/domains/User/contexts'
-import { useBioflowAccess } from 'bioflow/hooks'
-import moment from 'moment'
-import firebase from 'firebase'
 
-function NotificationsList(props) {
-  // [ADDITIONAL HOOKS]
-  const { _id: therapistId } = useUserContext()
-  const { isAdmin } = useBioflowAccess()
-  const notificationsCollectionRef = firebase
-    .firestore()
-    .collection(NOTIFICATIONS_MODEL_NAME)
-
-  //Get notifications for therapist if his id in receivers field
-  //or just get all notifications for super admin
-  const [notifications] = useCollectionData(
-    isAdmin
-      ? notificationsCollectionRef
-      : notificationsCollectionRef.where(`receivers.${therapistId}`, '!=', '')
-  )
+function NotificationsList() {
+  const { notifications } = useNotifications()
 
   // [COMPUTED PROPERTIES]
   const sortedNotificationsList = useMemo(() => {
@@ -34,8 +17,6 @@ function NotificationsList(props) {
         )
       : []
   }, [notifications])
-
-  // [CLEAN FUNCTIONS]
 
   return (
     <ListWithCreate

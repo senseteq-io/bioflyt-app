@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { PageWrapper, Title } from '@qonsoll/react-design'
 import { ListWithCreate } from 'app/components'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
@@ -10,6 +10,10 @@ import { useSaveData } from 'app/hooks'
 import firebase from 'firebase'
 import moment from 'moment'
 import _ from 'lodash'
+import {
+  FINISHED_STATUS,
+  ONGOING_STATUS
+} from 'bioflow/constants/groupStatuses'
 
 const DATE_FORMAT = 'D MMM YYYY'
 const TODAY_DATE = moment().format(DATE_FORMAT)
@@ -21,59 +25,107 @@ function PatientsAll() {
   const { _id: therapistId } = useUserContext()
   const { update } = useSaveData()
 
-  const [groups = []] = useCollectionData(
+  const [groups] = useCollectionData(
     therapistId &&
       firebase
         .firestore()
         .collection(GROUPS_MODEL_NAME)
-        .where(`therapists.${therapistId}`, '>=', '')
+        .where(`therapists.${therapistId}`, '!=', '')
   )
 
   //[COMPONENT STATE HOOKS]
   const [filteredList, setFilteredList] = useState({})
 
   //[COMPUTED PROPERTIES]
+  const filteredGroups = useMemo(
+    () => groups?.filter((group) => group?.status === ONGOING_STATUS),
+    [groups]
+  )
   const patients = useMemo(
     () =>
-      groups
+      filteredGroups
         ?.map((group) =>
           group?.patients?.map((patient) => ({
             ...patient,
-            name: patient?.generated,
+            name: (
+              <>
+                {_.trimEnd(
+                  _.initial(patient.generated).join(''),
+                  patient.initial.toUpperCase()
+                )}
+                <strong>{patient.initial.toUpperCase()}</strong>
+              </>
+            ),
             groupId: group?._id,
-            startDay: group?.startDay,
+            patients: group?.patients,
+            firstDay: group?.firstDay,
             fourthDay: group?.fourthDay
           }))
         )
         ?.flat()
         ?.filter((patient) => patient),
-    [groups]
+    [filteredGroups]
   )
 
   const sortedPatientsList = useMemo(() => {
-    return patients
-      ? patients.sort((a, b) =>
-          moment
-            .unix(b?.startDay?.seconds)
-            .diff(moment.unix(a?.startDay?.seconds))
-        )
+    return patients?.length
+      ? patients.sort((a, b) => (a?.id > b?.id && 1) || -1)
       : []
   }, [patients])
 
   //[CLEAN FUNCTIONS]
-  const onDeliverBio = async (patientData) => {
-    const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
-    if (moment(patient.firstDay).format(DATE_FORMAT) === TODAY_DATE) {
-      patient.firstDayBIOCollect = true
-    } else if (moment(patient.fourthDay).format(DATE_FORMAT) === TODAY_DATE) {
-      patient.forthDayBIOCollect = true
+  const changeToFinishedGroupStatus = (threeMonthDay, groupId, patients) => {
+    const isTodayLastDayBioCollect =
+      threeMonthDay &&
+      moment(threeMonthDay.toDate()).format(DATE_FORMAT) === TODAY_DATE
+
+    if (isTodayLastDayBioCollect) {
+      const isAllPatientsBioDelivered = patients?.every(
+        (patient) => !!patient?.threeMonthDayBIOCollected
+      )
+      isAllPatientsBioDelivered &&
+        update({
+          collection: GROUPS_MODEL_NAME,
+          id: groupId,
+          data: { status: FINISHED_STATUS }
+        })
     }
-    if (patientData?.groupId) {
+  }
+
+  const onDeliverBio = async (patientData) => {
+    const patient = _.remove(
+      patientData?.patients,
+      ({ id }) => id === patientData.id
+    )[0]
+    const { firstDay, fourthDay, threeMonthDay } = patientData || {}
+    const todayDate = moment().format(DATE_FORMAT)
+    const colectedBioFieldNames = [
+      'firstDayBIOCollected',
+      'fourthDayBIOCollected',
+      'threeMonthDayBIOCollected'
+    ]
+    const dates = [firstDay, fourthDay, threeMonthDay]
+
+    dates.forEach((date, index) => {
+      if (date && moment(date.toDate()).format(DATE_FORMAT) === todayDate) {
+        patient[colectedBioFieldNames[index]] = true
+      }
+    })
+
+    if (patientData?.groupId && patientData?.patients?.length) {
       await update({
         collection: GROUPS_MODEL_NAME,
         id: patientData.groupId,
-        data: { patients: [...patients, patient] }
+        data: { patients: [...patientData.patients, patient] }
       })
+
+      //if today three month day and bio was delivered for all patients
+      //set group status as finished
+      changeToFinishedGroupStatus(
+        threeMonthDay,
+        patientData?.groupId,
+        patientData?.patients
+      )
     }
   }
 
@@ -85,10 +137,12 @@ function PatientsAll() {
       //create lists of patients for current day and tomorrow
 
       dates.forEach((date) => {
-        buf[date] = sortedPatientsList?.filter((item) =>
+        buf[date] = sortedPatientsList?.filter((patient) =>
           [
-            moment(item?.startDay?.toDate?.()).format(DATE_FORMAT),
-            moment(item?.fourthDay?.toDate?.()).format(DATE_FORMAT)
+            moment(patient?.firstDay?.toDate?.()).format(DATE_FORMAT),
+            moment(patient?.fourthDay?.toDate?.()).format(DATE_FORMAT),
+            patient?.threeMonthDay &&
+              moment(patient.threeMonthDay.toDate()).format(DATE_FORMAT)
           ].includes(date)
         )
       })

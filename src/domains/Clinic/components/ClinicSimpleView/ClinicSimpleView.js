@@ -3,7 +3,7 @@ import { Tooltip } from 'antd'
 import { Box, Card, Col, Row, Switch, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
-import { useService } from 'bioflow/contexts/Service'
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
 
 function ClinicSimpleView(props) {
   const { _id, name, bioflowAccess } = props
@@ -11,7 +11,6 @@ function ClinicSimpleView(props) {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
   const { update } = useSaveData()
-  const { CLINICS_MODEL_NAME } = useService()
 
   // [CLEAN FUNCTIONS]
   const onSwitchValueChange = (bioflowAccess) => {

@@ -7,7 +7,7 @@ import {
 } from 'bioflow/constants/groupStatuses'
 import React, { useEffect, useMemo, useState, Fragment } from 'react'
 import { Box, NoData, Title } from '@qonsoll/react-design'
-import { List } from 'antd'
+import { Collapse, List } from 'antd'
 import { GroupAdvancedView } from 'bioflow/domains/Group/components'
 import firebase from 'firebase'
 import _ from 'lodash'
@@ -22,8 +22,11 @@ import {
   BIOFLOW_ADMIN_GROUP_CREATE_PATH,
   BIOFLOW_GROUP_CREATE_PATH
 } from 'bioflow/constants/paths'
+import { GroupFilterDrawer } from '../'
 
-function GroupsList() {
+function GroupsList(props) {
+  const { isFilterDrawerVisible, setIsFilterDrawerVisible } = props
+
   // [ADDITIONAL_HOOKS]
   const { t } = useTranslations()
   const history = useHistory()
@@ -41,6 +44,7 @@ function GroupsList() {
 
   // [COMPONENT_STATE_HOOKS]
   const [filteredList, setFilteredList] = useState({})
+  const [filterData, setFilterData] = useState([])
 
   // [CLEAN_FUNCTIONS]
   const goToCreateGroup = () =>
@@ -48,7 +52,40 @@ function GroupsList() {
       isAdmin ? BIOFLOW_ADMIN_GROUP_CREATE_PATH : BIOFLOW_GROUP_CREATE_PATH
     )
 
+  const filterGroup = (group) => {
+    //add new field for filtrating
+    const groupData = { ...group, numberOfPatients: group?.patients?.length }
+    //iterate by every filter field and compare it value with same field in group
+    //to filter irrelevant data
+    const comparingResults = filterData?.map((item) => {
+      const filterField = Object.keys(item)?.[0]
+      return item[filterField] === groupData[filterField]
+    })
+    //if every filter field value matches with group data
+    //result will be true else false
+    const isAppropriateGroup = comparingResults?.every(
+      (result) => result === true
+    )
+
+    return isAppropriateGroup
+  }
+
   // [COMPUTED PROPERTIES]
+  const filterInitialValues = useMemo(() => {
+    if (filterData?.length) {
+      //convert array of objects to one object for initial values
+      let initialValues = filterData?.reduce(
+        (obj, item) => ({
+          ...obj,
+          [Object.keys(item)]: item[Object.keys(item)]
+        }),
+        {}
+      )
+      return initialValues
+    }
+    return {}
+  }, [filterData])
+
   const sortedList = useMemo(() => {
     return list
       ? list.sort((a, b) =>
@@ -59,18 +96,43 @@ function GroupsList() {
       : []
   }, [list])
 
+  const onSubmitFilter = (filterValues) => {
+    setFilterData(filterValues)
+  }
+
   // [USE_EFFECTS]
   useEffect(() => {
     if (sortedList) {
       const statuses = _.uniq(sortedList.map(({ status }) => status))
       const buf = {}
-
+      //when filter data exist we compare status and filter data
+      //with group data to filter it
       statuses.forEach((status) => {
-        buf[status] = _.filter(sortedList, (item) => item.status === status)
+        buf[status] = _.filter(sortedList, (item) =>
+          !!filterData?.length
+            ? item.status === status && filterGroup(item)
+            : item.status === status
+        )
       })
       setFilteredList(buf)
     }
-  }, [sortedList])
+  }, [sortedList, filterData])
+
+  //set actual filter data to storage
+  useEffect(() => {
+    if (filterData?.length) {
+      localStorage.setItem('filterData', JSON.stringify(filterData))
+    }
+  }, [filterData])
+
+  //on componentDidMount get filter data from storage
+  //and if it exist set to state
+  useEffect(() => {
+    const filterDataFromStorage = JSON.parse(localStorage.getItem('filterData'))
+    if (filterDataFromStorage?.length) {
+      setFilterData(filterDataFromStorage)
+    }
+  }, [])
 
   return (
     <Fragment>
@@ -108,25 +170,34 @@ function GroupsList() {
           data={filteredList[FINISHED_STATUS]}
         />
       )}
+
+      <GroupFilterDrawer
+        initialValues={filterInitialValues}
+        isFilterDrawerVisible={isFilterDrawerVisible}
+        setIsFilterDrawerVisible={setIsFilterDrawerVisible}
+        setFilterData={setFilterData}
+        onSubmitFilter={onSubmitFilter}
+      />
     </Fragment>
   )
 }
 
 //xs: 1, sm: 1, md: 1, lg: 2, xl: 2, xxl: 3
 const GroupFilteredList = ({ status, data }) => (
-  <Box mb={1}>
-    <Title level={4} mb={2}>
-      {status}
-    </Title>
-    <List
-      grid={{ gutter: [32, 4], column: 1 }}
-      dataSource={data}
-      renderItem={(item) => (
-        <List.Item key={item._id} style={{ width: '100%' }}>
-          <GroupAdvancedView {...item} />
-        </List.Item>
-      )}
-    />
+  <Box mb={1} mx="calc(var(--collapse-header-padding-extra)*-1)">
+    <Collapse bordered={false} ghost={true} defaultActiveKey={status}>
+      <Collapse.Panel header={<Title level={4}>{status}</Title>} key={status}>
+        <List
+          grid={{ gutter: [32, 4], column: 1 }}
+          dataSource={data}
+          renderItem={(item) => (
+            <List.Item key={item._id} style={{ width: '100%' }}>
+              <GroupAdvancedView {...item} />
+            </List.Item>
+          )}
+        />
+      </Collapse.Panel>
+    </Collapse>
   </Box>
 )
 

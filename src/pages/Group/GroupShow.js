@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react'
+import React, { Fragment } from 'react'
 import { EditRemove } from 'app/components'
 import { useSaveData } from 'app/hooks'
 import { Box, Button, PageWrapper, Title } from '@qonsoll/react-design'
@@ -8,16 +8,22 @@ import { LineChartOutlined } from '@ant-design/icons'
 import { useHistory, useParams, generatePath, Link } from 'react-router-dom'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
-import { useDocumentData } from 'react-firebase-hooks/firestore'
-import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+import {
+  useDocumentData,
+  useCollectionData
+} from 'react-firebase-hooks/firestore'
+import {
+  GROUPS_MODEL_NAME,
+  NOTIFICATIONS_MODEL_NAME
+} from 'bioflow/constants/collections'
 import {
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_GROUP_ACTIVITIES_PATH,
   BIOFLOW_ADMIN_GROUP_EDIT_PATH,
+  BIOFLOW_GROUPS_PATH,
   BIOFLOW_GROUP_ACTIVITIES_PATH,
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
-import { DRAFT_STATUS } from 'bioflow/constants/groupStatuses'
 import firebase from 'firebase'
 
 function GroupShow() {
@@ -31,11 +37,12 @@ function GroupShow() {
   const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
-
-  //[COMPUTED PROPERTIES]
-  const isActivateDisabled = useMemo(() => groupData?.status !== DRAFT_STATUS, [
-    groupData
-  ])
+  const [notifications = []] = useCollectionData(
+    firebase
+      .firestore()
+      .collection(NOTIFICATIONS_MODEL_NAME)
+      .where('groupId', '==', id)
+  )
 
   // [CLEAN FUNCTIONS]
   const goToActivities = () => {
@@ -60,15 +67,19 @@ function GroupShow() {
 
   const onRemoveGroup = async () => {
     await remove({ collection: GROUPS_MODEL_NAME, id, withNotification: true })
+    notifications?.forEach((notification) => {
+      remove({
+        collection: NOTIFICATIONS_MODEL_NAME,
+        id: notification._id,
+        withNotification: false
+      })
+    })
+
     history.goBack()
   }
 
-  const activateGroup = () => {
-    // setIsActivated(true)
-  }
-
   const actionPanel = (
-    <Box display="flex" alignItems="center">
+    <Box display="flex" alignItems="flex-start">
       <Button
         mr={3}
         type="text"
@@ -79,22 +90,19 @@ function GroupShow() {
       <Box mr={3}>
         <EditRemove onEdit={goToGroupEdit} onRemove={onRemoveGroup} />
       </Box>
-
-      <Button
-        type="primary"
-        disabled={isActivateDisabled}
-        onClick={activateGroup}>
-        {t('Activate')}
-      </Button>
     </Box>
   )
 
   const groupShowBreadcrumbs = (
     <Fragment>
       <Breadcrumb.Item>
-        <Link to={BIOFLOW_ADMIN_GROUPS_PATH}>{t('Groups')}</Link>
+        <Link to={isAdmin ? BIOFLOW_ADMIN_GROUPS_PATH : BIOFLOW_GROUPS_PATH}>
+          {t('Groups')}
+        </Link>
       </Breadcrumb.Item>
-      <Breadcrumb.Item>Week {groupData?.weekNumber}</Breadcrumb.Item>
+      <Breadcrumb.Item>{`${t('Week')} ${
+        groupData?.weekNumber
+      }`}</Breadcrumb.Item>
     </Fragment>
   )
 
@@ -118,7 +126,8 @@ function GroupShow() {
         </Box>
         <PatientsList
           patients={groupData?.patients}
-          startDay={groupData?.startDay}
+          groupId={groupData?._id}
+          firstDay={groupData?.firstDay}
           fourthDay={groupData?.fourthDay}
         />
       </Box>
