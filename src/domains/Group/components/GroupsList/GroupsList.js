@@ -23,6 +23,7 @@ import {
   BIOFLOW_GROUP_CREATE_PATH
 } from 'bioflow/constants/paths'
 import { GroupFilterDrawer } from '../'
+import GROUP_STATUSES from 'bioflow/constants/groupStatuses'
 
 function GroupsList(props) {
   const { isFilterDrawerVisible, setIsFilterDrawerVisible } = props
@@ -149,24 +150,28 @@ function GroupsList(props) {
       {filteredList[DRAFT_STATUS] && (
         <GroupFilteredList
           status={t('Draft')}
+          collapseKey={DRAFT_STATUS}
           data={filteredList[DRAFT_STATUS]}
         />
       )}
       {filteredList[ONGOING_STATUS] && (
         <GroupFilteredList
           status={t('Ongoing')}
+          collapseKey={ONGOING_STATUS}
           data={filteredList[ONGOING_STATUS]}
         />
       )}
       {filteredList[FUTURE_STATUS] && (
         <GroupFilteredList
           status={t('Future')}
+          collapseKey={FUTURE_STATUS}
           data={filteredList[FUTURE_STATUS]}
         />
       )}
       {filteredList[FINISHED_STATUS] && (
         <GroupFilteredList
           status={t('Finished')}
+          collapseKey={FINISHED_STATUS}
           data={filteredList[FINISHED_STATUS]}
         />
       )}
@@ -183,23 +188,69 @@ function GroupsList(props) {
 }
 
 //xs: 1, sm: 1, md: 1, lg: 2, xl: 2, xxl: 3
-const GroupFilteredList = ({ status, data }) => (
-  <Box mb={1} mx="calc(var(--collapse-header-padding-extra)*-1)">
-    <Collapse bordered={false} ghost={true} defaultActiveKey={status}>
-      <Collapse.Panel header={<Title level={4}>{status}</Title>} key={status}>
-        <List
-          grid={{ gutter: [32, 4], column: 1 }}
-          dataSource={data}
-          renderItem={(item) => (
-            <List.Item key={item._id} style={{ width: '100%' }}>
-              <GroupAdvancedView {...item} />
-            </List.Item>
-          )}
-        />
-      </Collapse.Panel>
-    </Collapse>
-  </Box>
-)
+const GroupFilteredList = ({ status, data, collapseKey }) => {
+  //Get collapse state info from local storage for list with appropriate status
+  const collapseState = JSON.parse(
+    localStorage.getItem('groupCollapseState')
+  )?.filter((item) => item === collapseKey)
+
+  //[CLEAN FUNCTIONS]
+  const onCollapseChange = (activeKey) => {
+    const collapseStateFromStorage = JSON.parse(
+      localStorage.getItem('groupCollapseState')
+    )
+    //by default set data from storage
+    let computedCollapseStorageValue = collapseStateFromStorage
+    //if user close collapse of current list, remove it from storage array
+    if (!activeKey?.length) {
+      computedCollapseStorageValue = collapseStateFromStorage?.filter(
+        (item) => item !== collapseKey
+      )
+    }
+    //when user change collapse state for the first time
+    //set all lists status to storage, except current, to mark as opened
+    if (collapseStateFromStorage === null) {
+      computedCollapseStorageValue = GROUP_STATUSES.filter(
+        (item) => item !== collapseKey
+      )
+    }
+    //when there are any info about state of other lists save it
+    // and add state of current list opened/closed
+    //if storage empty just add state of this list
+    localStorage.setItem(
+      'groupCollapseState',
+      JSON.stringify(
+        computedCollapseStorageValue?.length
+          ? [...computedCollapseStorageValue, ...activeKey]
+          : activeKey
+      )
+    )
+  }
+
+  return (
+    <Box mb={1} mx="calc(var(--collapse-header-padding-extra)*-1)">
+      <Collapse
+        bordered={false}
+        ghost={true}
+        defaultActiveKey={collapseState || collapseKey}
+        onChange={onCollapseChange}>
+        <Collapse.Panel
+          header={<Title level={4}>{status}</Title>}
+          key={collapseKey}>
+          <List
+            grid={{ gutter: [32, 4], column: 1 }}
+            dataSource={data}
+            renderItem={(item) => (
+              <List.Item key={item._id} style={{ width: '100%' }}>
+                <GroupAdvancedView {...item} />
+              </List.Item>
+            )}
+          />
+        </Collapse.Panel>
+      </Collapse>
+    </Box>
+  )
+}
 
 GroupsList.propTypes = {}
 
