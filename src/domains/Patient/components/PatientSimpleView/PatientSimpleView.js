@@ -53,7 +53,7 @@ function PatientSimpleView(props) {
 
   const isBIOCollectEnabled = useMemo(
     () => isTodayFirstDay || isTodayFourthDay || isTodayThreeMonthDay,
-    [firstDay, fourthDay]
+    [isTodayFirstDay, isTodayFourthDay, isTodayThreeMonthDay]
   )
 
   const nextTimeBIOCollect = useMemo(() => {
@@ -65,7 +65,7 @@ function PatientSimpleView(props) {
           'D MMM YYYY'
         )}`
       : t('All stages of bio were collected')
-  }, [fourthDay, isTodayFirstDay, isTodayFourthDay, threeMonthDay])
+  }, [isTodayFirstDay, isTodayFourthDay,fourthDay, threeMonthDay])
 
   //if today collect bio day and bio was collected
   //and when fourth day and date for three month was set - show success icon
