@@ -18,7 +18,7 @@ import {
   BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH,
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_SETTINGS_PATH,
-  BIOFLOW_ADMIN_PATH
+  BIOFLOW_ADMIN_PATH,
 } from 'bioflow/constants/paths'
 import { FilterOutlined } from '@ant-design/icons'
 import { GroupsAll } from 'bioflow/pages/Group'
@@ -73,6 +73,10 @@ function Dashboard() {
     setIsFilterDrawerVisible(true)
   }
 
+  const isFilterVisible = useMemo(() => 
+    !!matchPath(location.pathname, BIOFLOW_ADMIN_GROUPS_PATH), 
+  [location.pathname]) 
+
   return isWithTabsRoute ? (
     <PageWrapper
       onBack={history.goBack}
@@ -83,9 +87,10 @@ function Dashboard() {
         marginBottom: '0px'
       }}
       action={
-        <Button
-          icon={<FilterOutlined />}
-          type="primary"
+        isFilterVisible && 
+        <Button 
+          icon={<FilterOutlined />} 
+          type="primary" 
           onClick={onOpenFilterDrawer}>
           {t('Filter')}
         </Button>
