@@ -94,8 +94,11 @@ const useSaveGroup = () => {
     )
 
     const isAllTherapistAdded =
-      isAllRoleAvailable.length === 3 &&
-      _.every(isAllRoleAvailable, (value) => value === true)
+      isAllRoleAvailable.length >= 3 &&
+      isAllRoleAvailable.reduce(
+        (acc, value) => (value === true ? ++acc : acc),
+        0
+      ) === 3
 
     if (
       data.clinicId &&
@@ -117,6 +120,7 @@ const useSaveGroup = () => {
             )
           : t('Group should have Admin, Leader and Vice leader therapists')
       })
+      throw new Error('no therapist')
     }
   }
 
