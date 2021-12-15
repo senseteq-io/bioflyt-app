@@ -28,7 +28,7 @@ function GroupsAll(props) {
     setIsFilterDrawerVisible(true)
   }
 
-  firebase.functions().useFunctionsEmulator("http://localhost:5001/foi-backend-app-prod/us-central1")
+  firebase.functions().useFunctionsEmulator("http://localhost:5001")
 
   return (
     <PageWrapper
