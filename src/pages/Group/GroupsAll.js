@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useTranslations } from '@qonsoll/translation'
 import { GroupsList } from 'bioflow/domains/Group/components'
 import { FilterOutlined } from '@ant-design/icons'
+import firebase from 'firebase/app'
 
 function GroupsAll(props) {
   const { inTab, isDrawerVisible, setIsDrawerVisible } = props
@@ -27,6 +28,8 @@ function GroupsAll(props) {
     setIsFilterDrawerVisible(true)
   }
 
+  firebase.functions().useFunctionsEmulator("http://localhost:5001/foi-backend-app-prod/us-central1")
+
   return (
     <PageWrapper
       headingProps={{
@@ -43,10 +46,30 @@ function GroupsAll(props) {
           {t('Filter')}
         </Button>
       }>
-      <GroupsList
+      {/* <GroupsList
         isFilterDrawerVisible={isFilterDrawerVisible}
         setIsFilterDrawerVisible={setIsFilterDrawerVisible}
-      />
+      /> */}
+      <Button
+          type="primary"
+          onClick={() => firebase.functions().httpsCallable('onFirstCollectBioCheck')()}>
+          {t('first check bio')}
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => firebase.functions().httpsCallable('onFirst3MonthRegistration')()}>
+          {t('second check bio')}
+        </Button>
+        <Button
+          type="primary"
+          onClick={() =>  firebase.functions().httpsCallable('onFirst3MonthRegistration')()}>
+          {t('first three month')}
+        </Button>
+        <Button
+          type="primary"
+          onClick={ ()=>firebase.functions().httpsCallable('onSecond3MonthRegistration')()}>
+          {t('second three month')}
+        </Button>
     </PageWrapper>
   )
 }
