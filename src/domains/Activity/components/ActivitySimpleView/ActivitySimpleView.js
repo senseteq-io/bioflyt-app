@@ -1,58 +1,98 @@
-import firebase from 'firebase'
-import React from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 import moment from 'moment'
-import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { useTranslations } from '@qonsoll/translation'
-import { Tooltip } from 'antd'
-import { Box, Col, Row, Text } from '@qonsoll/react-design'
-import { CLINICS_MODEL_NAME } from 'app/constants/models'
-import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+import { Tooltip, Modal } from 'antd'
+import {  Button, Col, Row, Text } from '@qonsoll/react-design'
+import { useActivities} from 'bioflow/hooks'
+import { ActivityAdvancedView } from '../'
 
 function ActivitySimpleView(props) {
-  const { isGroupActivity, _createdAt, text, clinicId, groupId } = props
+  const { _createdAt, additionalData, type, isTriggeredByAdmin } = props
 
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
+  const { getActivityTextByType } = useActivities()
 
-  // [DATA_FETCH]
-  const [clinicData] = useDocumentDataOnce(
-    firebase.firestore().collection(CLINICS_MODEL_NAME).doc(clinicId)
+  const [isModalVisible, setIsModalVisible] = useState()
+  const activityText = getActivityTextByType(
+    additionalData,
+    type,
+    isTriggeredByAdmin
   )
-  const [groupData] = useDocumentDataOnce(
-    firebase.firestore().collection(GROUPS_MODEL_NAME).doc(groupId)
+  
+  const additionalDataFields = useMemo(
+    () => ({
+      clinicName: t('Clinic'),
+      adminDisplayName: t('Admin display name'),
+      adminEmail: t('Admin email'),
+      therapistDisplayName: t('Therapist display name'),
+      therapistEmail: t('Therapist email'),
+      therapistRole: t('Therapist role in group'),
+      invitedTherapistDisplayName: t('Invited therapist display name'),
+      invitedTherapistEmail: t('Invited therapist email'),
+      invitedTherapistRole: t('Invited therapist role in group'),
+      removedTherapistDisplayName: t('Removed therapist display name'),
+      removedTherapistEmail: t('Removed therapist email'),
+      removedTherapistRole: t('Removed Therapist role in group'),
+      patientDisplayName: t('Patient display name'),
+      groupName: t('Group'),
+      groupClinicName: t('Group clinic'),
+      groupStudyName: t('Group study'),
+      groupDisorderName: t('Group disorder'),
+      studyName: t('Study')
+    }),
+    [t]
   )
-  const tooltipContent = (
-    <>
-      <Box>
-        {t('clinic')}: {clinicData?.name || ''}
-      </Box>
-      <Box>
-        {t('group')}: {t('week')}
-        {groupData?.weekNumber || ''}
-      </Box>
-    </>
+
+  const additionalDataLength = useMemo(
+    () =>
+      Object.keys(additionalDataFields)?.filter(
+        (additionalDataKey) => additionalData?.[additionalDataKey]
+      )?.length,
+    [additionalData, additionalDataFields]
   )
+
+  const onModalOpen = () =>{
+    setIsModalVisible(true)
+  }
+
+  const onModalCancel = ()=>{
+    setIsModalVisible(false)
+  }
 
   return (
-    <Row noOuterGutters my={0}>
-      <Col cw="auto" v="center">
-        <Text type="secondary">
-          {moment(_createdAt.toDate?.()).format('HH:mm')}
-        </Text>
-      </Col>
-      <Col v="center">
-        <Text type="secondary">{text}</Text>
-      </Col>
-      {!isGroupActivity && (
+    <Fragment>
+      <Row noOuterGutters my={0}>
         <Col cw="auto" v="center">
-          <Tooltip placement="topRight" title={tooltipContent}>
-            <Text underline type="secondary" cursor="help">
+          <Text type="secondary">
+            {moment(_createdAt.toDate?.()).format('HH:mm')}
+          </Text>
+        </Col>
+        <Col v="center">
+          <Text type="secondary">{activityText}</Text>
+        </Col>
+        <Col cw="auto" v="center">
+          <Button type='text' onClick={onModalOpen}>
+            <Text underline type="secondary">
               {t('details')}
             </Text>
-          </Tooltip>
+          </Button>
         </Col>
-      )}
-    </Row>
+      </Row>
+
+      <Modal 
+        visible={isModalVisible}
+        footer={false}
+        title={t('Activity details')}
+        style={{ top: 'calc(50vh - 200px)' }}
+        onCancel={onModalCancel}>
+          <ActivityAdvancedView 
+            {...props}
+            additionalData={additionalData}
+            additionalDataFields={additionalDataFields}
+          />
+      </Modal>
+    </Fragment>
   )
 }
 
