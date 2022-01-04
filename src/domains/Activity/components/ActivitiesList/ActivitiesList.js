@@ -3,7 +3,7 @@ import { ListWithCreate } from 'app/components'
 import { ActivitySimpleView } from '..'
 
 function ActivitiesList(props) {
-  const { dataSource, isGroupActivity } = props
+  const { dataSource } = props
   return (
     <ListWithCreate
       grid={{
@@ -17,7 +17,7 @@ function ActivitiesList(props) {
       }}
       dataSource={dataSource}
       withCreate={false}>
-      <ActivitySimpleView isGroupActivity={isGroupActivity} />
+      <ActivitySimpleView />
     </ListWithCreate>
   )
 }
