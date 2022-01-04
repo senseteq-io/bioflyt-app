@@ -4,12 +4,14 @@ import React, { Fragment } from 'react'
 import { Box, Container, NoData, Title } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
-import { ACTIVITIES_MODEL_NAME } from 'bioflow/constants/collections'
+// import { ACTIVITIES_MODEL_NAME } from 'bioflow/constants/collections'
+
+const ACTIVITIES_MODEL_NAME = 'bioflowTestActivities'
 
 function ActivitiesAll() {
   // [DATA_FETCH]
   const [activities] = useCollectionData(
-    firebase.firestore().collection(ACTIVITIES_MODEL_NAME)
+    firebase.firestore().collection(ACTIVITIES_MODEL_NAME).limit(3)
   )
   // [COMPUTED PROPERTIES]
   const actionsDates = activities?.map(({ _createdAt }) =>

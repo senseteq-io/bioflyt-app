@@ -6,10 +6,13 @@ import { Modal, Tooltip } from 'antd'
 import { useTranslations } from '@qonsoll/translation'
 import { Box, Button, Card, Icon, Text } from '@qonsoll/react-design'
 import { CheckOutlined, SendOutlined } from '@ant-design/icons'
-import { useBioflowAccess } from 'bioflow/hooks'
+import { useActivities, useBioflowAccess, useGroupFullData } from 'bioflow/hooks'
+import { useUserContext } from 'app/domains/User/contexts'
 import { PatientSimpleForm } from '..'
 import { useSaveData } from 'app/hooks'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+import { DELIVER_BIO, SET_THREE_MONTH_DATE } from 'bioflow/constants/activitiesTypes'
+import _ from 'lodash'
 
 const successIconStyles = {
   display: 'flex',
@@ -42,6 +45,9 @@ function PatientSimpleView(props) {
   const { t } = useTranslations()
   const { isAdmin } = useBioflowAccess()
   const { update } = useSaveData()
+  const { createActivity } = useActivities()
+  const { firstName, lastName, _id: therapistId, email: therapistEmail} = useUserContext()
+  const groupFullData = useGroupFullData(groupId)
 
   //[COMPONENT STATE HOOKS]
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -123,12 +129,47 @@ function PatientSimpleView(props) {
         id: groupId,
         data: { patients }
       })
+
+      createActivity({
+          isTriggeredByAdmin: false,
+          type: SET_THREE_MONTH_DATE,
+          groupId: groupId || groupFullData?._id || null,
+          additionalData: {
+            therapistDisplayName: `${firstName} ${lastName}`,
+            therapistEmail,
+            therapistRole: _.capitalize(
+              groupFullData?.therapists?.[therapistId]
+            ),
+            patientDisplayName: generated,
+            groupName: groupFullData?.weekNumber,
+            groupStatus: groupFullData?.status || null,
+            groupClinicName: groupFullData?.clinic?.name,
+            groupStudyName: groupFullData?.study?.name,
+            groupDisorderName: groupFullData?.disorder?.name
+          }
+        })
     }
     setIsModalVisible(false)
   }
 
   const onClickDeliverBio = () => {
     onDeliverBio(props)
+    createActivity({
+        isTriggeredByAdmin: false,
+        type: DELIVER_BIO,
+        groupId: groupId || groupFullData?._id || null,
+        additionalData: {
+          therapistDisplayName: `${firstName} ${lastName}`,
+          therapistEmail,
+          therapistRole: _.capitalize(groupFullData?.therapists?.[therapistId]),
+          patientDisplayName: name,
+          groupName: groupFullData?.weekNumber,
+          groupStatus: groupFullData?.status || null,
+          groupClinicName: groupFullData?.clinic?.name,
+          groupStudyName: groupFullData?.study?.name,
+          groupDisorderName: groupFullData?.disorder?.name
+        }
+    })
   }
 
   return (

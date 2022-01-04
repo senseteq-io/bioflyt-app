@@ -16,6 +16,8 @@ import { FOI_ADMIN_APP } from 'app/constants/applications'
 import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
 import { USERS_MODEL_NAME } from 'app/constants/models'
 import firebase from 'firebase'
+import { REMOVE_THERAPIST_INVITE } from 'bioflow/constants/activitiesTypes'
+import { useActivities } from 'bioflow/hooks'
 
 function TherapistInviteView(props) {
   const {
@@ -29,6 +31,7 @@ function TherapistInviteView(props) {
   // [ADDITIONAL HOOKS]
   const [{ userIdToDeletionRequestProcessing }, UIDispatch] = useUI()
   const { t } = useTranslations()
+  const {createActivity} = useActivities()
   const { createNotification } = useNotification()
   const { createPushNotification } = usePushNotification()
   const user = useUserContext()
@@ -65,7 +68,7 @@ function TherapistInviteView(props) {
       }
     }
 
-    // starting the spiner beefore request
+    // starting the spinner before request
     UIDispatch({
       type: 'UPDATE_DATA',
       data: {
@@ -87,6 +90,17 @@ function TherapistInviteView(props) {
           }
         }
       })
+    })
+
+    createActivity({
+      isTriggeredByAdmin: true,
+      type: REMOVE_THERAPIST_INVITE,
+      additionalData: {
+        adminDisplayName: `${user?.firstName} ${user?.lastName}`,
+        adminEmail: user?.email,
+        removedTherapistDisplayName: receiverName,
+        removedTherapistEmail: receiverEmail
+      }
     })
 
     createNotification({

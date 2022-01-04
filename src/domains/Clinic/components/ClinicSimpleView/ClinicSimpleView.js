@@ -3,7 +3,10 @@ import { Tooltip } from 'antd'
 import { Box, Card, Col, Row, Switch, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
+import { useActivities } from 'bioflow/hooks'
+import { useUserContext } from 'app/domains/User/contexts'
 import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { CHANGE_CLINIC_BIOFLOW_ACCESS } from 'bioflow/constants/activitiesTypes'
 
 function ClinicSimpleView(props) {
   const { _id, name, bioflowAccess } = props
@@ -11,6 +14,8 @@ function ClinicSimpleView(props) {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
   const { update } = useSaveData()
+  const { firstName, lastName, email:adminEmail } = useUserContext()
+  const { createActivity } = useActivities()
 
   // [CLEAN FUNCTIONS]
   const onSwitchValueChange = (bioflowAccess) => {
@@ -18,6 +23,17 @@ function ClinicSimpleView(props) {
       collection: CLINICS_MODEL_NAME,
       id: _id,
       data: { bioflowAccess }
+    })
+
+    createActivity({
+      isTriggeredByAdmin: true,
+      type: CHANGE_CLINIC_BIOFLOW_ACCESS,
+      additionalData: {
+        adminEmail,
+        adminDisplayName: `${firstName} ${lastName}`,
+        clinicName: name,
+        clinicBioflowAccess: bioflowAccess
+      }
     })
   }
 
