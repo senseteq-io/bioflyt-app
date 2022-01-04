@@ -1,8 +1,8 @@
 import React, { Fragment, useMemo, useState } from 'react'
 import moment from 'moment'
 import { useTranslations } from '@qonsoll/translation'
-import { Tooltip, Modal } from 'antd'
-import {  Button, Col, Row, Text } from '@qonsoll/react-design'
+import { Modal } from 'antd'
+import { Button, Col, Row, Text } from '@qonsoll/react-design'
 import { useActivities} from 'bioflow/hooks'
 import { ActivityAdvancedView } from '../'
 
@@ -86,11 +86,15 @@ function ActivitySimpleView(props) {
         title={t('Activity details')}
         style={{ top: 'calc(50vh - 200px)' }}
         onCancel={onModalCancel}>
-          <ActivityAdvancedView 
-            {...props}
-            additionalData={additionalData}
-            additionalDataFields={additionalDataFields}
-          />
+          {additionalDataLength ? (
+            <ActivityAdvancedView 
+              {...props}
+              additionalData={additionalData}
+              additionalDataFields={additionalDataFields}
+            />
+          ) : (
+            <NoData color="var(--ql-typography-text-color-secondary)" />
+          )}
       </Modal>
     </Fragment>
   )

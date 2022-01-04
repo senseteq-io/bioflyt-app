@@ -81,6 +81,9 @@ function GroupEdit() {
         data,
         status: status ? ONGOING_STATUS : FUTURE_STATUS
       })
+
+      
+
       history.goBack()
     } catch (e) {
       console.log(e)
