@@ -11,15 +11,16 @@ const ACTIVITIES_MODEL_NAME = 'bioflowTestActivities'
 function ActivitiesAll() {
   // [DATA_FETCH]
   const [activities] = useCollectionData(
-    firebase.firestore().collection(ACTIVITIES_MODEL_NAME).limit(3)
+    firebase.firestore().collection(ACTIVITIES_MODEL_NAME).limit(50)
   )
   // [COMPUTED PROPERTIES]
   const actionsDates = activities?.map(({ _createdAt }) =>
     moment(_createdAt.toDate?.()).format('DD.MM.YYYY')
   )
+  
   const uniqueDates = actionsDates?.filter(
     (day, index, self) => self.indexOf(day) === index
-  )
+  ).sort((a, b)=> moment(b, 'DD.MM.YYYY').diff(moment(a, 'DD.MM.YYYY')))
 
   return (
     <Container mt={3}>

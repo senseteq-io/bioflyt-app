@@ -2,7 +2,7 @@ import React, { Fragment, useMemo, useState } from 'react'
 import moment from 'moment'
 import { useTranslations } from '@qonsoll/translation'
 import { Modal } from 'antd'
-import { Button, Col, Row, Text } from '@qonsoll/react-design'
+import { Box, Button, Col, Row, Text } from '@qonsoll/react-design'
 import { useActivities} from 'bioflow/hooks'
 import { ActivityAdvancedView } from '../'
 
@@ -63,8 +63,8 @@ function ActivitySimpleView(props) {
   return (
     <Fragment>
       <Row noOuterGutters my={0}>
-        <Col cw="auto" v="center">
-          <Text type="secondary">
+        <Col cw="auto" v="center" pr={0}>
+          <Text type="secondary" width="50px">
             {moment(_createdAt.toDate?.()).format('HH:mm')}
           </Text>
         </Col>
@@ -81,10 +81,10 @@ function ActivitySimpleView(props) {
       </Row>
 
       <Modal 
+        centered
         visible={isModalVisible}
         footer={false}
         title={t('Activity details')}
-        style={{ top: 'calc(50vh - 200px)' }}
         onCancel={onModalCancel}>
           {additionalDataLength ? (
             <ActivityAdvancedView 
