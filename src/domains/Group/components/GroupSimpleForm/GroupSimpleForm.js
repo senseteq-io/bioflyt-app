@@ -368,7 +368,7 @@ function GroupSimpleForm(props) {
     const fourthDay = moment().add(NEXT_COLLECT_DIFF, 'days')
 
     // find next combination of days which are not forbidden
-    while (WRONG_FOURTH_DAYS.includes(fourthDay.format('ddd'))) {
+    while (WRONG_FOURTH_DAYS.includes(fourthDay.locale('en').format('ddd'))) {
       fourthDay.add(1, 'days')
     }
 
@@ -462,7 +462,9 @@ function GroupSimpleForm(props) {
                   },
                   {
                     validator: (_, value) =>
-                      CORRECT_FIRST_DAYS.includes(moment(value).format('ddd'))
+                      CORRECT_FIRST_DAYS.includes(
+                        moment(value).locale('en').format('ddd')
+                      )
                         ? Promise.resolve()
                         : Promise.reject(new Error(t('Select correct day')))
                   }
@@ -495,7 +497,9 @@ function GroupSimpleForm(props) {
                   },
                   {
                     validator: (_, value) =>
-                      WRONG_FOURTH_DAYS.includes(moment(value).format('ddd'))
+                      WRONG_FOURTH_DAYS.includes(
+                        moment(value).locale('en').format('ddd')
+                      )
                         ? Promise.reject(new Error(t('Select correct day')))
                         : Promise.resolve()
                   }
