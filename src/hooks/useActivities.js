@@ -20,8 +20,7 @@ import {
 import firebase from 'firebase'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useTranslations } from '@qonsoll/translation'
-
-const ACTIVITIES_MODEL_NAME = 'bioflowTestActivities'
+import { ACTIVITIES_MODEL_NAME } from 'bioflow/constants/collections'
 
 const possibleAdditionalDataFields = {
   adminId: null,

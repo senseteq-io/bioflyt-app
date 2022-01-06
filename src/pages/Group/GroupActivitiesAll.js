@@ -16,13 +16,12 @@ import {
   BIOFLOW_GROUP_SHOW_PATH
 } from 'bioflow/constants/paths'
 import {
-  // ACTIVITIES_MODEL_NAME,
+  ACTIVITIES_MODEL_NAME,
   GROUPS_MODEL_NAME
 } from 'bioflow/constants/collections'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { InfiniteList } from 'bioflow/components'
 
-const ACTIVITIES_MODEL_NAME = 'bioflowTestActivities'
 const order = { field: '_createdAt', type: 'desc' }
 
 function GroupActivitiesAll() {

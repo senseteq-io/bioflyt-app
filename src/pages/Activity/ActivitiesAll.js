@@ -4,9 +4,8 @@ import { Container, Box, NoData } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { InfiniteList } from 'bioflow/components'
-// import { ACTIVITIES_MODEL_NAME } from 'bioflow/constants/collections'
+import { ACTIVITIES_MODEL_NAME } from 'bioflow/constants/collections'
 
-const ACTIVITIES_MODEL_NAME = 'bioflowTestActivities'
 const order = { field: '_createdAt', type: 'desc' }
 const limit = 20
 
