@@ -26,8 +26,8 @@ function ActivitiesList(props) {
 
   return (
     <Fragment>
-      {uniqueDates?.map((date) => (
-        <Fragment>
+      {uniqueDates?.map((date, index) => (
+        <Fragment key={index}>
           <Box my={3}>
             <Title type="secondary" level={5}>
               {date}

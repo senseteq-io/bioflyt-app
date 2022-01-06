@@ -5,7 +5,6 @@ import { InView } from 'react-intersection-observer'
 import { message } from 'antd'
 import { Box, Spin } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
-import firebase from 'firebase'
 
 const InfiniteList = (props) => {
   const {
@@ -14,7 +13,7 @@ const InfiniteList = (props) => {
     limit,
     order,
     idField = '_id',
-    collectionName,
+    query,
     onReachEnd
   } = props
 
@@ -33,10 +32,7 @@ const InfiniteList = (props) => {
       !isEndOfList && setLoading(true)
       try {
         // Get new data snapshot
-        const res = await firebase
-          .firestore()
-          .collection(collectionName)
-          .orderBy(order.field, order.type ?? 'asc')
+        const res = await query
           .startAfter(lastElement?.[order.field])
           .limit(limit)
           .get()
@@ -92,7 +88,7 @@ const InfiniteList = (props) => {
 InfiniteList.propTypes = {
   children: PropTypes.func,
   initialData: PropTypes.array,
-  collectionName: PropTypes.string.isRequired,
+  query: PropTypes.object,
   order: PropTypes.shape({
     field: PropTypes.string.isRequired,
     type: PropTypes.oneOf(['asc', 'desc'])

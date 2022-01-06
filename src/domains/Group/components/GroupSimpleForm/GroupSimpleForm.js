@@ -29,7 +29,11 @@ import {
   GROUPS_MODEL_NAME,
   THERAPISTS_PROFILE_MODEL_NAME
 } from 'bioflow/constants/collections'
-import { useBioflowAccess, useGroupFullData, useActivities } from 'bioflow/hooks'
+import {
+  useBioflowAccess,
+  useGroupFullData,
+  useActivities
+} from 'bioflow/hooks'
 import { useUserContext } from 'app/domains/User/contexts'
 import _ from 'lodash'
 import { CREATE_GROUP, EDIT_GROUP } from 'bioflow/constants/activitiesTypes'
@@ -298,7 +302,7 @@ function GroupSimpleForm(props) {
         collection: GROUPS_MODEL_NAME,
         data: prepareData
       })
-      
+
       createActivity({
         isTriggeredByAdmin: isAdmin,
         type: CREATE_GROUP,

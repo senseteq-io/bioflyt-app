@@ -10,18 +10,23 @@ const ActivityAdvancedView = (props) => {
 
   //[COMPUTED PROPERTIES]
 
-  const additionalDataSorted = Object.keys(additionalData).filter((item)=>additionalDataFields?.[item] && additionalData?.[item]).sort()
- 
+  const additionalDataSorted = Object.keys(additionalData)
+    .filter((item) => additionalDataFields?.[item] && additionalData?.[item])
+    .sort()
+
   return (
     <Box mx={1}>
       {additionalDataSorted?.map((item, index) => (
-        <Row key={index} noGutters mb={additionalDataSorted?.length !== index + 1 ? 3 : 0}>
+        <Row
+          key={index}
+          noGutters
+          mb={additionalDataSorted?.length !== index + 1 ? 3 : 0}>
           <Col cw={12} mb={1}>
-            <Text type='secondary' variant="caption1">
+            <Text type="secondary" variant="caption1">
               {additionalDataFields?.[item].toUpperCase()}
             </Text>
           </Col>
-            
+
           <Col cw={12}>
             <Text>
               {item === 'groupName'
@@ -29,12 +34,13 @@ const ActivityAdvancedView = (props) => {
                 : additionalData?.[item]}
             </Text>
           </Col>
-          {additionalDataSorted?.length !== index + 1 &&
-          <Col cw={12}>
-            <Divider my={2} />
-          </Col>}
+          {additionalDataSorted?.length !== index + 1 && (
+            <Col cw={12}>
+              <Divider my={2} />
+            </Col>
+          )}
         </Row>
-        ))}
+      ))}
     </Box>
   )
 }

@@ -6,7 +6,11 @@ import { Breadcrumb } from 'antd'
 import { PatientsList } from 'bioflow/domains/Patient/components'
 import { LineChartOutlined } from '@ant-design/icons'
 import { useHistory, useParams, generatePath, Link } from 'react-router-dom'
-import { useBioflowAccess, useGroupFullData } from 'bioflow/hooks'
+import {
+  useBioflowAccess,
+  useGroupFullData,
+  useActivities
+} from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
 import {
   useDocumentData,
@@ -29,7 +33,6 @@ import { REMOVE_GROUP } from 'bioflow/constants/activitiesTypes'
 import _ from 'lodash'
 import { useUserContext } from 'app/domains/User/contexts'
 
-
 function GroupShow() {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
@@ -38,17 +41,18 @@ function GroupShow() {
   const { remove } = useSaveData()
   const { isAdmin } = useBioflowAccess()
   const { firstName, lastName, email, _id: userId } = useUserContext()
-
+  const { createActivity } = useActivities()
   const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
-  
+
   const [notifications = []] = useCollectionData(
     firebase
       .firestore()
       .collection(NOTIFICATIONS_MODEL_NAME)
       .where('groupId', '==', id)
   )
+
   const groupFullData = useGroupFullData(id)
   const triggerUserData = isAdmin
     ? {
@@ -58,7 +62,7 @@ function GroupShow() {
     : {
         therapistDisplayName: `${firstName} ${lastName}`,
         therapistEmail: email,
-        therapistRole: _.capitalize?.(therapists?.[userId])
+        therapistRole: _.capitalize?.(groupData?.therapists?.[userId])
       }
 
   // [CLEAN FUNCTIONS]

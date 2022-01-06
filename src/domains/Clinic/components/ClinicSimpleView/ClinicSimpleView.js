@@ -14,7 +14,7 @@ function ClinicSimpleView(props) {
   // [ADDITIONAL HOOKS]
   const { t } = useTranslations()
   const { update } = useSaveData()
-  const { firstName, lastName, email:adminEmail } = useUserContext()
+  const { firstName, lastName, email: adminEmail } = useUserContext()
   const { createActivity } = useActivities()
 
   // [CLEAN FUNCTIONS]

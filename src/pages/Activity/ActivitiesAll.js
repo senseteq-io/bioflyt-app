@@ -11,14 +11,13 @@ const order = { field: '_createdAt', type: 'desc' }
 const limit = 20
 
 function ActivitiesAll() {
+  const activitiesQuery = firebase
+    .firestore()
+    .collection(ACTIVITIES_MODEL_NAME)
+    .orderBy(order.field, order.type)
+
   // [DATA_FETCH]
-  const [initialActivities] = useCollectionData(
-    firebase
-      .firestore()
-      .collection(ACTIVITIES_MODEL_NAME)
-      .orderBy(order.field, order.type)
-      .limit(limit)
-  )
+  const [initialActivities] = useCollectionData(activitiesQuery.limit(limit))
 
   if (!initialActivities?.length) {
     return (
@@ -33,7 +32,7 @@ function ActivitiesAll() {
       <InfiniteList
         initialData={initialActivities}
         limit={limit}
-        collectionName={ACTIVITIES_MODEL_NAME}
+        query={activitiesQuery}
         order={order}>
         {(activities) => <ActivitiesList dataSource={activities} />}
       </InfiniteList>

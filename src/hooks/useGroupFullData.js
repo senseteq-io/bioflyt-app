@@ -1,5 +1,7 @@
 import { useDocumentDataOnce } from "react-firebase-hooks/firestore"
 import firebase from 'firebase'
+import { GROUPS_MODEL_NAME, STUDIES_MODEL_NAME } from "bioflow/constants/collections"
+import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from "app/constants/models"
 
 const useGroupFullData = (groupId) => {
   const [groupData] = useDocumentDataOnce(

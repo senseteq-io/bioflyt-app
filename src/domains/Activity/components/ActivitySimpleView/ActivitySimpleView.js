@@ -2,8 +2,8 @@ import React, { Fragment, useMemo, useState } from 'react'
 import moment from 'moment'
 import { useTranslations } from '@qonsoll/translation'
 import { Modal } from 'antd'
-import { Box, Button, Col, Row, Text } from '@qonsoll/react-design'
-import { useActivities} from 'bioflow/hooks'
+import { Button, Col, NoData, Row, Text } from '@qonsoll/react-design'
+import { useActivities } from 'bioflow/hooks'
 import { ActivityAdvancedView } from '../'
 
 function ActivitySimpleView(props) {
@@ -19,7 +19,7 @@ function ActivitySimpleView(props) {
     type,
     isTriggeredByAdmin
   )
-  
+
   const additionalDataFields = useMemo(
     () => ({
       clinicName: t('Clinic'),
@@ -52,11 +52,11 @@ function ActivitySimpleView(props) {
     [additionalData, additionalDataFields]
   )
 
-  const onModalOpen = () =>{
+  const onModalOpen = () => {
     setIsModalVisible(true)
   }
 
-  const onModalCancel = ()=>{
+  const onModalCancel = () => {
     setIsModalVisible(false)
   }
 
@@ -72,7 +72,7 @@ function ActivitySimpleView(props) {
           <Text type="secondary">{activityText}</Text>
         </Col>
         <Col cw="auto" v="center">
-          <Button type='text' onClick={onModalOpen}>
+          <Button type="text" onClick={onModalOpen}>
             <Text underline type="secondary">
               {t('details')}
             </Text>
@@ -80,21 +80,21 @@ function ActivitySimpleView(props) {
         </Col>
       </Row>
 
-      <Modal 
+      <Modal
         centered
         visible={isModalVisible}
         footer={false}
         title={t('Activity details')}
         onCancel={onModalCancel}>
-          {additionalDataLength ? (
-            <ActivityAdvancedView 
-              {...props}
-              additionalData={additionalData}
-              additionalDataFields={additionalDataFields}
-            />
-          ) : (
-            <NoData color="var(--ql-typography-text-color-secondary)" />
-          )}
+        {additionalDataLength ? (
+          <ActivityAdvancedView
+            {...props}
+            additionalData={additionalData}
+            additionalDataFields={additionalDataFields}
+          />
+        ) : (
+          <NoData color="var(--ql-typography-text-color-secondary)" />
+        )}
       </Modal>
     </Fragment>
   )
