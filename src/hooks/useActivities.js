@@ -67,7 +67,8 @@ const useActivities = () => {
     if (!id) {
       return
     }
-    const snapshot = await firebase.firestore()
+    const snapshot = await firebase
+      .firestore()
       .collection(ACTIVITIES_MODEL_NAME)
       .doc(id)
       .get()
@@ -94,7 +95,8 @@ const useActivities = () => {
       }
     }
 
-    const result = await firebase.firestore()
+    const result = await firebase
+      .firestore()
       .collection(ACTIVITIES_MODEL_NAME)
       .doc(_id)
       .set(fullData)
@@ -185,7 +187,11 @@ const useActivities = () => {
     const entityExists = await existsActivity({ id })
     const result =
       entityExists &&
-      (await  firebase.firestore().collection(ACTIVITIES_MODEL_NAME).doc(id).remove())
+      (await firebase
+        .firestore()
+        .collection(ACTIVITIES_MODEL_NAME)
+        .doc(id)
+        .remove())
 
     return result
   }

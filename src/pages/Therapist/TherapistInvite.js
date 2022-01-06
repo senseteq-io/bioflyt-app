@@ -147,7 +147,7 @@ function TherapistInvite() {
             }
           }
         })
-        
+
         createActivity({
           isTriggeredByAdmin: true,
           type: INVITE_THERAPIST,

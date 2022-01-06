@@ -14,8 +14,8 @@ function StudyCreate() {
   const history = useHistory()
   const { t } = useTranslations()
   const { save } = useSaveData()
-  const {createActivity} = useActivities()
-  const {firstName, lastName, email: adminEmail} = useUserContext()
+  const { createActivity } = useActivities()
+  const { firstName, lastName, email: adminEmail } = useUserContext()
 
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
@@ -36,7 +36,7 @@ function StudyCreate() {
         studyName: name
       }
     })
-    
+
     history.goBack()
     setLoading(false)
   }

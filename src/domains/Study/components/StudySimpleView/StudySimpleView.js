@@ -17,7 +17,7 @@ function StudySimpleView(props) {
   const { save, remove } = useSaveData()
   const { t } = useTranslations()
   const { createActivity } = useActivities()
-  const {firstName, lastName, email: adminEmail} = useUserContext()
+  const { firstName, lastName, email: adminEmail } = useUserContext()
 
   // [COMPONENT_STATE_HOOKS]
   const [isEdit, setIsEdit] = useState(false)
@@ -36,14 +36,14 @@ function StudySimpleView(props) {
           withNotification: true
         })
         createActivity({
-        isTriggeredByAdmin: true,
-        type: EDIT_STUDY,
-        additionalData: {
-          adminDisplayName: `${firstName} ${lastName}`,
-          adminEmail,
-          studyName: name
-        }
-      })
+          isTriggeredByAdmin: true,
+          type: EDIT_STUDY,
+          additionalData: {
+            adminDisplayName: `${firstName} ${lastName}`,
+            adminEmail,
+            studyName: name
+          }
+        })
         setIsEdit(false)
       } else {
         notification.error({
@@ -57,13 +57,13 @@ function StudySimpleView(props) {
   const handleRemove = async () => {
     await remove({ collection: STUDIES_MODEL_NAME, id: _id })
     createActivity({
-        isTriggeredByAdmin: true,
-        type: REMOVE_STUDY,
-        additionalData: {
-          adminDisplayName: `${firstName} ${lastName}`,
-          adminEmail,
-          studyName: name
-        }
+      isTriggeredByAdmin: true,
+      type: REMOVE_STUDY,
+      additionalData: {
+        adminDisplayName: `${firstName} ${lastName}`,
+        adminEmail,
+        studyName: name
+      }
     })
     notification.success({
       message: t(`Study successfully deleted`)

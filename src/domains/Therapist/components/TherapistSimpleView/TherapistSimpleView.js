@@ -42,7 +42,7 @@ function TherapistSimpleView(props) {
   // [ADDITIONAL HOOKS]
   const [{ userIdToDeletionRequestProcessing }, UIDispatch] = useUI()
   const { t } = useTranslations()
-  const {createActivity} = useActivities()
+  const { createActivity } = useActivities()
   const { createNotification } = useNotification()
   const { createPushNotification } = usePushNotification()
   const user = useUserContext()

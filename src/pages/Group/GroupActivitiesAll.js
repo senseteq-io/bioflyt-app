@@ -79,30 +79,6 @@ function GroupActivitiesAll() {
         props: { separator: '>' },
         children: groupActivitiesBreadcrumbs
       }}>
-      {/* {!uniqueDates?.length && (
-        <Box>
-          <NoData />
-        </Box>
-      )}
-      {uniqueDates?.map((date) => (
-        <>
-          <Box my={3}>
-            <Title type="secondary" level={5}>
-              {date}
-            </Title>
-          </Box>
-          <ActivitiesList
-            dataSource={activities
-              .filter(({ groupId }) => groupId === id)
-              .filter(
-                (activity) =>
-                  moment(activity._createdAt.toDate?.()).format(
-                    'DD.MM.YYYY'
-                  ) === date
-              )}
-          />
-        </>
-      ))} */}
       {!initialActivities?.length ? (
         <Box>
           <NoData />
