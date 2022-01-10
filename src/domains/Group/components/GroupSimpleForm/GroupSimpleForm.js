@@ -200,26 +200,25 @@ function GroupSimpleForm(props) {
   }
 
   const saveData = async (value, data) => {
+    const therapists = form.getFieldValue('therapists') || {}
+
+    const prepareData = {
+      ...value,
+      therapists,
+      weekNumber: moment(data.firstDay).week(),
+      status: DRAFT_STATUS
+    }
+    const clinicId = selectedClinic || form.getFieldValue('clinicId')
+    const studyId = selectedStudy || form.getFieldValue('studyId')
+
+    // If clinic selected add it to draft data.
+    if (clinicId) {
+      prepareData.clinicId = clinicId
+    }
+    if (studyId) {
+      prepareData.studyId = studyId
+    }
     if (!groupId) {
-      const therapists = form.getFieldValue('therapists') || {}
-
-      const prepareData = {
-        ...value,
-        therapists,
-        weekNumber: moment(data.firstDay).week(),
-        status: DRAFT_STATUS
-      }
-      const clinicId = selectedClinic || form.getFieldValue('clinicId')
-      const studyId = selectedStudy || form.getFieldValue('studyId')
-
-      // If clinic selected add it to draft data.
-      if (clinicId) {
-        prepareData.clinicId = clinicId
-      }
-      if (studyId) {
-        prepareData.studyId = studyId
-      }
-
       const docId = await save({
         collection: GROUPS_MODEL_NAME,
         data: prepareData
@@ -229,7 +228,7 @@ function GroupSimpleForm(props) {
     await update({
       collection: GROUPS_MODEL_NAME,
       id: groupId,
-      data: value
+      data: prepareData
     })
   }
 
