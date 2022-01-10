@@ -73,7 +73,7 @@ const PatientAddForm = (props) => {
       <Col cw={12}>
         <List
           itemLayout="horizontal"
-          dataSource={value}
+          dataSource={value || []}
           renderItem={({ initial, id }, index) => (
             <List.Item key={id}>
               <Card
