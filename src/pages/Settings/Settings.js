@@ -12,9 +12,9 @@ import {
   Route,
   useHistory,
   useLocation,
-  Redirect,
-  matchPath
+  Redirect
 } from 'react-router-dom'
+import { matchPath } from 'react-router'
 import { AdminClinicRoutes } from '../Clinic'
 import { AdminTherapistsRoutes } from '../Therapist'
 import { AdminNotificationRoutes } from '../Notification'

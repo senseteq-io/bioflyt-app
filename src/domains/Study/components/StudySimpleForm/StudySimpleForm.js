@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Form, Input } from 'antd'
 import { Row, Col, Text } from '@qonsoll/react-design'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 
 function StudySimpleForm(props) {
