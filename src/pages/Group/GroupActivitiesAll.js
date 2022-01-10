@@ -1,7 +1,6 @@
 import firebase from 'firebase'
-import moment from 'moment'
 import React, { Fragment } from 'react'
-import { Box, NoData, PageWrapper, Title } from '@qonsoll/react-design'
+import { Box, NoData, PageWrapper } from '@qonsoll/react-design'
 import { ActivitiesList } from 'bioflow/domains/Activity/components'
 import { useTranslations } from '@qonsoll/translation'
 import {
@@ -21,6 +20,9 @@ import {
   GROUPS_MODEL_NAME
 } from 'bioflow/constants/collections'
 import { useBioflowAccess } from 'bioflow/hooks'
+import { InfiniteList } from 'bioflow/components'
+
+const order = { field: '_createdAt', type: 'desc' }
 
 function GroupActivitiesAll() {
   // [ADDITIONAL HOOKS]
@@ -28,23 +30,20 @@ function GroupActivitiesAll() {
   const history = useHistory()
   const { id } = useParams()
   const { isAdmin } = useBioflowAccess()
+
   // [DATA_FETCH]
   const [groupData] = useDocumentDataOnce(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
-  const [activities] = useCollectionData(
-    firebase.firestore().collection(ACTIVITIES_MODEL_NAME)
-  )
 
-  // [COMPUTED PROPERTIES]
-  const actionsDates = activities
-    ?.filter(({ groupId }) => groupId === id)
-    ?.map(({ _createdAt }) =>
-      moment(_createdAt.toDate?.()).format('DD.MM.YYYY')
-    )
-  const uniqueDates = actionsDates?.filter(
-    (day, index, self) => self.indexOf(day) === index
-  )
+  const groupActivitiesQuery = firebase
+    .firestore()
+    .collection(ACTIVITIES_MODEL_NAME)
+    .where('groupId', '==', id)
+    .orderBy('_createdAt', 'desc')
+
+  const [initialActivities] = useCollectionData(groupActivitiesQuery.limit(15))
+
   const groupShowPath = generatePath(
     isAdmin ? BIOFLOW_ADMIN_GROUP_SHOW_PATH : BIOFLOW_GROUP_SHOW_PATH,
     { id }
@@ -58,7 +57,9 @@ function GroupActivitiesAll() {
         </Link>
       </Breadcrumb.Item>
       <Breadcrumb.Item>
-        <Link to={groupShowPath}>Week {groupData?.weekNumber}</Link>
+        <Link to={groupShowPath}>{`${t('Week')} ${
+          groupData?.weekNumber
+        }`}</Link>
       </Breadcrumb.Item>
       <Breadcrumb.Item>{t('Group activities')}</Breadcrumb.Item>
     </Fragment>
@@ -77,30 +78,19 @@ function GroupActivitiesAll() {
         props: { separator: '>' },
         children: groupActivitiesBreadcrumbs
       }}>
-      {!uniqueDates?.length && (
+      {!initialActivities?.length ? (
         <Box>
           <NoData />
         </Box>
+      ) : (
+        <InfiniteList
+          initialData={initialActivities}
+          limit={15}
+          query={groupActivitiesQuery}
+          order={order}>
+          {(activities) => <ActivitiesList dataSource={activities} />}
+        </InfiniteList>
       )}
-      {uniqueDates?.map((date) => (
-        <>
-          <Box my={3}>
-            <Title type="secondary" level={5}>
-              {date}
-            </Title>
-          </Box>
-          <ActivitiesList
-            dataSource={activities
-              .filter(({ groupId }) => groupId === id)
-              .filter(
-                (activity) =>
-                  moment(activity._createdAt.toDate?.()).format(
-                    'DD.MM.YYYY'
-                  ) === date
-              )}
-          />
-        </>
-      ))}
     </PageWrapper>
   )
 }

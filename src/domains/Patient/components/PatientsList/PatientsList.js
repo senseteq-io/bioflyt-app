@@ -58,7 +58,6 @@ function PatientsList(props) {
         patient[colectedBioFieldNames[index]] = true
       }
     })
-
     await update({
       collection: GROUPS_MODEL_NAME,
       id,
@@ -82,6 +81,7 @@ function PatientsList(props) {
             <strong>{rest.initial.toUpperCase()}</strong>
           </>
         ),
+        generated,
         ...rest
       }))}>
       <PatientSimpleView

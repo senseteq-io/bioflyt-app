@@ -94,8 +94,11 @@ const useSaveGroup = () => {
     )
 
     const isAllTherapistAdded =
-      isAllRoleAvailable.length === 3 &&
-      _.every(isAllRoleAvailable, (value) => value === true)
+      isAllRoleAvailable.length >= 3 &&
+      isAllRoleAvailable.reduce(
+        (acc, value) => (value === true ? ++acc : acc),
+        0
+      ) === 3
 
     if (
       data.clinicId &&
@@ -117,6 +120,7 @@ const useSaveGroup = () => {
             )
           : t('Group should have Admin, Leader and Vice leader therapists')
       })
+      throw new Error('no therapist')
     }
   }
 
@@ -156,21 +160,6 @@ const useSaveGroup = () => {
     await firebase.functions().httpsCallable('sendInviteNotifications')({
       groupId: id
     })
-
-    const messages = {
-      [DRAFT_STATUS]: 'Group was changed and save as a draft by',
-      ACTIVATE: 'Group was activated by',
-      [ONGOING_STATUS]: 'Group was changed by',
-      [FUTURE_STATUS]: 'Group was changed by'
-    }
-    await save({
-      collection: ACTIVITIES_MODEL_NAME,
-      data: {
-        groupId: id,
-        clinicId: args.data.clinicId,
-        text: `${t(messages[args.status])} ${firstName} ${lastName}`
-      }
-    })
   })
   const saveDataWithStatus = errorBoundary(async (args) => {
     const data = await normalizeData(args)
@@ -183,22 +172,6 @@ const useSaveGroup = () => {
 
     await firebase.functions().httpsCallable('sendInviteNotifications')({
       groupId: data._id
-    })
-
-    const messages = {
-      [DRAFT_STATUS]: 'Group was saved as a draft by',
-      [ONGOING_STATUS]: 'Group was created by',
-      [FUTURE_STATUS]: 'Group was finished by'
-    }
-    await save({
-      collection: ACTIVITIES_MODEL_NAME,
-      data: {
-        groupId: data._id,
-        clinicId: args.data.clinicId,
-        text: `${t(
-          args.isActivate ? 'Group was activated by' : messages[args.status]
-        )} ${_.lowerCase(role)} ${firstName} ${lastName}`
-      }
     })
   })
 

@@ -24,6 +24,8 @@ import { notification } from 'antd'
 import md5 from 'md5'
 import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
 import { FOI_ADMIN_APP } from 'app/constants/applications'
+import { INVITE_THERAPIST } from 'bioflow/constants/activitiesTypes'
+import { useActivities } from 'bioflow/hooks'
 
 const EMAIL_TO_PASSWORD_RDB_COLLECTION_NAME = 'userEmailExistance'
 
@@ -35,6 +37,7 @@ function TherapistInvite() {
   const { save } = useSaveData()
   const { createNotification } = useNotification()
   const { createPushNotification } = usePushNotification()
+  const { createActivity } = useActivities()
 
   const RDB = firebase.database()
 
@@ -142,6 +145,17 @@ function TherapistInvite() {
               assignedTherapistEmail: null,
               assignedTherapistDisplayName: null
             }
+          }
+        })
+
+        createActivity({
+          isTriggeredByAdmin: true,
+          type: INVITE_THERAPIST,
+          additionalData: {
+            adminDisplayName: currentUserDisplayName,
+            adminEmail: user?.email,
+            invitedTherapistDisplayName: bioflowTherapistDisplayName,
+            invitedTherapistEmail: emailFormatted
           }
         })
 
