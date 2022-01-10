@@ -5,12 +5,17 @@ import { PageWrapper } from '@qonsoll/react-design'
 import { useSaveData } from 'app/hooks'
 import { StudySimpleForm } from 'bioflow/domains/Study/components'
 import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
+import { useActivities } from 'bioflow/hooks'
+import { useUserContext } from 'app/domains/User/contexts'
+import { CREATE_STUDY } from 'bioflow/constants/activitiesTypes'
 
 function StudyCreate() {
   // [ADDITIONAL HOOKS]
   const history = useHistory()
   const { t } = useTranslations()
   const { save } = useSaveData()
+  const { createActivity } = useActivities()
+  const { firstName, lastName, email: adminEmail } = useUserContext()
 
   // [COMPONENT_STATE_HOOKS]
   const [loading, setLoading] = useState(false)
@@ -22,6 +27,16 @@ function StudyCreate() {
       data: { name },
       withNotification: true
     })
+    createActivity({
+      isTriggeredByAdmin: true,
+      type: CREATE_STUDY,
+      additionalData: {
+        adminDisplayName: `${firstName} ${lastName}`,
+        adminEmail,
+        studyName: name
+      }
+    })
+
     history.goBack()
     setLoading(false)
   }

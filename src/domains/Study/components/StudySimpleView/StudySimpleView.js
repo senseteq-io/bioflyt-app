@@ -6,6 +6,9 @@ import React, { useState } from 'react'
 import { Box, Card, Input, Text } from '@qonsoll/react-design'
 import { notification, Tooltip } from 'antd'
 import { EditRemove } from 'app/components'
+import { EDIT_STUDY, REMOVE_STUDY } from 'bioflow/constants/activitiesTypes'
+import { useUserContext } from 'app/domains/User/contexts'
+import { useActivities } from 'bioflow/hooks'
 
 function StudySimpleView(props) {
   const { name, _id } = props
@@ -13,6 +16,8 @@ function StudySimpleView(props) {
   // [ADDITIONAL_HOOKS]
   const { save, remove } = useSaveData()
   const { t } = useTranslations()
+  const { createActivity } = useActivities()
+  const { firstName, lastName, email: adminEmail } = useUserContext()
 
   // [COMPONENT_STATE_HOOKS]
   const [isEdit, setIsEdit] = useState(false)
@@ -30,6 +35,15 @@ function StudySimpleView(props) {
           data: { name: newName },
           withNotification: true
         })
+        createActivity({
+          isTriggeredByAdmin: true,
+          type: EDIT_STUDY,
+          additionalData: {
+            adminDisplayName: `${firstName} ${lastName}`,
+            adminEmail,
+            studyName: name
+          }
+        })
         setIsEdit(false)
       } else {
         notification.error({
@@ -42,6 +56,15 @@ function StudySimpleView(props) {
   }
   const handleRemove = async () => {
     await remove({ collection: STUDIES_MODEL_NAME, id: _id })
+    createActivity({
+      isTriggeredByAdmin: true,
+      type: REMOVE_STUDY,
+      additionalData: {
+        adminDisplayName: `${firstName} ${lastName}`,
+        adminEmail,
+        studyName: name
+      }
+    })
     notification.success({
       message: t(`Study successfully deleted`)
     })

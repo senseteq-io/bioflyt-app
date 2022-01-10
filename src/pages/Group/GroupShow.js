@@ -6,7 +6,11 @@ import { Breadcrumb } from 'antd'
 import { PatientsList } from 'bioflow/domains/Patient/components'
 import { LineChartOutlined } from '@ant-design/icons'
 import { useHistory, useParams, generatePath, Link } from 'react-router-dom'
-import { useBioflowAccess } from 'bioflow/hooks'
+import {
+  useBioflowAccess,
+  useGroupFullData,
+  useActivities
+} from 'bioflow/hooks'
 import { useTranslations } from '@qonsoll/translation'
 import {
   useDocumentData,
@@ -25,6 +29,9 @@ import {
   BIOFLOW_GROUP_EDIT_PATH
 } from 'bioflow/constants/paths'
 import firebase from 'firebase'
+import { REMOVE_GROUP } from 'bioflow/constants/activitiesTypes'
+import _ from 'lodash'
+import { useUserContext } from 'app/domains/User/contexts'
 
 function GroupShow() {
   // [ADDITIONAL HOOKS]
@@ -33,16 +40,30 @@ function GroupShow() {
   const { id } = useParams()
   const { remove } = useSaveData()
   const { isAdmin } = useBioflowAccess()
-
+  const { firstName, lastName, email, _id: userId } = useUserContext()
+  const { createActivity } = useActivities()
   const [groupData] = useDocumentData(
     firebase.firestore().collection(GROUPS_MODEL_NAME).doc(id)
   )
+
   const [notifications = []] = useCollectionData(
     firebase
       .firestore()
       .collection(NOTIFICATIONS_MODEL_NAME)
       .where('groupId', '==', id)
   )
+
+  const groupFullData = useGroupFullData(id)
+  const triggerUserData = isAdmin
+    ? {
+        adminDisplayName: `${firstName} ${lastName}`,
+        adminEmail: email
+      }
+    : {
+        therapistDisplayName: `${firstName} ${lastName}`,
+        therapistEmail: email,
+        therapistRole: _.capitalize?.(groupData?.therapists?.[userId])
+      }
 
   // [CLEAN FUNCTIONS]
   const goToActivities = () => {
@@ -73,6 +94,20 @@ function GroupShow() {
         id: notification._id,
         withNotification: false
       })
+    })
+
+    createActivity({
+      isTriggeredByAdmin: isAdmin,
+      type: REMOVE_GROUP,
+      groupId: id || null,
+      additionalData: {
+        ...triggerUserData,
+        groupName: groupData?.weekNumber,
+        groupStatus: groupData?.status,
+        groupClinicName: groupFullData?.clinic?.name || null,
+        groupStudyName: groupFullData?.study?.name || null,
+        groupDisorderName: groupFullData?.disorder?.name || null
+      }
     })
 
     history.goBack()
