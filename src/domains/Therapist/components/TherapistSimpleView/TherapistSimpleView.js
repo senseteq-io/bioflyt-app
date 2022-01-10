@@ -26,6 +26,8 @@ import { FOI_ADMIN_APP } from 'app/constants/applications'
 import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
 import { USERS_MODEL_NAME } from 'app/constants/models'
 import firebase from 'firebase'
+import { REMOVE_THERAPIST } from 'bioflow/constants/activitiesTypes'
+import { useActivities } from 'bioflow/hooks'
 
 function TherapistSimpleView(props) {
   const {
@@ -40,6 +42,7 @@ function TherapistSimpleView(props) {
   // [ADDITIONAL HOOKS]
   const [{ userIdToDeletionRequestProcessing }, UIDispatch] = useUI()
   const { t } = useTranslations()
+  const { createActivity } = useActivities()
   const { createNotification } = useNotification()
   const { createPushNotification } = usePushNotification()
   const user = useUserContext()
@@ -99,6 +102,17 @@ function TherapistSimpleView(props) {
           }
         }
       })
+    })
+
+    createActivity({
+      isTriggeredByAdmin: true,
+      type: REMOVE_THERAPIST,
+      additionalData: {
+        adminDisplayName: `${user?.firstName} ${user?.lastName}`,
+        adminEmail: user?.email,
+        removedTherapistDisplayName: `${firstName} ${lastName}`,
+        removedTherapistEmail: email
+      }
     })
 
     createNotification({

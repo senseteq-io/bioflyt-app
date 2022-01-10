@@ -29,6 +29,14 @@ import {
   GROUPS_MODEL_NAME,
   THERAPISTS_PROFILE_MODEL_NAME
 } from 'bioflow/constants/collections'
+import {
+  useBioflowAccess,
+  useGroupFullData,
+  useActivities
+} from 'bioflow/hooks'
+import { useUserContext } from 'app/domains/User/contexts'
+import _ from 'lodash'
+import { CREATE_GROUP, EDIT_GROUP } from 'bioflow/constants/activitiesTypes'
 
 const exclamationIconStyles = {
   cursor: 'help',
@@ -66,7 +74,10 @@ function GroupSimpleForm(props) {
   const [groupForm] = Form.useForm()
   const history = useHistory()
   const { t } = useTranslations()
+  const { isAdmin } = useBioflowAccess()
+  const { createActivity } = useActivities()
   const { _id: clinicId, bioflowAccess } = useClinicContext()
+  const user = useUserContext()
   const { save, update } = useSaveData()
 
   // [COMPONENT_STATE_HOOKS]
@@ -76,8 +87,34 @@ function GroupSimpleForm(props) {
   const [selectedStudy, setSelectedStudy] = useState(initialValues?.studyId) // Need to show & filter correct therapists.
   const [groupId, setGroupId] = useState(id) // Used in draft save.
 
+  const groupFullData = useGroupFullData(groupId || id)
+
   // [COMPUTED_PROPERTIES]
   const form = useMemo(() => props.form || groupForm, [groupForm, props.form])
+
+  //check who created group and prepare data for activity
+  const triggeredByActivityData = useMemo(
+    () =>
+      isAdmin
+        ? {
+            adminDisplayName: `${user?.firstName} ${user?.lastName}`,
+            adminEmail: user?.email
+          }
+        : {
+            therapistDisplayName: `${user?.firstName} ${user?.lastName}`,
+            therapistEmail: user?.email,
+            therapistRole:
+              _.capitalize?.(groupFullData?.therapists?.[user?._id]) || null
+          },
+    [
+      groupFullData?.therapists,
+      isAdmin,
+      user?._id,
+      user?.email,
+      user?.firstName,
+      user?.lastName
+    ]
+  )
 
   // [CLEAN_FUNCTIONS]
   const onDateChange = async (e, field, amount) => {
@@ -101,6 +138,19 @@ function GroupSimpleForm(props) {
               [fieldName]: firebase.firestore.Timestamp.fromDate(
                 new Date(value[fieldName])
               )
+            }
+          })
+          createActivity({
+            isTriggeredByAdmin: isAdmin,
+            type: EDIT_GROUP,
+            groupId: groupId || id || groupFullData?._id || null,
+            additionalData: {
+              ...triggeredByActivityData,
+              groupName: groupFullData?.weekNumber || null,
+              groupStatus: groupFullData?.status || null,
+              groupClinicName: groupFullData?.clinic?.name || null,
+              groupStudyName: groupFullData?.study?.name || null,
+              groupDisorderName: groupFullData?.disorder?.name || null
             }
           })
         }
@@ -157,6 +207,20 @@ function GroupSimpleForm(props) {
         id: groupId,
         data: resetedFields
       })
+
+      createActivity({
+        isTriggeredByAdmin: isAdmin,
+        type: EDIT_GROUP,
+        groupId: groupId || groupFullData?._id || null,
+        additionalData: {
+          ...triggeredByActivityData,
+          groupName: groupFullData?.weekNumber || null,
+          groupStatus: groupFullData?.status || null,
+          groupClinicName: groupFullData?.clinic?.name || null,
+          groupStudyName: groupFullData?.study?.name || null,
+          groupDisorderName: groupFullData?.disorder?.name || null
+        }
+      })
     }
   }
 
@@ -196,6 +260,20 @@ function GroupSimpleForm(props) {
         id: groupId,
         data: resetedFields
       })
+
+      createActivity({
+        isTriggeredByAdmin: isAdmin,
+        type: EDIT_GROUP,
+        groupId: groupId || groupFullData?._id || null,
+        additionalData: {
+          ...triggeredByActivityData,
+          groupName: groupFullData?.weekNumber || null,
+          groupStatus: groupFullData?.status || null,
+          groupClinicName: groupFullData?.clinic?.name || null,
+          groupStudyName: groupFullData?.study?.name || null,
+          groupDisorderName: groupFullData?.disorder?.name || null
+        }
+      })
     }
   }
 
@@ -223,12 +301,40 @@ function GroupSimpleForm(props) {
         collection: GROUPS_MODEL_NAME,
         data: prepareData
       })
+
+      createActivity({
+        isTriggeredByAdmin: isAdmin,
+        type: CREATE_GROUP,
+        groupId: docId || groupId || groupFullData?._id || null,
+        additionalData: {
+          ...triggeredByActivityData,
+          groupName: prepareData?.weekNumber,
+          groupStatus: prepareData?.status,
+          groupClinicName: groupFullData?.clinic?.name || null,
+          groupStudyName: groupFullData?.study?.name || null,
+          groupDisorderName: groupFullData?.disorder?.name || null
+        }
+      })
       return setGroupId(docId)
     }
     await update({
       collection: GROUPS_MODEL_NAME,
       id: groupId,
       data: prepareData
+    })
+
+    createActivity({
+      isTriggeredByAdmin: isAdmin,
+      type: EDIT_GROUP,
+      groupId: groupId || groupFullData?._id || null,
+      additionalData: {
+        ...triggeredByActivityData,
+        groupName: groupFullData?.weekNumber || null,
+        groupStatus: groupFullData?.status || null,
+        groupClinicName: groupFullData?.clinic?.name || null,
+        groupStudyName: groupFullData?.study?.name || null,
+        groupDisorderName: groupFullData?.disorder?.name || null
+      }
     })
   }
 
