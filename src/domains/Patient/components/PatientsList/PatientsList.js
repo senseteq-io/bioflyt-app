@@ -71,19 +71,21 @@ function PatientsList(props) {
   return (
     <ListWithCreate
       withCreate={false}
-      dataSource={sortedPatientsList?.map(({ generated, ...rest }) => ({
-        name: (
-          <>
-            {_.trimEnd(
-              _.initial(generated).join(''),
-              rest.initial.toUpperCase()
-            )}
-            <strong>{rest.initial.toUpperCase()}</strong>
-          </>
-        ),
-        generated,
-        ...rest
-      }))}>
+      dataSource={sortedPatientsList?.map(({ generated, ...rest }) => {
+        const splitedGeneratedInitial = generated.split(' ')
+        return {
+          name: (
+            <>
+              {splitedGeneratedInitial
+                .slice(0, splitedGeneratedInitial.length - 2)
+                .join(' ')}
+              <strong> {rest.initial}</strong>
+            </>
+          ),
+          generated,
+          ...rest
+        }
+      })}>
       <PatientSimpleView
         firstDay={firstDay}
         fourthDay={fourthDay}
