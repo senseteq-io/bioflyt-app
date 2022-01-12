@@ -79,7 +79,7 @@ function GroupSimpleForm(props) {
   const { _id: clinicId, bioflowAccess } = useClinicContext()
   const user = useUserContext()
   const { save, update } = useSaveData()
-  console.log(bioflowAccess, clinicId, initialValues?.clinicId)
+
   // [COMPONENT_STATE_HOOKS]
   const [selectedClinic, setSelectedClinic] = useState(
     initialValues?.clinicId || (bioflowAccess && clinicId)
