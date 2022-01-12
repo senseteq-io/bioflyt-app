@@ -410,7 +410,7 @@ function GroupSimpleForm(props) {
           <Text mb={2}>{t('Clinic')}</Text>
           <Form.Item
             name="clinicId"
-            initialValue={bioflowAccess ? clinicId : undefined}
+            initialValue={bioflowAccess ? clinicId : null}
             rules={[{ required: true, message: t('Select clinic, please') }]}>
             <ClinicSelect
               query={clinicQuery}
