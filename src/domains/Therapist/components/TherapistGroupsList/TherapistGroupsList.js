@@ -120,7 +120,7 @@ const TherapistGroupsList = (props) => {
                   <Icon
                     name="BioGroupFilled"
                     size={24}
-                    fill="var(--ql-typography-text-color-secondary)"
+                    fill="var(--ql-color-dark-t-lighten2)"
                   />
                 </Col>
                 <Col v="center">
@@ -132,7 +132,7 @@ const TherapistGroupsList = (props) => {
                   <Icon
                     name="StudyFilled"
                     size={24}
-                    fill="var(--ql-typography-text-color-secondary)"
+                    fill="var(--ql-color-dark-t-lighten2)"
                   />
                 </Col>
                 <Col>
@@ -146,7 +146,7 @@ const TherapistGroupsList = (props) => {
                   <Icon
                     name="DisorderFilled"
                     size={24}
-                    fill="var(--ql-typography-text-color-secondary)"
+                    fill="var(--ql-color-dark-t-lighten2)"
                   />
                 </Col>
                 <Col v="center">
