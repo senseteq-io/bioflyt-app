@@ -26,6 +26,9 @@ const TherapistGroupsList = (props) => {
     setAdditionalTherapistData
   } = props
 
+  const { t } = useTranslations()
+  const { xs } = useBreakpoint()
+
   const { clinicsData, groupsData, disordersData, studiesData } =
     additionalTherapistData || {}
 
@@ -41,10 +44,29 @@ const TherapistGroupsList = (props) => {
     [clinicIds, groupsData]
   )
 
-  const { t } = useTranslations()
-  const { xs } = useBreakpoint()
-
   const groupListSize = useMemo(() => (xs ? '250px' : '300px'), [xs])
+  const getMarginForClinicGroupsList = (index) =>
+    filteredClinicIds?.length - 1 !== index ? 3 : 0
+
+  //[CLEAN_FUNCTIONS]
+  const getClinicName = (clinicId) =>
+    `${t('Clinic')}: ${
+      clinicsData?.filter((clinic) => clinic?._id === clinicId)?.[0]?.name
+    }`
+
+  const getGroupFieldName = (field, groupData) => {
+    const fieldText = {
+      groupName: `${t('Week')} ${groupData?.weekNumber}`,
+      study: studiesData?.[groupData?.studyId] || t('Study was deleted'),
+      disorder:
+        disordersData?.[groupData?.disorderId] || t('Disorder was deleted')
+    }
+
+    return fieldText[field]
+  }
+
+  const isLastGroupItem = (clinicId, index) =>
+    groupsData?.[clinicId]?.length - 1 !== index
 
   //[USE_EFFECTS]
   useEffect(() => {
@@ -85,15 +107,10 @@ const TherapistGroupsList = (props) => {
       pl={3}
       pr={2}>
       {filteredClinicIds?.map((clinicId, i) => (
-        <Box key={i} mb={filteredClinicIds?.length - 1 !== i ? 3 : 0}>
+        <Box key={i} mb={getMarginForClinicGroupsList(i)}>
           <Row mb={2} noGutters>
             <Col cw={12}>
-              <Title level={5}>
-                {`${t('Clinic')}: ${
-                  clinicsData?.filter((clinic) => clinic?._id === clinicId)?.[0]
-                    ?.name
-                }`}
-              </Title>
+              <Title level={5}>{getClinicName(clinicId)}</Title>
             </Col>
           </Row>
           {groupsData?.[clinicId]?.map((group, index) => (
@@ -107,7 +124,7 @@ const TherapistGroupsList = (props) => {
                   />
                 </Col>
                 <Col v="center">
-                  <Text>{`${t('Week')} ${group?.weekNumber}`}</Text>
+                  <Text>{getGroupFieldName('groupName', group)}</Text>
                 </Col>
               </Row>
               <Row noGutters mb={1} v="center">
@@ -120,7 +137,7 @@ const TherapistGroupsList = (props) => {
                 </Col>
                 <Col>
                   <Text type="secondary">
-                    {studiesData?.[group?.studyId] || t('Study was deleted')}
+                    {getGroupFieldName('study', group)}
                   </Text>
                 </Col>
               </Row>
@@ -134,12 +151,11 @@ const TherapistGroupsList = (props) => {
                 </Col>
                 <Col v="center">
                   <Text type="secondary">
-                    {disordersData?.[group?.disorderId] ||
-                      t('Disorder was deleted')}
+                    {getGroupFieldName('disorder', group)}
                   </Text>
                 </Col>
               </Row>
-              {groupsData?.[clinicId]?.length - 1 !== index && (
+              {isLastGroupItem(clinicId, index) && (
                 <Row noGutters>
                   <Col cw={12}>
                     <Divider type="horizontal" mt={1} mb={12} />
