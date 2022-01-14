@@ -10,7 +10,7 @@ import {
   PhoneInput
 } from '@qonsoll/react-design'
 import { Form, Select as AntSelect } from 'antd'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 
 function TherapistInviteForm(props) {
   const { initialValues, onSubmit, studies, clinics } = props

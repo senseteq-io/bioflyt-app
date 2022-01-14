@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { ListWithCreate } from 'app/components'

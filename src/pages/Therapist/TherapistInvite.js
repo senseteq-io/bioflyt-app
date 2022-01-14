@@ -1,7 +1,7 @@
 import React from 'react'
 import { PageWrapper } from '@qonsoll/react-design'
 import { TherapistInviteForm } from 'bioflow/domains/Therapist/components'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import firebase from 'firebase'
