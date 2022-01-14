@@ -3,18 +3,9 @@ import React from 'react'
 import { notification } from 'antd'
 import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { useTranslations } from '@qonsoll/translation'
-import { useUserContext } from 'app/domains/User/contexts'
 import { useSaveData } from 'app/hooks'
-import {
-  GROUPS_MODEL_NAME,
-  ACTIVITIES_MODEL_NAME
-} from 'bioflow/constants/collections'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
-import {
-  DRAFT_STATUS,
-  FUTURE_STATUS,
-  ONGOING_STATUS
-} from 'bioflow/constants/groupStatuses'
 import firebase from 'firebase'
 import _ from 'lodash'
 import moment from 'moment'
@@ -54,7 +45,6 @@ const generatePatients = async (data, weekNumber) => {
 
 const useSaveGroup = () => {
   const { id } = useParams()
-  const { firstName, lastName, role } = useUserContext()
   const { save, update } = useSaveData()
   const { t } = useTranslations()
 

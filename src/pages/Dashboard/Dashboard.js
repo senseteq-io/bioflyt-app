@@ -5,9 +5,9 @@ import {
   Route,
   useHistory,
   useLocation,
-  Redirect,
-  matchPath
+  Redirect
 } from 'react-router-dom'
+import { matchPath } from 'react-router'
 import { useTranslations } from '@qonsoll/translation'
 import { AdminGroupRoutes } from '../Group'
 import { AdminActivityRoutes } from '../Activity'

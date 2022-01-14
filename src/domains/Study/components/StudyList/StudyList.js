@@ -1,6 +1,6 @@
 import firebase from 'firebase'
 import React from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { ListWithCreate } from 'app/components'
 import { StudySimpleView } from '..'
