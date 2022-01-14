@@ -1,0 +1,157 @@
+import React, { useEffect, Fragment, useMemo } from 'react'
+import {
+  Box,
+  Col,
+  Divider,
+  NoData,
+  Row,
+  Text,
+  Title
+} from '@qonsoll/react-design'
+import { Spin, Grid } from 'antd'
+import { getTherapistGroupsData } from '../../helpers'
+import { useTranslations } from '@qonsoll/translation'
+import { Icon } from '@qonsoll/icons'
+
+const { useBreakpoint } = Grid
+
+const TherapistGroupsList = (props) => {
+  const {
+    initializedUserId,
+    clinics,
+    isTherapistHasGroups,
+    groupDataLoading,
+    additionalTherapistData,
+    setGroupDataLoading,
+    setAdditionalTherapistData
+  } = props
+
+  const { clinicsData, groupsData, disordersData, studiesData } =
+    additionalTherapistData || {}
+
+  const clinicIds = useMemo(() => Object.keys(clinics), [clinics])
+
+  const filteredClinicIds = useMemo(
+    () =>
+      clinicIds.length
+        ? clinicIds?.filter(
+            (clinicId) => groupsData?.[clinicId]?.length && clinicId
+          )
+        : [],
+    [clinicIds, groupsData]
+  )
+
+  const { t } = useTranslations()
+  const { xs } = useBreakpoint()
+
+  const groupListSize = useMemo(() => (xs ? '250px' : '300px'), [xs])
+
+  //[USE_EFFECTS]
+  useEffect(() => {
+    if (groupDataLoading && !additionalTherapistData.length) {
+      getTherapistGroupsData(Object.keys(clinics), initializedUserId).then(
+        (data) => {
+          setAdditionalTherapistData(data)
+          setGroupDataLoading(false)
+        }
+      )
+    } else {
+      setGroupDataLoading(false)
+    }
+  }, [groupDataLoading, additionalTherapistData])
+
+  if (groupDataLoading) {
+    return (
+      <Box display="flex" flex={1} justifyContent="center" alignItems="center">
+        <Spin />
+      </Box>
+    )
+  }
+
+  if (!isTherapistHasGroups) {
+    return (
+      <Fragment>
+        <NoData description={t('Therapist has no groups')} />
+      </Fragment>
+    )
+  }
+
+  return (
+    <Box
+      maxHeight={groupListSize}
+      width={groupListSize}
+      overflow="auto"
+      mx={-3}
+      pl={3}
+      pr={2}>
+      {filteredClinicIds?.map((clinicId, i) => (
+        <Box key={i} mb={filteredClinicIds?.length - 1 !== i ? 3 : 0}>
+          <Row mb={2} noGutters>
+            <Col cw={12}>
+              <Title level={5}>
+                {`${t('Clinic')}: ${
+                  clinicsData?.filter((clinic) => clinic?._id === clinicId)?.[0]
+                    ?.name
+                }`}
+              </Title>
+            </Col>
+          </Row>
+          {groupsData?.[clinicId]?.map((group, index) => (
+            <Fragment>
+              <Row key={`${i}${index}`} noGutters mb={1}>
+                <Col cw="auto" mr={3}>
+                  <Icon
+                    name="BioGroupFilled"
+                    size={24}
+                    fill="var(--ql-typography-text-color-secondary)"
+                  />
+                </Col>
+                <Col v="center">
+                  <Text>{`${t('Week')} ${group?.weekNumber}`}</Text>
+                </Col>
+              </Row>
+              <Row noGutters mb={1} v="center">
+                <Col cw="auto" mr={3}>
+                  <Icon
+                    name="StudyFilled"
+                    size={24}
+                    fill="var(--ql-typography-text-color-secondary)"
+                  />
+                </Col>
+                <Col>
+                  <Text type="secondary">
+                    {studiesData?.[group?.studyId] || t('Study was deleted')}
+                  </Text>
+                </Col>
+              </Row>
+              <Row noGutters mb={1} v="center">
+                <Col cw="auto" mr={3}>
+                  <Icon
+                    name="DisorderFilled"
+                    size={24}
+                    fill="var(--ql-typography-text-color-secondary)"
+                  />
+                </Col>
+                <Col v="center">
+                  <Text type="secondary">
+                    {disordersData?.[group?.disorderId] ||
+                      t('Disorder was deleted')}
+                  </Text>
+                </Col>
+              </Row>
+              {groupsData?.[clinicId]?.length - 1 !== index && (
+                <Row noGutters>
+                  <Col cw={12}>
+                    <Divider type="horizontal" mt={1} mb={12} />
+                  </Col>
+                </Row>
+              )}
+            </Fragment>
+          ))}
+        </Box>
+      ))}
+    </Box>
+  )
+}
+
+export default TherapistGroupsList

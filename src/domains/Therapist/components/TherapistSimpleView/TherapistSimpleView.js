@@ -1,21 +1,11 @@
-import React, { Fragment } from 'react'
-import {
-  Button,
-  Box,
-  Title,
-  Text,
-  Dropdown,
-  Menu,
-  MenuItem,
-  NoData,
-  Remove
-} from '@qonsoll/react-design'
+import React, { Fragment, useState } from 'react'
+import { Button, Box, Title, Remove, Popover } from '@qonsoll/react-design'
 import { notification, Tooltip, Spin } from 'antd'
 import { UserCard } from 'app/domains/User/components'
 import { DeleteUserHelper } from 'helpers'
 import { MailOutlined, TeamOutlined } from '@ant-design/icons'
 import { useTranslations } from '@qonsoll/translation'
-import { useCollectionData } from 'react-firebase-hooks/firestore'
+import { useCollectionDataOnce } from 'react-firebase-hooks/firestore'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useUI } from 'app/domains/UI/contexts'
 import {
@@ -28,13 +18,14 @@ import { USERS_MODEL_NAME } from 'app/constants/models'
 import firebase from 'firebase'
 import { REMOVE_THERAPIST } from 'bioflow/constants/activitiesTypes'
 import { useActivities } from 'bioflow/hooks'
+import { TherapistGroupsList } from '../'
 
 function TherapistSimpleView(props) {
   const {
     firstName,
     lastName,
     email,
-    groups,
+    clinics,
     avatarUrl,
     _id: initializedUserId
   } = props
@@ -47,18 +38,25 @@ function TherapistSimpleView(props) {
   const { createPushNotification } = usePushNotification()
   const user = useUserContext()
 
-  const [admins = []] = useCollectionData(
+  const [admins = []] = useCollectionDataOnce(
     firebase
       .firestore()
       .collection(USERS_MODEL_NAME)
       .where('role', '==', SUPER_ADMIN_USER_ROLE)
   )
 
+  const [isGroupsListVisible, setIsGroupListVisible] = useState(false)
+  const [additionalTherapistData, setAdditionalTherapistData] = useState({})
+  const [groupDataLoading, setGroupDataLoading] = useState(true)
+
   // [COMPUTED PROPERTIES]
   const displayName = `${firstName} ${lastName}`
   const userDisplayName =
     user?.firstName && user?.lastName && `${user?.firstName} ${user?.lastName}`
   const isSpinningActive = userIdToDeletionRequestProcessing[initializedUserId]
+  const isTherapistHasGroups =
+    additionalTherapistData?.disordersData &&
+    Object.keys?.(additionalTherapistData?.disordersData)?.length
 
   // [CLEAN FUNCTIONS]
   const handleRemove = async () => {
@@ -160,30 +158,33 @@ function TherapistSimpleView(props) {
     })
   }
 
-  const groupList = (
-    <Menu>
-      {groups?.length ? (
-        groups.map((group) => (
-          <MenuItem>
-            <Text type="secondary">
-              {t('Group')}: {group?.name}
-            </Text>
-          </MenuItem>
-        ))
-      ) : (
-        <MenuItem>
-          <NoData />
-        </MenuItem>
-      )}
-    </Menu>
-  )
+  const handlePopoverVisible = (visible) => {
+    setIsGroupListVisible(visible)
+  }
+
   const actions = (
     <Fragment>
       <Box mb={2}>
         <Tooltip title={t('Therapist groups')}>
-          <Dropdown overlay={groupList} placement="bottomRight" arrow>
+          <Popover
+            content={
+              <TherapistGroupsList
+                initializedUserId={initializedUserId}
+                clinics={clinics}
+                isTherapistHasGroups={isTherapistHasGroups}
+                groupDataLoading={groupDataLoading}
+                setAdditionalTherapistData={setAdditionalTherapistData}
+                additionalTherapistData={additionalTherapistData}
+                setGroupDataLoading={setGroupDataLoading}
+                setAdditionalTherapistDat={setAdditionalTherapistData}
+              />
+            }
+            placement="leftTop"
+            trigger="hover"
+            visible={isGroupsListVisible}
+            onVisibleChange={handlePopoverVisible}>
             <Button variant="white" icon={<TeamOutlined />} />
-          </Dropdown>
+          </Popover>
         </Tooltip>
       </Box>
       <Box mb={2}>
