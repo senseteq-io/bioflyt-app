@@ -74,8 +74,7 @@ function Dashboard() {
   }
 
   const isFilterVisible = useMemo(
-    () =>
-      !!matchPath(location.pathname, { pathname: BIOFLOW_ADMIN_GROUPS_PATH }),
+    () => !!matchPath(location.pathname, BIOFLOW_ADMIN_GROUPS_PATH),
     [location.pathname]
   )
 
