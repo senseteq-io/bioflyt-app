@@ -1,14 +1,20 @@
 import { CheckOutlined } from '@ant-design/icons'
 import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
-import { STUDIES_MODEL_NAME } from 'bioflow/constants/collections'
-import React, { useState } from 'react'
+import {
+  STUDIES_MODEL_NAME,
+  GROUPS_MODEL_NAME,
+  THERAPISTS_PROFILE_MODEL_NAME
+} from 'bioflow/constants/collections'
+import React, { useMemo, useState } from 'react'
 import { Box, Card, Input, Text } from '@qonsoll/react-design'
 import { notification, Tooltip } from 'antd'
 import { EditRemove } from 'app/components'
 import { EDIT_STUDY, REMOVE_STUDY } from 'bioflow/constants/activitiesTypes'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useActivities } from 'bioflow/hooks'
+import { useCollectionDataOnce } from 'react-firebase-hooks/firestore'
+import firebase from 'firebase'
 
 function StudySimpleView(props) {
   const { name, _id } = props
@@ -19,9 +25,28 @@ function StudySimpleView(props) {
   const { createActivity } = useActivities()
   const { firstName, lastName, email: adminEmail } = useUserContext()
 
+  const [studyGroups] = useCollectionDataOnce(
+    firebase
+      .firestore()
+      .collection(GROUPS_MODEL_NAME)
+      .where('studyId', '==', _id)
+  )
+
+  const [studyTherapists] = useCollectionDataOnce(
+    firebase
+      .firestore()
+      .collection(THERAPISTS_PROFILE_MODEL_NAME)
+      .where('studies', 'array-contains', _id)
+  )
+
   // [COMPONENT_STATE_HOOKS]
   const [isEdit, setIsEdit] = useState(false)
   const [newName, setNewName] = useState(name)
+
+  const isStudyInUse = useMemo(
+    () => !!studyGroups?.length || studyTherapists?.length,
+    [studyGroups, studyTherapists]
+  )
 
   // [CLEAN FUNCTIONS]
   const handleEdit = async () => {
@@ -96,6 +121,7 @@ function StudySimpleView(props) {
         )}
         <Box minWidth="88px">
           <EditRemove
+            removeDisabled={isStudyInUse}
             onEdit={handleEdit}
             editIcon={isEdit && <CheckOutlined />}
             onRemove={handleRemove}
