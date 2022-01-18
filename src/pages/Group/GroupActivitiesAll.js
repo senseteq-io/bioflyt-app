@@ -50,7 +50,7 @@ function GroupActivitiesAll() {
   )
 
   const groupActivitiesBreadcrumbs = (
-    <Fragment>
+    <Breadcrumb>
       <Breadcrumb.Item>
         <Link to={isAdmin ? BIOFLOW_ADMIN_GROUPS_PATH : BIOFLOW_GROUPS_PATH}>
           {t('Groups')}
@@ -62,7 +62,7 @@ function GroupActivitiesAll() {
         }`}</Link>
       </Breadcrumb.Item>
       <Breadcrumb.Item>{t('Group activities')}</Breadcrumb.Item>
-    </Fragment>
+    </Breadcrumb>
   )
 
   return (
@@ -74,10 +74,7 @@ function GroupActivitiesAll() {
         textAlign: 'left',
         marginBottom: 16
       }}
-      breadcrumb={{
-        props: { separator: '>' },
-        children: groupActivitiesBreadcrumbs
-      }}>
+      breadcrumbs={groupActivitiesBreadcrumbs}>
       {!initialActivities?.length ? (
         <Box>
           <NoData />

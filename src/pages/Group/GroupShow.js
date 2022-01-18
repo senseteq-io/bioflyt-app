@@ -129,7 +129,7 @@ function GroupShow() {
   )
 
   const groupShowBreadcrumbs = (
-    <Fragment>
+    <Breadcrumb>
       <Breadcrumb.Item>
         <Link to={isAdmin ? BIOFLOW_ADMIN_GROUPS_PATH : BIOFLOW_GROUPS_PATH}>
           {t('Groups')}
@@ -138,7 +138,7 @@ function GroupShow() {
       <Breadcrumb.Item>{`${t('Week')} ${
         groupData?.weekNumber
       }`}</Breadcrumb.Item>
-    </Fragment>
+    </Breadcrumb>
   )
 
   return (
@@ -150,10 +150,7 @@ function GroupShow() {
         textAlign: 'left',
         marginBottom: 32
       }}
-      breadcrumb={{
-        props: { separator: '>' },
-        children: groupShowBreadcrumbs
-      }}
+      breadcrumbs={groupShowBreadcrumbs}
       action={actionPanel}>
       <Box>
         <Box mb={24}>
