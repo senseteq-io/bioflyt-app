@@ -5,9 +5,9 @@ import {
   Route,
   useHistory,
   useLocation,
-  Redirect
+  Redirect,
+  matchPath
 } from 'react-router-dom'
-import { matchPath } from 'react-router'
 import { useTranslations } from '@qonsoll/translation'
 import { AdminGroupRoutes } from '../Group'
 import { AdminActivityRoutes } from '../Activity'
@@ -18,7 +18,7 @@ import {
   BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH,
   BIOFLOW_ADMIN_GROUPS_PATH,
   BIOFLOW_ADMIN_SETTINGS_PATH,
-  BIOFLOW_ADMIN_PATH,
+  BIOFLOW_ADMIN_PATH
 } from 'bioflow/constants/paths'
 import { FilterOutlined } from '@ant-design/icons'
 import { GroupsAll } from 'bioflow/pages/Group'
@@ -73,9 +73,11 @@ function Dashboard() {
     setIsFilterDrawerVisible(true)
   }
 
-  const isFilterVisible = useMemo(() => 
-    !!matchPath(location.pathname, BIOFLOW_ADMIN_GROUPS_PATH), 
-  [location.pathname]) 
+  const isFilterVisible = useMemo(
+    () =>
+      !!matchPath(location.pathname, { pathname: BIOFLOW_ADMIN_GROUPS_PATH }),
+    [location.pathname]
+  )
 
   return isWithTabsRoute ? (
     <PageWrapper
@@ -87,13 +89,14 @@ function Dashboard() {
         marginBottom: '0px'
       }}
       action={
-        isFilterVisible && 
-        <Button 
-          icon={<FilterOutlined />} 
-          type="primary" 
-          onClick={onOpenFilterDrawer}>
-          {t('Filter')}
-        </Button>
+        isFilterVisible && (
+          <Button
+            icon={<FilterOutlined />}
+            type="primary"
+            onClick={onOpenFilterDrawer}>
+            {t('Filter')}
+          </Button>
+        )
       }
       isBottomSticky>
       <Tabs
