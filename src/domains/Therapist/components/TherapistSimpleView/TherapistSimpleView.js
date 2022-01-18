@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 import { Button, Box, Title, Remove, Popover } from '@qonsoll/react-design'
 import { notification, Tooltip, Spin } from 'antd'
 import { UserCard } from 'app/domains/User/components'
@@ -17,6 +17,7 @@ import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
 import { USERS_MODEL_NAME } from 'app/constants/models'
 import firebase from 'firebase'
 import { REMOVE_THERAPIST } from 'bioflow/constants/activitiesTypes'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import { useActivities } from 'bioflow/hooks'
 import { TherapistGroupsList } from '../'
 
@@ -45,19 +46,23 @@ function TherapistSimpleView(props) {
       .where('role', '==', SUPER_ADMIN_USER_ROLE)
   )
 
+  const [therapistGroups] = useCollectionDataOnce(
+    firebase
+      .firestore()
+      .collection(GROUPS_MODEL_NAME)
+      .where(`therapists.${initializedUserId}`, '!=', '')
+  )
   const [isGroupsListVisible, setIsGroupListVisible] = useState(false)
-  const [additionalTherapistData, setAdditionalTherapistData] = useState({})
-  const [groupDataLoading, setGroupDataLoading] = useState(true)
 
   // [COMPUTED PROPERTIES]
   const displayName = `${firstName} ${lastName}`
   const userDisplayName =
     user?.firstName && user?.lastName && `${user?.firstName} ${user?.lastName}`
   const isSpinningActive = userIdToDeletionRequestProcessing[initializedUserId]
-  const isTherapistHasGroups =
-    additionalTherapistData?.disordersData &&
-    Object.keys?.(additionalTherapistData?.disordersData)?.length
 
+  const isTherapistDeletionDisabled = useMemo(() => !!therapistGroups?.length, [
+    therapistGroups
+  ])
   // [CLEAN FUNCTIONS]
   const handleRemove = async () => {
     const requestDetails = {
@@ -171,12 +176,6 @@ function TherapistSimpleView(props) {
               <TherapistGroupsList
                 initializedUserId={initializedUserId}
                 clinics={clinics}
-                isTherapistHasGroups={isTherapistHasGroups}
-                groupDataLoading={groupDataLoading}
-                setAdditionalTherapistData={setAdditionalTherapistData}
-                additionalTherapistData={additionalTherapistData}
-                setGroupDataLoading={setGroupDataLoading}
-                setAdditionalTherapistDat={setAdditionalTherapistData}
               />
             }
             placement="leftTop"
@@ -199,13 +198,14 @@ function TherapistSimpleView(props) {
       <Box>
         <Tooltip title={t('Remove user completely')}>
           <Remove
+            icon
             popconfirmPlacement="bottomRight"
             type="primary"
-            onSubmit={handleRemove}
-            icon
             confirmLabel={t('Yes, remove')}
             cancelLabel={t('No, keep')}
             itemName={displayName}
+            disabled={isTherapistDeletionDisabled}
+            onSubmit={handleRemove}
           />
         </Tooltip>
       </Box>
