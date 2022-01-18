@@ -1,31 +1,9 @@
-import { List, notification } from 'antd'
-import firebase from 'firebase'
-
+import { List } from 'antd'
 import React from 'react'
-import { PlusOutlined } from '@ant-design/icons'
-import {
-  Button,
-  Card,
-  Col,
-  Input,
-  Remove,
-  Row,
-  Title
-} from '@qonsoll/react-design'
+import { Box, Card, Col, Row, Text, Title } from '@qonsoll/react-design'
 import { useTranslations } from '@qonsoll/translation'
 
-const validateField = (value, callback) => {
-  if (value.length <= 2) {
-    if (/^[A-Za-z]+$/.test(value) || value === '') {
-      callback(value)
-    }
-  }
-  if (value.length === 3) {
-    if (/^[A-Za-z0-9]$/.test(value[value.length - 1])) {
-      callback(value)
-    }
-  }
-}
+const patientsMap = [0, 1, 2, 3, 4, 5]
 
 const PatientAddForm = (props) => {
   const { value, onChange, form, saveData } = props
@@ -34,74 +12,79 @@ const PatientAddForm = (props) => {
   const { t } = useTranslations()
 
   // [CLEAN_FUNCTIONS]
-  const onInputChange = (e, index) => {
-    validateField(e.target.value, (initial) => {
-      value[index].initial = initial
-      onChange?.([...value])
-    })
-  }
-  const saveDataToDB = (e, index) => {
-    validateField(e.target.value, async (initial) => {
-      value[index].initial = initial
-      await saveData?.({ patients: [...value] }, form.getFieldsValue())
-    })
+  const addPatient = async (number) => {
+    const arr = value || []
+    if (value?.map(({ number }) => number)?.includes(number)) {
+      arr.splice(arr.length - 1, 1)
+    } else {
+      arr.push({ initial: `Klient ${number}`, number })
+    }
+    onChange?.([...arr])
+    await saveData?.({ patients: [...arr] }, form.getFieldsValue())
   }
 
-  const addPatient = () => {
-    if (value?.length < 6 || !value) {
-      const id = firebase.firestore().collection('test').doc().id
-      onChange?.(value ? [...value, { id }] : [{ id }])
-    } else {
-      notification.warn({
-        message: `${t('Each group can have only 6 patients')}.`
-      })
-    }
+  const checkIsActive = (index) => {
+    return value?.map(({ number }) => number)?.includes(index)
   }
-  const removePatient = (patientId) => {
-    const newPatientList = value.filter(({ id }) => id !== patientId)
-    onChange?.(newPatientList)
-    saveData?.({ patients: newPatientList }, form.getFieldsValue())
-  }
+
   return (
     <Row noGutters>
       <Col cw={6} v="center">
         <Title level={4}>{t('Patients')}</Title>
       </Col>
-      <Col cw={6} h="right">
-        <Button icon={<PlusOutlined />} onClick={addPatient} />
-      </Col>
+
       <Col cw={12}>
         <List
           itemLayout="horizontal"
-          dataSource={value || []}
-          renderItem={({ initial, id }, index) => (
-            <List.Item key={id}>
-              <Card
-                size="small"
-                bordered={false}
-                shadowless
-                bg="var(--ql-color-dark-t-lighten6)"
-                width="100%">
-                <Row noGutters>
-                  <Col mr={2}>
-                    <Input
-                      max={3}
-                      value={initial}
-                      placeholder={t('Initials')}
-                      onChange={(e) => onInputChange(e, index)}
-                      mr={3}
-                      onBlur={(e) => saveDataToDB(e, index)}
-                    />
-                  </Col>
-                  <Col cw="auto">
-                    <Remove
-                      icon
-                      onSubmit={() => removePatient(id)}
-                      type="text"
-                    />
-                  </Col>
-                </Row>
-              </Card>
+          dataSource={patientsMap.slice(
+            value?.length === 6 ? 0 : 5 - (value?.length || 0)
+          )}
+          renderItem={(patient, index) => (
+            <List.Item key={patient}>
+              <Row width="100%" noGutters>
+                <Col cw="auto" mr={16}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="50%"
+                    width="48px"
+                    height="100%"
+                    bg={
+                      checkIsActive(index + 1)
+                        ? 'var(--ql-color-accent1)'
+                        : 'var(--ql-color-dark-t-lighten6)'
+                    }>
+                    <Text strong color={checkIsActive(index + 1) && 'white'}>
+                      {index + 1}
+                    </Text>
+                  </Box>
+                </Col>
+                <Col>
+                  <Card
+                    size="small"
+                    bordered={false}
+                    shadowless
+                    bg={
+                      checkIsActive(index + 1)
+                        ? 'var(--ql-color-accent1)'
+                        : 'var(--ql-color-dark-t-lighten6)'
+                    }
+                    width="100%"
+                    cursor="pointer"
+                    onClick={() => addPatient(index + 1)}>
+                    <Row noGutters>
+                      <Col mr={2} v="center">
+                        <Text
+                          strong
+                          color={checkIsActive(index + 1) && 'white'}>
+                          {t('Patient')} {index + 1}
+                        </Text>
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+              </Row>
             </List.Item>
           )}
         />

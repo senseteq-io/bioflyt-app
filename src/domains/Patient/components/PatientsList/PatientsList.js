@@ -2,7 +2,7 @@ import { useSaveData } from 'app/hooks'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useMemo, Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 import { PatientSimpleView } from '..'
 import { ListWithCreate } from 'app/components'
@@ -71,19 +71,21 @@ function PatientsList(props) {
   return (
     <ListWithCreate
       withCreate={false}
-      dataSource={sortedPatientsList?.map(({ generated, ...rest }) => ({
-        name: (
-          <>
-            {_.trimEnd(
-              _.initial(generated).join(''),
-              rest.initial.toUpperCase()
-            )}
-            <strong>{rest.initial.toUpperCase()}</strong>
-          </>
-        ),
-        generated,
-        ...rest
-      }))}>
+      dataSource={sortedPatientsList?.map(({ generated, ...rest }) => {
+        const splitedGeneratedInitial = generated.split(' ')
+        return {
+          name: (
+            <Fragment>
+              {splitedGeneratedInitial
+                .slice(0, splitedGeneratedInitial.length - 2)
+                .join(' ')}
+              <strong> {rest.initial}</strong>
+            </Fragment>
+          ),
+          generated,
+          ...rest
+        }
+      })}>
       <PatientSimpleView
         firstDay={firstDay}
         fourthDay={fourthDay}
