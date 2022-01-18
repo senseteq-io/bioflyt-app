@@ -1,7 +1,7 @@
 import { Text } from '@qonsoll/react-design'
 import React from 'react'
 import { notification } from 'antd'
-import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
+import { CLINICS_MODEL_NAME } from 'app/constants/models'
 import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
@@ -12,7 +12,7 @@ import moment from 'moment'
 import { useParams } from 'react-router-dom'
 
 const generatePatients = async (data, weekNumber) => {
-  let clinicData, disorderData
+  let clinicData
   try {
     const clinicSnapshot =
       data.clinicId &&
@@ -22,23 +22,13 @@ const generatePatients = async (data, weekNumber) => {
         .doc(data.clinicId)
         .get())
     clinicData = clinicSnapshot?.data()
-    const disorderSnapshot =
-      data.disorderId &&
-      (await firebase
-        .firestore()
-        .collection(DISORDERS_MODEL_NAME)
-        .doc(data.disorderId)
-        .get())
-    disorderData = disorderSnapshot?.data()
   } catch (e) {
     console.log('error in patient generate', e)
   }
 
   return data.patients.map((data) => ({
     ...data,
-    generated: `${weekNumber}${clinicData?.name || ''}${
-      disorderData?.name || ''
-    }${data.initial.toUpperCase()}`.replaceAll(' ', ''),
+    generated: `${weekNumber} ${clinicData?.name || ''} ${data.initial}`,
     initial: data.initial
   }))
 }

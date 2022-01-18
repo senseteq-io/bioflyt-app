@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useMemo } from 'react'
+import React, { useEffect, Fragment, useMemo, useState } from 'react'
 import {
   Box,
   Col,
@@ -16,22 +16,20 @@ import { Icon } from '@qonsoll/icons'
 const { useBreakpoint } = Grid
 
 const TherapistGroupsList = (props) => {
-  const {
-    initializedUserId,
-    clinics,
-    isTherapistHasGroups,
-    groupDataLoading,
-    additionalTherapistData,
-    setGroupDataLoading,
-    setAdditionalTherapistData
-  } = props
+  const { initializedUserId, clinics } = props
 
   const { t } = useTranslations()
   const { xs } = useBreakpoint()
 
+  const [groupDataLoading, setGroupDataLoading] = useState(true)
+  const [additionalTherapistData, setAdditionalTherapistData] = useState({})
+
   const { clinicsData, groupsData, disordersData, studiesData } =
     additionalTherapistData || {}
 
+  const isTherapistHasGroups =
+    additionalTherapistData?.disordersData &&
+    Object.keys?.(additionalTherapistData?.disordersData)?.length
   const clinicIds = useMemo(() => Object.keys(clinics), [clinics])
 
   const filteredClinicIds = useMemo(
