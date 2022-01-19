@@ -124,6 +124,7 @@ function GroupSimpleForm(props) {
       form.setFieldsValue({
         [field]: moment(value)
           .add(amount, 'days')
+          .set('hour', 12)
           .format(MOMENT_FORMAT_FOR_TIMEPICKER)
       })
       // Validate dependent field to show error if calculated day are forbidden.
@@ -136,7 +137,7 @@ function GroupSimpleForm(props) {
             id: groupId,
             data: {
               [fieldName]: firebase.firestore.Timestamp.fromDate(
-                new Date(value[fieldName])
+                moment(value[fieldName]).set('hour', 12).toDate()
               )
             }
           })
@@ -345,7 +346,7 @@ function GroupSimpleForm(props) {
     // If there was date fields format it to save firestore timestamp not string.
     if (['fourthDay', 'firstDay'].includes(changedFieldName)) {
       value[changedFieldName] = firebase.firestore.Timestamp.fromDate(
-        new Date(value[changedFieldName])
+        moment(value[changedFieldName]).set('hours', 12).toDate()
       )
     }
 
@@ -368,7 +369,7 @@ function GroupSimpleForm(props) {
   }
 
   const checkInitialDate = () => {
-    const fourthDay = moment().add(NEXT_COLLECT_DIFF, 'days')
+    const fourthDay = moment().add(NEXT_COLLECT_DIFF, 'days').set(12, 'hours')
 
     // find next combination of days which are not forbidden
     while (WRONG_FOURTH_DAYS.includes(fourthDay.locale('en').format('ddd'))) {
