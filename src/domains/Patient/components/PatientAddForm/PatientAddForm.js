@@ -17,14 +17,14 @@ const PatientAddForm = (props) => {
     if (value?.map(({ number }) => number)?.includes(number)) {
       arr.splice(arr.length - 1, 1)
     } else {
-      arr.push({ initial: `Klient ${number}`, number })
+      arr.push({ id: number })
     }
     onChange?.([...arr])
     await saveData?.({ patients: [...arr] }, form.getFieldsValue())
   }
 
   const checkIsActive = (index) => {
-    return value?.map(({ number }) => number)?.includes(index)
+    return value?.map(({ id }) => id)?.includes(index)
   }
 
   return (

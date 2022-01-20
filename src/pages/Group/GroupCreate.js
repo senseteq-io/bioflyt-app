@@ -6,7 +6,6 @@ import {
   THERAPISTS_PROFILE_MODEL_NAME
 } from 'bioflow/constants/collections'
 import { ONGOING_STATUS, FUTURE_STATUS } from 'bioflow/constants/groupStatuses'
-import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
 import firebase from 'firebase'
 import moment from 'moment'
 import { useBioflowAccess, useSaveGroup } from 'bioflow/hooks'
@@ -22,11 +21,7 @@ function GroupCreate() {
   const history = useHistory()
   const { t } = useTranslations()
   const [form] = Form.useForm()
-  const {
-    clinics,
-    _id: therapistId,
-    bioflowTherapistProfileId
-  } = useUserContext()
+  const { clinics, bioflowTherapistProfileId } = useUserContext()
   const { isTherapist } = useBioflowAccess()
   const { saveDataWithStatus } = useSaveGroup()
 
@@ -65,8 +60,7 @@ function GroupCreate() {
   useEffect(() => {
     therapistProfile &&
       setInitialState({
-        studyId: therapistProfile.studies[0],
-        therapists: { [therapistId]: THERAPIST_ROLES.ADMIN }
+        studyId: therapistProfile.studies[0]
       })
   }, [therapistProfile])
 

@@ -45,7 +45,7 @@ const UseNotificationActions = (notificationData = {}) => {
       moment(_createdAt?.toDate?.()).format('H') === '9'
 
     const personsThatRecieveNotifications = isAdminShouldRecieveNotification
-      ? [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER]
+      ? [THERAPIST_ROLES.GROUP_LEADER]
       : [THERAPIST_ROLES.GROUP_LEADER]
 
     firebase.functions().httpsCallable('adminAndDeputyNotify')({
@@ -67,7 +67,7 @@ const UseNotificationActions = (notificationData = {}) => {
         NO: `${args?.text?.NO || text.NO} - nestleder svarte ja`
       },
       groupId: args?.groupId || groupId,
-      roles: [THERAPIST_ROLES.ADMIN, THERAPIST_ROLES.GROUP_LEADER],
+      roles: [THERAPIST_ROLES.GROUP_LEADER],
       answer: 'yes'
     })
     onMarkAsSeen()

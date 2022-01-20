@@ -1,3 +1,4 @@
+import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import _ from 'lodash'
@@ -12,11 +13,12 @@ const DATE_FORMAT = 'D MMM YYYY'
 const TODAY_DATE = moment().format(DATE_FORMAT)
 
 function PatientsList(props) {
-  const { patients, groupId, firstDay, fourthDay } = props
+  const { patients, groupId, firstDay, fourthDay, weekNumber } = props
 
   // [ADDITIONAL_HOOKS]
   const { id } = useParams()
   const { update } = useSaveData()
+  const { t } = useTranslations()
 
   //[COMPUTED PROPERTIES]
   const sortedPatientsList = useMemo(
@@ -71,21 +73,18 @@ function PatientsList(props) {
   return (
     <ListWithCreate
       withCreate={false}
-      dataSource={sortedPatientsList?.map(({ generated, ...rest }) => {
-        const splitedGeneratedInitial = generated.split(' ')
-        return {
-          name: (
-            <Fragment>
-              {splitedGeneratedInitial
-                .slice(0, splitedGeneratedInitial.length - 2)
-                .join(' ')}
-              <strong> {rest.initial}</strong>
-            </Fragment>
-          ),
-          generated,
-          ...rest
-        }
-      })}>
+      dataSource={sortedPatientsList?.map(({ clinicName, ...rest }) => ({
+        name: (
+          <Fragment>
+            {weekNumber} {clinicName}
+            <strong>
+              {' '}
+              {t('Patient')} {rest.id}
+            </strong>
+          </Fragment>
+        ),
+        ...rest
+      }))}>
       <PatientSimpleView
         firstDay={firstDay}
         fourthDay={fourthDay}
