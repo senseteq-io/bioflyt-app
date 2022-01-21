@@ -1,25 +1,32 @@
 import React, { Fragment, useMemo, useState } from 'react'
-import { Button, Box, Title, Remove, Popover } from '@qonsoll/react-design'
+import {
+  Button,
+  Box,
+  Title,
+  Remove,
+  Popover,
+  Switch,
+  Text
+} from '@qonsoll/react-design'
 import { notification, Tooltip, Spin } from 'antd'
-import { UserCard } from 'app/domains/User/components'
 import { DeleteUserHelper } from 'helpers'
 import { MailOutlined, TeamOutlined } from '@ant-design/icons'
 import { useTranslations } from '@qonsoll/translation'
-import { useCollectionDataOnce } from 'react-firebase-hooks/firestore'
+import {
+  useCollectionDataOnce,
+  useDocumentData
+} from 'react-firebase-hooks/firestore'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useUI } from 'app/domains/UI/contexts'
-import {
-  useNotification,
-  usePushNotification
-} from 'app/domains/Notification/hooks'
-import { FOI_ADMIN_APP } from 'app/constants/applications'
-import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
-import { USERS_MODEL_NAME } from 'app/constants/models'
 import firebase from 'firebase'
 import { REMOVE_THERAPIST } from 'bioflow/constants/activitiesTypes'
-import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+import {
+  GROUPS_MODEL_NAME,
+  THERAPISTS_PROFILE_MODEL_NAME
+} from 'bioflow/constants/collections'
 import { useActivities } from 'bioflow/hooks'
-import { TherapistGroupsList } from '../'
+import { TherapistGroupsList, TherapistCard } from '../'
+import { useSaveData } from 'app/hooks'
 
 function TherapistSimpleView(props) {
   const {
@@ -28,23 +35,16 @@ function TherapistSimpleView(props) {
     email,
     clinics,
     avatarUrl,
-    _id: initializedUserId
+    _id: initializedUserId,
+    bioflowTherapistProfileId
   } = props
 
   // [ADDITIONAL HOOKS]
   const [{ userIdToDeletionRequestProcessing }, UIDispatch] = useUI()
   const { t } = useTranslations()
   const { createActivity } = useActivities()
-  const { createNotification } = useNotification()
-  const { createPushNotification } = usePushNotification()
+  const { update } = useSaveData()
   const user = useUserContext()
-
-  const [admins = []] = useCollectionDataOnce(
-    firebase
-      .firestore()
-      .collection(USERS_MODEL_NAME)
-      .where('role', '==', SUPER_ADMIN_USER_ROLE)
-  )
 
   const [therapistGroups] = useCollectionDataOnce(
     firebase
@@ -52,17 +52,34 @@ function TherapistSimpleView(props) {
       .collection(GROUPS_MODEL_NAME)
       .where(`therapists.${initializedUserId}`, '!=', '')
   )
+
+  const [therapistProfile] = useDocumentData(
+    firebase
+      .firestore()
+      .collection(THERAPISTS_PROFILE_MODEL_NAME)
+      .doc(bioflowTherapistProfileId)
+  )
   const [isGroupsListVisible, setIsGroupListVisible] = useState(false)
 
   // [COMPUTED PROPERTIES]
-  const displayName = `${firstName} ${lastName}`
-  const userDisplayName =
-    user?.firstName && user?.lastName && `${user?.firstName} ${user?.lastName}`
+  const displayName = useMemo(
+    () => firstName && lastName && `${firstName} ${lastName}`,
+    [firstName, lastName]
+  )
+  const adminDisplayName = useMemo(
+    () =>
+      user?.firstName &&
+      user?.lastName &&
+      `${user?.firstName} ${user?.lastName}`,
+    [user]
+  )
+
   const isSpinningActive = userIdToDeletionRequestProcessing[initializedUserId]
 
   const isTherapistDeletionDisabled = useMemo(() => !!therapistGroups?.length, [
     therapistGroups
   ])
+
   // [CLEAN FUNCTIONS]
   const handleRemove = async () => {
     const requestDetails = {
@@ -111,52 +128,13 @@ function TherapistSimpleView(props) {
       isTriggeredByAdmin: true,
       type: REMOVE_THERAPIST,
       additionalData: {
-        adminDisplayName: `${user?.firstName} ${user?.lastName}`,
+        adminDisplayName,
         adminEmail: user?.email,
-        removedTherapistDisplayName: `${firstName} ${lastName}`,
+        removedTherapistDisplayName: displayName,
         removedTherapistEmail: email
       }
     })
 
-    createNotification({
-      data: {
-        receivers: ['ADMIN'],
-        receiverId: null,
-        seen: false,
-        type: 'INVITATIONS',
-        text: {
-          EN: `${userDisplayName} removed therapist, ${displayName}, ${email}`,
-          NO: `${userDisplayName} fjernet behandlere, ${displayName}, ${email}`
-        },
-        additionalData: {
-          therapistUserId: initializedUserId || null,
-          therapistAvatarUrl: avatarUrl || null,
-          therapistEmail: email || null,
-          therapistDisplayName: displayName || null,
-          patientUserId: null,
-          patientAvatarUrl: null,
-          patientEmail: null,
-          patientUnionRepresentativeEmail: null,
-          patientDisplayName: null,
-          assignedTherapistId: null,
-          assignedTherapistAvatarUrl: null,
-          assignedTherapistEmail: null,
-          assignedTherapistDisplayName: null
-        }
-      }
-    })
-
-    let adminsId = (admins?.length && admins.map((item) => item?._id)) || []
-
-    if (adminsId?.length)
-      createPushNotification({
-        application: FOI_ADMIN_APP,
-        contents: {
-          en: `${userDisplayName} removed bioflow therapist, ${displayName}, ${email}`,
-          no: `${userDisplayName} fjernet bioflyt behandlere, ${displayName}, ${email}`
-        },
-        userIds: adminsId
-      })
     notification.success({
       message: t('Success'),
       description: t('Bioflow therapist was successfully removed')
@@ -167,9 +145,47 @@ function TherapistSimpleView(props) {
     setIsGroupListVisible(visible)
   }
 
-  const actions = (
+  const onSwitchTherapistRole = (value) => {
+    update({
+      id: bioflowTherapistProfileId,
+      collection: THERAPISTS_PROFILE_MODEL_NAME,
+      data: { isAdminRole: value }
+    })
+  }
+
+  const leftActions = (
+    <Tooltip
+      title={
+        isTherapistDeletionDisabled &&
+        `${t('This therapist has groups')}.\n ${t(
+          'A therapist should not have any group to set him admin role'
+        )}`
+      }>
+      <Box
+        display="flex"
+        flexDirection="column"
+        backgroundColor="var(--ql-color-white)"
+        borderRadius="var(--ql-border-radius-md)"
+        px={3}
+        py={2}>
+        <Text mb={1} type="secondary" variant="caption1">
+          {t('Admin').toUpperCase()}:
+        </Text>
+
+        <Switch
+          checked={therapistProfile?.isAdminRole}
+          onChange={onSwitchTherapistRole}
+          disabled={
+            isTherapistDeletionDisabled && !therapistProfile?.isAdminRole
+          }
+        />
+      </Box>
+    </Tooltip>
+  )
+
+  const rightActions = (
     <Fragment>
-      <Box mb={2}>
+      <Box mb={2} display="flex" justifyContent="end">
         <Tooltip title={t('Therapist groups')}>
           <Popover
             content={
@@ -186,7 +202,7 @@ function TherapistSimpleView(props) {
           </Popover>
         </Tooltip>
       </Box>
-      <Box mb={2}>
+      <Box mb={2} display="flex" justifyContent="end">
         <Tooltip title={email}>
           <Button
             variant="white"
@@ -195,7 +211,7 @@ function TherapistSimpleView(props) {
           />
         </Tooltip>
       </Box>
-      <Box>
+      <Box display="flex" justifyContent="end">
         <Tooltip title={t('Remove user completely')}>
           <Remove
             icon
@@ -214,7 +230,10 @@ function TherapistSimpleView(props) {
 
   return (
     <Spin size="large" spinning={Boolean(isSpinningActive)}>
-      <UserCard avatarUrl={avatarUrl} actions={actions}>
+      <TherapistCard
+        avatarUrl={avatarUrl}
+        rightActions={rightActions}
+        leftActions={leftActions}>
         <Title
           mb={2}
           level={4}
@@ -222,7 +241,7 @@ function TherapistSimpleView(props) {
           textShadow="var(--ql-color-black) 1px 0 10px">
           {displayName}
         </Title>
-      </UserCard>
+      </TherapistCard>
     </Spin>
   )
 }

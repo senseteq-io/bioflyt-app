@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { Tooltip, Spin, notification } from 'antd'
 import { Remove, Title, Button, Box } from '@qonsoll/react-design'
 import { UserCard } from 'app/domains/User/components'
@@ -6,47 +6,28 @@ import { DeleteUserHelper } from 'helpers'
 import { MailOutlined } from '@ant-design/icons'
 import { useTranslations } from 'app/contexts'
 import { useUI } from 'app/domains/UI/contexts'
-import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { useUserContext } from 'app/domains/User/contexts'
-import {
-  useNotification,
-  usePushNotification
-} from 'app/domains/Notification/hooks'
-import { FOI_ADMIN_APP } from 'app/constants/applications'
-import { SUPER_ADMIN_USER_ROLE } from 'app/constants/userRoles'
-import { USERS_MODEL_NAME } from 'app/constants/models'
-import firebase from 'firebase'
 import { REMOVE_THERAPIST_INVITE } from 'bioflow/constants/activitiesTypes'
 import { useActivities } from 'bioflow/hooks'
 
 function TherapistInviteView(props) {
-  const {
-    receiverName,
-    receiverEmail,
-    initializedUserId,
-    avatarUrl,
-    _id
-  } = props
+  const { receiverName, receiverEmail, initializedUserId } = props
 
   // [ADDITIONAL HOOKS]
   const [{ userIdToDeletionRequestProcessing }, UIDispatch] = useUI()
   const { t } = useTranslations()
   const { createActivity } = useActivities()
-  const { createNotification } = useNotification()
-  const { createPushNotification } = usePushNotification()
   const user = useUserContext()
-
-  const [admins = []] = useCollectionData(
-    firebase
-      .firestore()
-      .collection(USERS_MODEL_NAME)
-      .where('role', '==', SUPER_ADMIN_USER_ROLE)
-  )
 
   // [COMPUTED PROPERTIES]
   const isSpinningActive = userIdToDeletionRequestProcessing[initializedUserId]
-  const userDisplayName =
-    user?.firstName && user?.lastName && `${user?.firstName} ${user?.lastName}`
+  const adminDisplayName = useMemo(
+    () =>
+      user?.firstName &&
+      user?.lastName &&
+      `${user?.firstName} ${user?.lastName}`,
+    [user]
+  )
 
   // [HELPER FUNCTIONS]
   const handleRemove = async () => {
@@ -58,7 +39,9 @@ function TherapistInviteView(props) {
     const toastConfiguration = {
       success: {
         message: t('Success'),
-        description: t('User was completely deleted from the system'),
+        description: t(
+          'Therapist invitation was completely deleted from the system'
+        ),
         placement: 'topRight'
       },
       error: {
@@ -96,55 +79,16 @@ function TherapistInviteView(props) {
       isTriggeredByAdmin: true,
       type: REMOVE_THERAPIST_INVITE,
       additionalData: {
-        adminDisplayName: `${user?.firstName} ${user?.lastName}`,
+        adminDisplayName,
         adminEmail: user?.email,
         removedTherapistDisplayName: receiverName,
         removedTherapistEmail: receiverEmail
       }
     })
 
-    createNotification({
-      data: {
-        receivers: ['ADMIN'],
-        receiverId: null,
-        seen: false,
-        type: 'INVITATIONS',
-        text: {
-          EN: `${userDisplayName} removed bioflow therapist, ${receiverName}, ${receiverEmail}`,
-          NO: `${userDisplayName} fjernet bioflyt behandlere, ${receiverName}, ${receiverEmail}`
-        },
-        additionalData: {
-          therapistUserId: _id || null,
-          therapistAvatarUrl: avatarUrl || null,
-          therapistEmail: receiverEmail || null,
-          therapistDisplayName: receiverName || null,
-          patientUserId: null,
-          patientAvatarUrl: null,
-          patientEmail: null,
-          patientUnionRepresentativeEmail: null,
-          patientDisplayName: null,
-          assignedTherapistId: null,
-          assignedTherapistAvatarUrl: null,
-          assignedTherapistEmail: null,
-          assignedTherapistDisplayName: null
-        }
-      }
-    })
-
-    let adminsId = (admins?.length && admins.map((item) => item?._id)) || []
-
-    if (adminsId?.length)
-      createPushNotification({
-        application: FOI_ADMIN_APP,
-        contents: {
-          en: `${userDisplayName} removed bioflow therapist, ${receiverName}, ${receiverEmail}`,
-          no: `${userDisplayName} fjernet bioflyt behandlere, ${receiverName}, ${receiverEmail}`
-        },
-        userIds: adminsId
-      })
     notification.success({
       message: t('Success'),
-      description: t('Bioflow therapist was successfully removed')
+      description: t('Bioflow therapist invitation was successfully removed')
     })
   }
 

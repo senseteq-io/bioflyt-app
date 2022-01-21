@@ -41,10 +41,6 @@ function TherapistsList(props) {
       .where('isTemporaryPasswordResolved', '==', true)
   )
 
-  // [COMPONENT STATE HOOKS]
-
-  // [COMPUTED PROPERTIES]
-
   // [CLEAN FUNCTIONS]
   const goToInviteTherapist = () => {
     history.push(BIOFLOW_ADMIN_THERAPIST_INVITE_PATH)
