@@ -1,35 +1,55 @@
 import { Text } from '@qonsoll/react-design'
 import React from 'react'
 import { notification } from 'antd'
-import { CLINICS_MODEL_NAME } from 'app/constants/models'
+import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
-import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+import {
+  GROUPS_MODEL_NAME,
+  STUDIES_MODEL_NAME
+} from 'bioflow/constants/collections'
 import THERAPIST_ROLES from 'bioflow/constants/therapistRoles'
 import firebase from 'firebase'
 import _ from 'lodash'
 import moment from 'moment'
 import { useParams } from 'react-router-dom'
 
-const generatePatients = async (data, weekNumber) => {
-  let clinicData
+const generatePatients = async (groupData) => {
+  let clinicName, disorderName, studyName
   try {
     const clinicSnapshot =
-      data.clinicId &&
+      groupData.clinicId &&
       (await firebase
         .firestore()
         .collection(CLINICS_MODEL_NAME)
-        .doc(data.clinicId)
+        .doc(groupData.clinicId)
         .get())
-    clinicData = clinicSnapshot?.data()
+    clinicName = clinicSnapshot?.data()?.name
+    const disorderSnapshot =
+      groupData.disorderId &&
+      (await firebase
+        .firestore()
+        .collection(DISORDERS_MODEL_NAME)
+        .doc(groupData.disorderId)
+        .get())
+    disorderName = disorderSnapshot?.data()?.name
+    const studySnapshot =
+      groupData.studyId &&
+      (await firebase
+        .firestore()
+        .collection(STUDIES_MODEL_NAME)
+        .doc(groupData.studyId)
+        .get())
+    studyName = studySnapshot?.data()?.name
   } catch (e) {
     console.log('error in patient generate', e)
   }
 
-  return data.patients.map((data) => ({
+  return groupData.patients.map((data) => ({
     ...data,
-    generated: `${weekNumber} ${clinicData?.name || ''} ${data.initial}`,
-    initial: data.initial
+    clinicName,
+    disorderName,
+    studyName
   }))
 }
 
@@ -43,8 +63,8 @@ const useSaveGroup = () => {
     const data = formData || form.getFieldsValue()
 
     const uniqInitials = {}
-    data.patients.forEach(({ initial }) => {
-      uniqInitials[initial] = (uniqInitials[initial] || 0) + 1
+    data.patients.forEach(({ id }) => {
+      uniqInitials[id] = (uniqInitials[id] || 0) + 1
     })
 
     const notUniqueInitials = []
@@ -67,18 +87,17 @@ const useSaveGroup = () => {
 
     const isAllRoleAvailable = Object.values(data.therapists).map((role) =>
       [
-        THERAPIST_ROLES.ADMIN,
         THERAPIST_ROLES.DEPUTY_VICE_LEADER,
         THERAPIST_ROLES.GROUP_LEADER
       ].includes(role)
     )
 
     const isAllTherapistAdded =
-      isAllRoleAvailable.length >= 3 &&
+      isAllRoleAvailable.length >= 2 &&
       isAllRoleAvailable.reduce(
         (acc, value) => (value === true ? ++acc : acc),
         0
-      ) === 3
+      ) === 2
 
     if (
       data.clinicId &&

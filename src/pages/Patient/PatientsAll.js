@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { PageWrapper, Title } from '@qonsoll/react-design'
 import { ListWithCreate } from 'app/components'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
@@ -48,13 +48,13 @@ function PatientsAll() {
           group?.patients?.map((patient) => ({
             ...patient,
             name: (
-              <>
-                {_.trimEnd(
-                  _.initial(patient.generated).join(''),
-                  patient.initial.toUpperCase()
-                )}
-                <strong>{patient.initial.toUpperCase()}</strong>
-              </>
+              <Fragment>
+                {group?.weekNumber} {patient.clinicName}
+                <strong>
+                  {' '}
+                  {t('Patient')} {patient.id}
+                </strong>
+              </Fragment>
             ),
             groupId: group?._id,
             patients: group?.patients,

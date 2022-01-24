@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { EditRemove } from 'app/components'
 import { useSaveData } from 'app/hooks'
 import { Box, Button, PageWrapper, Title } from '@qonsoll/react-design'
@@ -161,6 +161,7 @@ function GroupShow() {
           groupId={groupData?._id}
           firstDay={groupData?.firstDay}
           fourthDay={groupData?.fourthDay}
+          weekNumber={groupData?.weekNumber}
         />
       </Box>
     </PageWrapper>
