@@ -33,10 +33,10 @@ const exclamationIconStyles = {
 }
 
 const STATUS_COLOR_MAP = {
-  DRAFT: 'gray',
-  ONGOING: 'green',
-  FUTURE: 'orange',
-  FINISHED: 'red'
+  DRAFT: '#c0c2c5',
+  ONGOING: '#1d6fdc',
+  FUTURE: '#550fcb',
+  FINISHED: '#52c41a'
 }
 
 function GroupAdvancedView(props) {
@@ -88,7 +88,11 @@ function GroupAdvancedView(props) {
 
   return (
     <Badge.Ribbon
-      text={t(_.upperFirst(_.toLower(status)))}
+      text={
+        <Text fontWeight={500} color="white">
+          {t(_.upperFirst(_.toLower(status)))}
+        </Text>
+      }
       color={STATUS_COLOR_MAP[status]}>
       <Card
         size="small"
