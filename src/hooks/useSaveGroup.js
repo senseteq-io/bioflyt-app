@@ -1,5 +1,3 @@
-import { Text } from '@qonsoll/react-design'
-import React from 'react'
 import { notification } from 'antd'
 import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import { useTranslations } from '@qonsoll/translation'
@@ -24,7 +22,7 @@ const generatePatients = async (groupData) => {
         .collection(CLINICS_MODEL_NAME)
         .doc(groupData.clinicId)
         .get())
-    clinicName = clinicSnapshot?.data()?.name
+    clinicName = clinicSnapshot?.data()?.name || null
     const disorderSnapshot =
       groupData.disorderId &&
       (await firebase
@@ -32,7 +30,7 @@ const generatePatients = async (groupData) => {
         .collection(DISORDERS_MODEL_NAME)
         .doc(groupData.disorderId)
         .get())
-    disorderName = disorderSnapshot?.data()?.name
+    disorderName = disorderSnapshot?.data()?.name || null
     const studySnapshot =
       groupData.studyId &&
       (await firebase
@@ -40,12 +38,16 @@ const generatePatients = async (groupData) => {
         .collection(STUDIES_MODEL_NAME)
         .doc(groupData.studyId)
         .get())
-    studyName = studySnapshot?.data()?.name
+    studyName = studySnapshot?.data()?.name || null
   } catch (e) {
     console.log('error in patient generate', e)
   }
 
   return groupData.patients.map((data) => ({
+    threeMonthDay: null,
+    firstDayBIOCollected: false,
+    fourthDayBIOCollected: false,
+    threeMonthDayBIOCollected: false,
     ...data,
     clinicName,
     disorderName,
@@ -62,27 +64,13 @@ const useSaveGroup = () => {
     const { form, data: formData } = args
     const data = formData || form.getFieldsValue()
 
-    const uniqInitials = {}
-    data.patients.forEach(({ id }) => {
-      uniqInitials[id] = (uniqInitials[id] || 0) + 1
-    })
-
-    const notUniqueInitials = []
-    Object.keys(uniqInitials).forEach(
-      (initial) => uniqInitials[initial] > 1 && notUniqueInitials.push(initial)
-    )
-
-    if (notUniqueInitials.length) {
+    if (!data.patients.length) {
       notification.error({
-        message: (
-          <>
-            {t('You have non unique initial in')}:{' '}
-            <Text fontWeight={500}>{notUniqueInitials.join(', ')}</Text>{' '}
-            {t('patients, please add an extra letter or number to them')}.
-          </>
+        message: t(
+          'Error, You need to add at least one patient in form to activate it.'
         )
       })
-      throw new Error('not uniq patients')
+      throw new Error('no patients')
     }
 
     const isAllRoleAvailable = Object.values(data.therapists).map((role) =>
@@ -125,11 +113,7 @@ const useSaveGroup = () => {
 
   const normalizeData = async ({ data, status }) => {
     const weekNumber = moment(data.firstDay).week()
-    for (const { initial } of data.patients) {
-      if (initial === '') return
-    }
-
-    const patients = await generatePatients(data, weekNumber)
+    const patients = await generatePatients(data)
 
     return _.omitBy(
       {

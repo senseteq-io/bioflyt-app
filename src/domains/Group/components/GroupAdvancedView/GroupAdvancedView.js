@@ -228,7 +228,7 @@ GroupAdvancedView.propTypes = {
   weekNumber: PropTypes.number.isRequired,
   studyId: PropTypes.string.isRequired,
   disorderId: PropTypes.string.isRequired,
-  patients: PropTypes.string.isRequired,
+  patients: PropTypes.array.isRequired,
   status: PropTypes.string.isRequired
 }
 

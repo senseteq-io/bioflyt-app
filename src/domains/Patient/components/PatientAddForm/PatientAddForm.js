@@ -6,25 +6,32 @@ import { useTranslations } from '@qonsoll/translation'
 const patientsMap = [0, 1, 2, 3, 4, 5]
 
 const PatientAddForm = (props) => {
-  const { value, onChange, form, saveData } = props
+  const { value: patients, onChange, form, saveData } = props
 
   // [ADDITIONAL_HOOKS]
   const { t } = useTranslations()
 
   // [CLEAN_FUNCTIONS]
   const addPatient = async (number) => {
-    const arr = value || []
-    if (value?.map(({ number }) => number)?.includes(number)) {
-      arr.splice(arr.length - 1, 1)
+    const updatedPatients = patients || []
+    if (patients?.map((item, index) => index + 1)?.includes(number)) {
+      updatedPatients.splice(updatedPatients.length - 1, 1)
     } else {
-      arr.push({ id: number })
+      updatedPatients.push({
+        threeMonthDay: null,
+        firstDayBIOCollected: false,
+        fourthDayBIOCollected: false,
+        threeMonthDayBIOCollected: false
+      })
     }
-    onChange?.([...arr])
-    await saveData?.({ patients: [...arr] }, form.getFieldsValue())
+    onChange?.([...updatedPatients])
+    await saveData?.({ patients: [...updatedPatients] }, form.getFieldsValue())
   }
 
-  const checkIsActive = (index) => {
-    return value?.map(({ id }) => id)?.includes(index)
+  const checkIsActive = (currentPatientIndex) => {
+    return patients
+      ?.map((item, patientIndex) => patientIndex)
+      ?.includes(currentPatientIndex)
   }
 
   return (
@@ -37,7 +44,7 @@ const PatientAddForm = (props) => {
         <List
           itemLayout="horizontal"
           dataSource={patientsMap.slice(
-            value?.length === 6 ? 0 : 5 - (value?.length || 0)
+            patients?.length === 6 ? 0 : 5 - (patients?.length || 0)
           )}
           renderItem={(patient, index) => (
             <List.Item key={patient}>
@@ -51,11 +58,11 @@ const PatientAddForm = (props) => {
                     width="48px"
                     height="100%"
                     bg={
-                      checkIsActive(index + 1)
+                      checkIsActive(index)
                         ? 'var(--ql-color-accent1)'
                         : 'var(--ql-color-dark-t-lighten6)'
                     }>
-                    <Text strong color={checkIsActive(index + 1) && 'white'}>
+                    <Text strong color={checkIsActive(index) && 'white'}>
                       {index + 1}
                     </Text>
                   </Box>
@@ -66,7 +73,7 @@ const PatientAddForm = (props) => {
                     bordered={false}
                     shadowless
                     bg={
-                      checkIsActive(index + 1)
+                      checkIsActive(index)
                         ? 'var(--ql-color-accent1)'
                         : 'var(--ql-color-dark-t-lighten6)'
                     }
@@ -75,9 +82,7 @@ const PatientAddForm = (props) => {
                     onClick={() => addPatient(index + 1)}>
                     <Row noGutters>
                       <Col mr={2} v="center">
-                        <Text
-                          strong
-                          color={checkIsActive(index + 1) && 'white'}>
+                        <Text strong color={checkIsActive(index) && 'white'}>
                           {t('Patient')} {index + 1}
                         </Text>
                       </Col>
