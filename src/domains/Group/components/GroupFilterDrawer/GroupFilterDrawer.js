@@ -184,8 +184,10 @@ const GroupFilterDrawer = (props) => {
           <Col cw={12} mb={24}>
             <Form.Item name="disorderId">
               <Select placeholder={t('Select disorder')} allowClear>
-                {Object.keys(formatedDisorders)?.map((clinicName) => (
-                  <AntSelect.OptGroup label={`${clinicName} (${t('clinic')})`}>
+                {Object.keys(formatedDisorders)?.map((clinicName, index) => (
+                  <AntSelect.OptGroup
+                    key={index}
+                    label={`${clinicName} (${t('clinic')})`}>
                     {formatedDisorders?.[clinicName]?.map((disorder) => (
                       <AntSelect.Option
                         key={disorder?._id}
