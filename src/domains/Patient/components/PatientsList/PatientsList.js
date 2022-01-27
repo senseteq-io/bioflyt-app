@@ -1,9 +1,8 @@
 import { useTranslations } from '@qonsoll/translation'
 import { useSaveData } from 'app/hooks'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
-import _ from 'lodash'
 import moment from 'moment'
-import React, { useMemo, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 import { PatientSimpleView } from '..'
 import { ListWithCreate } from 'app/components'
@@ -19,12 +18,6 @@ function PatientsList(props) {
   const { id } = useParams()
   const { update } = useSaveData()
   const { t } = useTranslations()
-
-  //[COMPUTED PROPERTIES]
-  const sortedPatientsList = useMemo(
-    () => patients?.sort((a, b) => (a?.id > b?.id && 1) || -1),
-    [patients]
-  )
 
   // [CLEAN_FUNCTIONS]
   const changeToFinishedGroupStatus = (threeMonthDay) => {
@@ -46,7 +39,7 @@ function PatientsList(props) {
   }
 
   const onDeliverBio = async (patientData) => {
-    const patient = _.remove(patients, ({ id }) => id === patientData.id)[0]
+    const patient = { ...patients[patientData?.patientId] }
     const { firstDay, fourthDay, threeMonthDay } = patientData || {}
     const colectedBioFieldNames = [
       'firstDayBIOCollected',
@@ -60,36 +53,40 @@ function PatientsList(props) {
         patient[colectedBioFieldNames[index]] = true
       }
     })
+
+    patients[patientData?.patientId] = patient
+
     await update({
       collection: GROUPS_MODEL_NAME,
       id,
-      data: { patients: [...patients, patient] }
+      data: { patients }
     })
     //if today three month day and bio was delivered for all patients
     //set group status as finished
-    changeToFinishedGroupStatus(threeMonthDay)
+    patientData?.threeMonthDay && changeToFinishedGroupStatus(threeMonthDay)
   }
 
   return (
     <ListWithCreate
       withCreate={false}
-      dataSource={sortedPatientsList?.map(({ clinicName, ...rest }) => ({
+      dataSource={patients?.map(({ clinicName, ...rest }, index) => ({
         name: (
           <Fragment>
             {weekNumber} {clinicName}
             <strong>
               {' '}
-              {t('Patient')} {rest.id}
+              {t('Patient')} {index + 1}
             </strong>
           </Fragment>
         ),
+        patientId: index,
         ...rest
       }))}>
       <PatientSimpleView
         firstDay={firstDay}
         fourthDay={fourthDay}
         groupId={groupId}
-        patients={sortedPatientsList}
+        patients={patients}
         onDeliverBio={onDeliverBio}
       />
     </ListWithCreate>

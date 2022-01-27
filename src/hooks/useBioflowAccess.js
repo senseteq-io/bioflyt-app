@@ -9,11 +9,12 @@ import { useUserContext } from 'app/domains/User/contexts'
  * @returns {{isTherapist: boolean, isAdmin: boolean}}
  */
 const useBioflowAccess = () => {
-  const { role } = useUserContext()
+  const { role, isBioflowTherapistAdmin } = useUserContext()
 
   return {
     isAdmin: role === SUPER_ADMIN_USER_ROLE,
-    isTherapist: role === BIOFLOW_THERAPIST_ROLE
+    isTherapist: role === BIOFLOW_THERAPIST_ROLE,
+    isTherapistAdmin: isBioflowTherapistAdmin
   }
 }
 export default useBioflowAccess

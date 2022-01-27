@@ -4,7 +4,7 @@ import moment from 'moment'
 import firebase from 'firebase'
 import { Modal, Tooltip } from 'antd'
 import { useTranslations } from '@qonsoll/translation'
-import { Box, Button, Card, Icon, Text } from '@qonsoll/react-design'
+import { Box, Button, Card, Text } from '@qonsoll/react-design'
 import { CheckOutlined, SendOutlined } from '@ant-design/icons'
 import {
   useActivities,
@@ -20,6 +20,7 @@ import {
   SET_THREE_MONTH_DATE
 } from 'bioflow/constants/activitiesTypes'
 import _ from 'lodash'
+import { Icon } from '@qonsoll/icons'
 
 const successIconStyles = {
   display: 'flex',
@@ -28,6 +29,7 @@ const successIconStyles = {
   fontSize: 'var(--ql-typography-font-size-lg)',
   height: 'var(--btn-height-base)'
 }
+
 const DATE_FORMAT_FOR_CONDITIONS = 'DD-MM-YYYY'
 const checkIsTodayDate = (date) =>
   moment(date?.toDate()).format(DATE_FORMAT_FOR_CONDITIONS) ===
@@ -35,7 +37,7 @@ const checkIsTodayDate = (date) =>
 
 function PatientSimpleView(props) {
   const {
-    id: patientId,
+    patientId,
     name,
     groupId,
     generated,
@@ -43,9 +45,9 @@ function PatientSimpleView(props) {
     firstDay,
     fourthDay,
     threeMonthDay,
-    firstDayBIOCollected,
-    fourthDayBIOCollected,
-    threeMonthDayBIOCollected,
+    firstDayBIOCollected = false,
+    fourthDayBIOCollected = false,
+    threeMonthDayBIOCollected = false,
     onDeliverBio
   } = props
 
@@ -124,16 +126,9 @@ function PatientSimpleView(props) {
   }
 
   const onSetThreeMonthDate = ({ threeMonthDay }) => {
-    //find index of updated patient in patients array
-    const patientIndex = patients?.findIndex(
-      (patient) => patient?.id === patientId
-    )
-
     //set three month date visit to patient data in firebase timestamp format
-    if (patientIndex >= 0 && threeMonthDay && groupId && patientId) {
-      patients[
-        patientIndex
-      ].threeMonthDay = firebase.firestore.Timestamp.fromDate(
+    if (threeMonthDay && groupId) {
+      patients[patientId].threeMonthDay = firebase.firestore.Timestamp.fromDate(
         new Date(threeMonthDay)
       )
 
@@ -202,26 +197,62 @@ function PatientSimpleView(props) {
                 title={
                   isAdmin ? t("Admin can't collect BIO") : t('Deliver Bio')
                 }>
-                <Box>
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  height={48}
+                  width={48}>
                   <Button
                     ghost
                     type="primary"
                     onClick={onClickDeliverBio}
                     disabled={!isBIOCollectEnabled || isAdmin}
-                    icon={<SendOutlined />}
+                    icon={
+                      <Icon
+                        name="SendFilled"
+                        size={24}
+                        fill="var(--ql-color-accent1)"
+                      />
+                    }
                   />
                 </Box>
               </Tooltip>
             )}
             {isSuccessIconVisible && !setThreeMonthDateButtonVisible && (
               <Tooltip title={nextTimeBIOCollect}>
-                <Icon {...successIconStyles} component={<CheckOutlined />} />
+                {/* <Icon {...successIconStyles} component={<CheckOutlined />} /> */}
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  height={48}
+                  width={48}>
+                  <Icon name="CheckmarkFilled" size={48} />
+                </Box>
               </Tooltip>
             )}
             {setThreeMonthDateButtonVisible && (
-              <Button ghost type="primary" onClick={onOpenModal}>
-                {t('Set three month date')}
-              </Button>
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height={48}
+                width={48}>
+                <Button
+                  ghost
+                  type="primary"
+                  onClick={onOpenModal}
+                  icon={
+                    <Icon
+                      name="CalendarFilled"
+                      fill="var(--ql-color-accent1)"
+                      size={24}
+                    />
+                  }>
+                  {/* {t('Set three month date')} */}
+                </Button>
+              </Box>
             )}
           </Box>
         </Box>
@@ -238,7 +269,7 @@ function PatientSimpleView(props) {
 }
 
 PatientSimpleView.propTypes = {
-  id: PropTypes.string.isRequired,
+  patientId: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
   groupId: PropTypes.string.isRequired,
   patients: PropTypes.array.isRequired,
