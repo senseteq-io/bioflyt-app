@@ -153,7 +153,7 @@ function GroupShow() {
       breadcrumbs={groupShowBreadcrumbs}
       action={actionPanel}>
       <Box>
-        <Box mb={24}>
+        <Box mb={4}>
           <Title level={4}>{t('Patients')}</Title>
         </Box>
         <PatientsList

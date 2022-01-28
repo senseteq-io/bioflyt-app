@@ -66,6 +66,7 @@ function PatientsList(props) {
 
   return (
     <ListWithCreate
+      grid={{ gutter: [16, 0], xs: 1, sm: 1, md: 1, lg: 2, xl: 3, xxl: 4 }}
       withCreate={false}
       dataSource={patients?.map(({ clinicName, ...rest }, index) => ({
         name: (

@@ -179,7 +179,7 @@ const PatientsAll = () => {
         <PatientSimpleView onDeliverBio={onDeliverBio} />
       </ListWithCreate>
 
-      <Title level={4} mb={3}>
+      <Title level={4} mb={3} mt={3}>
         {t('Tomorrow')}
       </Title>
       <ListWithCreate
