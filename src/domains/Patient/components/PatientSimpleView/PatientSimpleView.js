@@ -203,7 +203,11 @@ function PatientSimpleView(props) {
                       <Icon
                         name="SendFilled"
                         size={24}
-                        fill="var(--ql-color-accent1)"
+                        fill={
+                          !isBIOCollectEnabled || isAdmin
+                            ? 'var(--btn-disable-bg)'
+                            : 'var(--ql-color-accent1)'
+                        }
                       />
                     }
                   />

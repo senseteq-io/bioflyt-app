@@ -15,7 +15,7 @@ import {
 } from 'bioflow/constants/groupStatuses'
 import { useBioflowAccess } from 'bioflow/hooks'
 
-const DATE_FORMAT = 'D MMM YYYY'
+const DATE_FORMAT = 'D MM YYYY'
 const TODAY_DATE = moment().format(DATE_FORMAT)
 const TOMORROW_DATE = moment().add(1, 'days').format(DATE_FORMAT)
 
@@ -47,35 +47,33 @@ const PatientsAll = () => {
     [groups, isTherapistAdmin]
   )
 
-  const patients = useMemo(
-    () =>
-      filteredGroups?.length
-        ? filteredGroups
-            ?.map((group) =>
-              group?.patients?.map((patient, index) => ({
-                ...patient,
-                name: (
-                  <Fragment>
-                    {group?.weekNumber} {patient.clinicName}
-                    <strong>
-                      {' '}
-                      {t('Patient')} {index + 1}
-                    </strong>
-                  </Fragment>
-                ),
-                patientId: index,
-                groupId: group?._id,
-                weekNumber: group?.weekNumber,
-                patients: group?.patients,
-                firstDay: group?.firstDay,
-                fourthDay: group?.fourthDay
-              }))
-            )
-            ?.flat()
-            ?.filter((patient) => patient)
-        : [],
-    [filteredGroups]
-  )
+  const patients = useMemo(() => {
+    return filteredGroups?.length
+      ? filteredGroups
+          ?.map((group) =>
+            group?.patients?.map((patient, index) => ({
+              ...patient,
+              name: (
+                <Fragment>
+                  {group?.weekNumber} {patient.clinicName}
+                  <strong>
+                    {' '}
+                    {t('Patient')} {index + 1}
+                  </strong>
+                </Fragment>
+              ),
+              patientId: index,
+              groupId: group?._id,
+              weekNumber: group?.weekNumber,
+              patients: group?.patients,
+              firstDay: group?.firstDay,
+              fourthDay: group?.fourthDay
+            }))
+          )
+          ?.flat()
+          ?.filter((patient) => patient)
+      : []
+  }, [filteredGroups])
 
   //[CLEAN FUNCTIONS]
   const changeToFinishedGroupStatus = (threeMonthDay, groupId, patients) => {
@@ -169,21 +167,23 @@ const PatientsAll = () => {
         textAlign: 'left',
         marginBottom: 32
       }}>
-      <Title level={4} mb={2}>
+      <Title level={4} mb={3}>
         {t('Today')}
       </Title>
 
       <ListWithCreate
+        grid={{ gutter: [16, 0], xs: 1, sm: 1, md: 1, lg: 2, xl: 3, xxl: 4 }}
         emptyText={t('There is no patients for today')}
         withCreate={false}
         dataSource={filteredList[TODAY_DATE]}>
         <PatientSimpleView onDeliverBio={onDeliverBio} />
       </ListWithCreate>
 
-      <Title level={4} mb={2}>
+      <Title level={4} mb={3}>
         {t('Tomorrow')}
       </Title>
       <ListWithCreate
+        grid={{ gutter: [16, 0], xs: 1, sm: 1, md: 1, lg: 2, xl: 3, xxl: 4 }}
         emptyText={t('There is no patients for tomorrow')}
         withCreate={false}
         dataSource={filteredList?.[TOMORROW_DATE]}>

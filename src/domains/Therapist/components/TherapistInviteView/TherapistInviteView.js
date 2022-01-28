@@ -1,7 +1,6 @@
 import React, { Fragment, useMemo } from 'react'
 import { Tooltip, Spin, notification } from 'antd'
 import { Remove, Title, Button, Box } from '@qonsoll/react-design'
-import { UserCard } from 'app/domains/User/components'
 import { DeleteUserHelper } from 'helpers'
 import { MailOutlined } from '@ant-design/icons'
 import { useTranslations } from 'app/contexts'
@@ -9,6 +8,7 @@ import { useUI } from 'app/domains/UI/contexts'
 import { useUserContext } from 'app/domains/User/contexts'
 import { REMOVE_THERAPIST_INVITE } from 'bioflow/constants/activitiesTypes'
 import { useActivities } from 'bioflow/hooks'
+import { TherapistCard } from '..'
 
 function TherapistInviteView(props) {
   const { receiverName, receiverEmail, initializedUserId } = props
@@ -121,14 +121,14 @@ function TherapistInviteView(props) {
 
   return (
     <Spin size="large" spinning={Boolean(isSpinningActive)}>
-      <UserCard actions={actions}>
+      <TherapistCard rightActions={actions}>
         <Title
           level={4}
           color="white"
           textShadow="var(--ql-color-black) 1px 0 10px">
           {receiverName}
         </Title>
-      </UserCard>
+      </TherapistCard>
     </Spin>
   )
 }
