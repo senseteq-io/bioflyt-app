@@ -32,13 +32,13 @@ function GroupsList(props) {
   const { t } = useTranslations()
   const history = useHistory()
   const { isAdmin } = useBioflowAccess()
-  const { _id: therapistId } = useUserContext()
+  const { _id: therapistId, isBioflowTherapistAdmin } = useUserContext()
 
   const groupCollectionRef = firebase.firestore().collection(GROUPS_MODEL_NAME)
 
   // [DATA FETCH]
   const [list] = useCollectionData(
-    isAdmin
+    isAdmin || isBioflowTherapistAdmin
       ? groupCollectionRef
       : groupCollectionRef.where(`therapists.${therapistId}`, '>=', '')
   )
