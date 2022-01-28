@@ -5,7 +5,6 @@ import firebase from 'firebase'
 import { Modal, Tooltip } from 'antd'
 import { useTranslations } from '@qonsoll/translation'
 import { Box, Button, Card, Text } from '@qonsoll/react-design'
-import { CheckOutlined, SendOutlined } from '@ant-design/icons'
 import {
   useActivities,
   useBioflowAccess,
@@ -22,14 +21,6 @@ import {
 import _ from 'lodash'
 import { Icon } from '@qonsoll/icons'
 
-const successIconStyles = {
-  display: 'flex',
-  alignItems: 'center',
-  color: 'var(--ql-color-success)',
-  fontSize: 'var(--ql-typography-font-size-lg)',
-  height: 'var(--btn-height-base)'
-}
-
 const DATE_FORMAT_FOR_CONDITIONS = 'DD-MM-YYYY'
 const checkIsTodayDate = (date) =>
   moment(date?.toDate()).format(DATE_FORMAT_FOR_CONDITIONS) ===
@@ -40,7 +31,7 @@ function PatientSimpleView(props) {
     patientId,
     name,
     groupId,
-    generated,
+    weekNumber,
     patients,
     firstDay,
     fourthDay,
@@ -146,8 +137,8 @@ function PatientSimpleView(props) {
           therapistDisplayName: `${firstName} ${lastName}`,
           therapistEmail,
           therapistRole: _.capitalize(groupFullData?.therapists?.[therapistId]),
-          patientDisplayName: generated,
-          groupName: groupFullData?.weekNumber,
+          patientDisplayName: null,
+          groupName: weekNumber || null,
           groupStatus: groupFullData?.status || null,
           groupClinicName: groupFullData?.clinic?.name,
           groupStudyName: groupFullData?.study?.name,
@@ -168,8 +159,8 @@ function PatientSimpleView(props) {
         therapistDisplayName: `${firstName} ${lastName}`,
         therapistEmail,
         therapistRole: _.capitalize(groupFullData?.therapists?.[therapistId]),
-        patientDisplayName: generated,
-        groupName: groupFullData?.weekNumber,
+        patientDisplayName: null,
+        groupName: weekNumber,
         groupStatus: groupFullData?.status || null,
         groupClinicName: groupFullData?.clinic?.name,
         groupStudyName: groupFullData?.study?.name,

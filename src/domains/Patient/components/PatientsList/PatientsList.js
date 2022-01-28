@@ -8,7 +8,7 @@ import { PatientSimpleView } from '..'
 import { ListWithCreate } from 'app/components'
 import { FINISHED_STATUS } from 'bioflow/constants/groupStatuses'
 
-const DATE_FORMAT = 'D MMM YYYY'
+const DATE_FORMAT = 'D MM YYYY'
 const TODAY_DATE = moment().format(DATE_FORMAT)
 
 function PatientsList(props) {
@@ -47,7 +47,6 @@ function PatientsList(props) {
       'threeMonthDayBIOCollected'
     ]
     const dates = [firstDay, fourthDay, threeMonthDay]
-
     dates.forEach((date, index) => {
       if (date && moment(date.toDate()).format(DATE_FORMAT) === TODAY_DATE) {
         patient[colectedBioFieldNames[index]] = true
@@ -55,7 +54,6 @@ function PatientsList(props) {
     })
 
     patients[patientData?.patientId] = patient
-
     await update({
       collection: GROUPS_MODEL_NAME,
       id,
@@ -79,6 +77,7 @@ function PatientsList(props) {
             </strong>
           </Fragment>
         ),
+        weekNumber,
         patientId: index,
         ...rest
       }))}>

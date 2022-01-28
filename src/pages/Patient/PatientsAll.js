@@ -65,6 +65,7 @@ const PatientsAll = () => {
                 ),
                 patientId: index,
                 groupId: group?._id,
+                weekNumber: group?.weekNumber,
                 patients: group?.patients,
                 firstDay: group?.firstDay,
                 fourthDay: group?.fourthDay
