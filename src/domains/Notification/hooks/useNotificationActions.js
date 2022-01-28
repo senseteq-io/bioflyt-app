@@ -1,6 +1,5 @@
 import { generatePath, useHistory } from 'react-router-dom'
 import firebase from 'firebase'
-import moment from 'moment'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useSaveData } from 'app/hooks'
 import { useBioflowAccess } from 'bioflow/hooks'
@@ -18,7 +17,7 @@ import {
  * @constructor
  */
 const UseNotificationActions = (notificationData = {}) => {
-  const { _id, _createdAt, groupId, text, type, receivers } = notificationData
+  const { _id, groupId, text, type, receivers } = notificationData
   const history = useHistory()
   const { update } = useSaveData()
   const { isTherapist } = useBioflowAccess()
@@ -38,15 +37,7 @@ const UseNotificationActions = (notificationData = {}) => {
   }
 
   const onDecline = (args) => {
-    //check if notification was created at ~9:00
-    //we should send notification for admin and leader,
-    //in another time only leader recieve with negative answer
-    const isAdminShouldRecieveNotification =
-      moment(_createdAt?.toDate?.()).format('H') === '9'
-
-    const personsThatRecieveNotifications = isAdminShouldRecieveNotification
-      ? [THERAPIST_ROLES.GROUP_LEADER]
-      : [THERAPIST_ROLES.GROUP_LEADER]
+    const personsThatRecieveNotifications = [THERAPIST_ROLES.GROUP_LEADER]
 
     firebase.functions().httpsCallable('adminAndDeputyNotify')({
       text: {
@@ -57,6 +48,15 @@ const UseNotificationActions = (notificationData = {}) => {
       roles: personsThatRecieveNotifications,
       answer: 'no'
     })
+
+    if (_id || args?._id) {
+      update({
+        collection: NOTIFICATIONS_MODEL_NAME,
+        id: _id || args?._id,
+        data: { isAnswered: true }
+      })
+    }
+
     onMarkAsSeen()
   }
 
@@ -68,8 +68,17 @@ const UseNotificationActions = (notificationData = {}) => {
       },
       groupId: args?.groupId || groupId,
       roles: [THERAPIST_ROLES.GROUP_LEADER],
-      answer: 'yes'
+      answer: 'ja'
     })
+
+    if (_id || args?._id) {
+      update({
+        collection: NOTIFICATIONS_MODEL_NAME,
+        id: _id || args?._id,
+        data: { isAnswered: true }
+      })
+    }
+
     onMarkAsSeen()
 
     if (type === NOTIFICATION_TYPES.DID_YOU_REMEMBER) {

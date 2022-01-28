@@ -16,9 +16,25 @@ import {
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useUserContext } from 'app/domains/User/contexts'
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
+import { NOTIFICATION_TYPES } from '../../constants'
+import _ from 'lodash'
 
+const rolesTranslations = {
+  GROUP_LEADER: 'Grouppeleader',
+  DEPUTY_VICE_LEADER: 'Gruppe nestleder',
+  MEMBER: 'Guppemedlem',
+  INTERN: 'Hospitant'
+}
 function NotificationSimpleView(props) {
-  const { groupId, text, withConfirm, receivers, answer } = props
+  const {
+    groupId,
+    text,
+    withConfirm,
+    receivers,
+    answer,
+    isAnswered,
+    type
+  } = props
 
   // [ADDITIONAL HOOKS]
   const { t, language } = useTranslations()
@@ -48,6 +64,14 @@ function NotificationSimpleView(props) {
     answer
   ])
 
+  const additionalText = useMemo(() => {
+    const role =
+      language === 'en'
+        ? _.upperFirst(_.lowerCase(groupData?.therapists?.[therapistId]))
+        : rolesTranslations[groupData?.therapists?.[therapistId]]
+    return type === NOTIFICATION_TYPES.INVITE ? ` ${t('as')} ${role}` : ``
+  }, [type, groupData, language])
+
   return (
     <Container>
       <Row
@@ -70,10 +94,9 @@ function NotificationSimpleView(props) {
               </Title>
             </Col>
             <Col cw={[12, 12, 8, 6, 7]}>
-              <Text whiteSpace="wrap">{notificationText}</Text>
+              <Text whiteSpace="wrap">{`${notificationText}${additionalText}`}</Text>
             </Col>
-            {withConfirm && isTherapist && (
-              // && !isSeen
+            {withConfirm && isTherapist && !isAnswered && (
               <Col mt={[3, 3, 0, 0, 0]}>
                 <Row flexWrap="nowrap" h="right" noGutters>
                   <Col cw="auto" mr={3}>
