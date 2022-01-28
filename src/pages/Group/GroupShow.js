@@ -110,7 +110,7 @@ function GroupShow() {
       }
     })
 
-    history.goBack()
+    history.push(isAdmin ? BIOFLOW_ADMIN_GROUPS_PATH : BIOFLOW_GROUPS_PATH)
   }
 
   const actionPanel = (

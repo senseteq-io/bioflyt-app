@@ -12,21 +12,16 @@ import { notification, Tooltip, Spin } from 'antd'
 import { DeleteUserHelper } from 'helpers'
 import { MailOutlined, TeamOutlined } from '@ant-design/icons'
 import { useTranslations } from '@qonsoll/translation'
-import {
-  useCollectionDataOnce,
-  useDocumentData
-} from 'react-firebase-hooks/firestore'
+import { useCollectionDataOnce } from 'react-firebase-hooks/firestore'
 import { useUserContext } from 'app/domains/User/contexts'
 import { useUI } from 'app/domains/UI/contexts'
 import firebase from 'firebase'
 import { REMOVE_THERAPIST } from 'bioflow/constants/activitiesTypes'
-import {
-  GROUPS_MODEL_NAME,
-  THERAPISTS_PROFILE_MODEL_NAME
-} from 'bioflow/constants/collections'
+import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import { useActivities } from 'bioflow/hooks'
 import { TherapistGroupsList, TherapistCard } from '../'
 import { useSaveData } from 'app/hooks'
+import { USERS_MODEL_NAME } from 'app/constants/models'
 
 function TherapistSimpleView(props) {
   const {
@@ -36,7 +31,7 @@ function TherapistSimpleView(props) {
     clinics,
     avatarUrl,
     _id: initializedUserId,
-    bioflowTherapistProfileId
+    isBioflowTherapistAdmin
   } = props
 
   // [ADDITIONAL HOOKS]
@@ -53,12 +48,6 @@ function TherapistSimpleView(props) {
       .where(`therapists.${initializedUserId}`, '!=', '')
   )
 
-  const [therapistProfile] = useDocumentData(
-    firebase
-      .firestore()
-      .collection(THERAPISTS_PROFILE_MODEL_NAME)
-      .doc(bioflowTherapistProfileId)
-  )
   const [isGroupsListVisible, setIsGroupListVisible] = useState(false)
 
   // [COMPUTED PROPERTIES]
@@ -147,9 +136,9 @@ function TherapistSimpleView(props) {
 
   const onSwitchTherapistRole = (value) => {
     update({
-      id: bioflowTherapistProfileId,
-      collection: THERAPISTS_PROFILE_MODEL_NAME,
-      data: { isAdminRole: value }
+      id: initializedUserId,
+      collection: USERS_MODEL_NAME,
+      data: { isBioflowTherapistAdmin: value }
     })
   }
 
@@ -173,11 +162,9 @@ function TherapistSimpleView(props) {
         </Text>
 
         <Switch
-          checked={therapistProfile?.isAdminRole}
+          checked={isBioflowTherapistAdmin}
           onChange={onSwitchTherapistRole}
-          disabled={
-            isTherapistDeletionDisabled && !therapistProfile?.isAdminRole
-          }
+          disabled={isTherapistDeletionDisabled && !isBioflowTherapistAdmin}
         />
       </Box>
     </Tooltip>

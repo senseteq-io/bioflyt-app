@@ -151,7 +151,7 @@ const GroupFilterDrawer = (props) => {
       <Form form={form} initialValues={initialValues} onFinish={onAcceptFilter}>
         <Row noGutters>
           <Col cw={12} mb={1}>
-            <Text type="secondary"> {t('Filter by week number')}</Text>
+            <Text type="secondary"> {t('Week number')}</Text>
           </Col>
           <Col cw={12} mb={24}>
             <Form.Item name="weekNumber">
@@ -166,7 +166,7 @@ const GroupFilterDrawer = (props) => {
           </Col>
 
           <Col cw={12} mb={1}>
-            <Text type="secondary"> {t('Filter by number of patients')}</Text>
+            <Text type="secondary"> {t('Number of patients')}</Text>
           </Col>
           <Col cw={12} mb={24}>
             <Form.Item name="numberOfPatients">
@@ -179,7 +179,7 @@ const GroupFilterDrawer = (props) => {
           </Col>
 
           <Col cw={12} mb={1}>
-            <Text type="secondary"> {t('Filter by disorder')}</Text>
+            <Text type="secondary"> {t('Disorder')}</Text>
           </Col>
           <Col cw={12} mb={24}>
             <Form.Item name="disorderId">
@@ -202,7 +202,7 @@ const GroupFilterDrawer = (props) => {
           </Col>
 
           <Col cw={12} mb={1}>
-            <Text type="secondary"> {t('Filter by study')}</Text>
+            <Text type="secondary"> {t('Study')}</Text>
           </Col>
           <Col cw={12} mb={4}>
             <Form.Item name="studyId">

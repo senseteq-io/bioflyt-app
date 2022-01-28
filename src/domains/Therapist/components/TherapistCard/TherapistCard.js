@@ -19,7 +19,6 @@ const TherapistCard = ({
       overflow="hidden"
       borderRadius="16px"
       zIndex={2}
-      cursor="pointer"
       onClick={onClick}>
       <Box
         p={3}

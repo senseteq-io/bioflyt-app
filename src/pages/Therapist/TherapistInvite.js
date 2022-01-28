@@ -116,7 +116,8 @@ function TherapistInvite() {
             status: CREATED_INVITATION_STATUS,
             triggerActions: [SEND_EMAIL_INVITATION_TRIGGER_ACTION],
             type: BIOFLOW_THERAPIST_INVITATION_TYPE,
-            initializedUserId: null
+            initializedUserId: null,
+            isBioflowTherapistAdmin: false
           }
         })
 
