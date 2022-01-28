@@ -212,7 +212,6 @@ function PatientSimpleView(props) {
             )}
             {isSuccessIconVisible && !setThreeMonthDateButtonVisible && (
               <Tooltip title={nextTimeBIOCollect}>
-                {/* <Icon {...successIconStyles} component={<CheckOutlined />} /> */}
                 <Box
                   display="flex"
                   justifyContent="center"
@@ -240,9 +239,7 @@ function PatientSimpleView(props) {
                       fill="var(--ql-color-accent1)"
                       size={24}
                     />
-                  }>
-                  {/* {t('Set three month date')} */}
-                </Button>
+                  }></Button>
               </Box>
             )}
           </Box>
