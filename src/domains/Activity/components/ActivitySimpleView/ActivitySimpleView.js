@@ -44,13 +44,15 @@ function ActivitySimpleView(props) {
     [t]
   )
 
-  const additionalDataLength = useMemo(
-    () =>
-      Object.keys(additionalDataFields)?.filter(
-        (additionalDataKey) => additionalData?.[additionalDataKey]
-      )?.length,
-    [additionalData, additionalDataFields]
-  )
+  const additionalDataLength = useMemo(() => {
+    let computedLength = Object.keys(additionalDataFields)?.filter(
+      (additionalDataKey) => additionalData?.[additionalDataKey]
+    )?.length
+    if (additionalData?.patientId) {
+      computedLength += 1
+    }
+    return computedLength
+  }, [additionalData, additionalDataFields])
 
   const onModalOpen = () => {
     setIsModalVisible(true)

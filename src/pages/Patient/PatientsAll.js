@@ -62,7 +62,7 @@ const PatientsAll = () => {
                   </strong>
                 </Fragment>
               ),
-              patientId: index,
+              patientId: index + 1,
               groupId: group?._id,
               weekNumber: group?.weekNumber,
               patients: group?.patients,

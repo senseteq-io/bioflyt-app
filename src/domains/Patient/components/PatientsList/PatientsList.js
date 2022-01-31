@@ -79,7 +79,7 @@ function PatientsList(props) {
           </Fragment>
         ),
         weekNumber,
-        patientId: index,
+        patientId: index + 1,
         ...rest
       }))}>
       <PatientSimpleView

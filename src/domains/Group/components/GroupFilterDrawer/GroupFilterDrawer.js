@@ -2,21 +2,7 @@ import { useTranslations } from '@qonsoll/translation'
 import { ClearOutlined } from '@ant-design/icons'
 import { Box, Button, Col, Row, Select, Text } from '@qonsoll/react-design'
 import { Form, Drawer, Select as AntSelect } from 'antd'
-import {
-  useCollectionData,
-  useDocumentData
-} from 'react-firebase-hooks/firestore'
-import firebase from 'firebase'
-import {
-  GROUPS_MODEL_NAME,
-  STUDIES_MODEL_NAME,
-  THERAPIST_PROFILES_MODEL_NAME
-} from 'bioflow/constants/collections'
-import { DISORDERS_MODEL_NAME, CLINICS_MODEL_NAME } from 'app/constants/models'
-import { useUserContext } from 'app/domains/User/contexts'
-import { useBioflowAccess } from 'bioflow/hooks'
-import { useMemo } from 'react'
-import _ from 'lodash'
+import { useGroupFilterInitialData } from '../../hooks'
 
 const GroupFilterDrawer = (props) => {
   const {
@@ -31,72 +17,11 @@ const GroupFilterDrawer = (props) => {
   const { t } = useTranslations()
   const [form] = Form.useForm()
   const {
-    _id: therapistId,
-    clinics: therapistClinics,
-    bioflowTherapistProfileId
-  } = useUserContext()
-  const { isAdmin } = useBioflowAccess()
-  const firestore = firebase.firestore()
-
-  const [therapistProfile] = useDocumentData(
-    bioflowTherapistProfileId &&
-      firestore
-        .collection(THERAPIST_PROFILES_MODEL_NAME)
-        .doc(bioflowTherapistProfileId)
-  )
-  const [studies] = useCollectionData(
-    isAdmin
-      ? firestore.collection(STUDIES_MODEL_NAME)
-      : therapistProfile?.studies &&
-          firestore
-            .collection(STUDIES_MODEL_NAME)
-            .where('_id', 'in', therapistProfile?.studies)
-  )
-  const [disorders] = useCollectionData(
-    isAdmin
-      ? firestore.collection(DISORDERS_MODEL_NAME)
-      : firestore
-          .collection(DISORDERS_MODEL_NAME)
-          .where('clinicId', 'in', Object.keys(therapistClinics))
-  )
-  const [groups] = useCollectionData(
-    isAdmin
-      ? firestore.collection(GROUPS_MODEL_NAME)
-      : firestore
-          .collection(GROUPS_MODEL_NAME)
-          .where(`therapists.${therapistId}`, '!=', '')
-  )
-  const [clinics] = useCollectionData(
-    isAdmin
-      ? firestore.collection(CLINICS_MODEL_NAME)
-      : firestore
-          .collection(CLINICS_MODEL_NAME)
-          .where('_id', 'in', Object.keys(therapistClinics))
-  )
-
-  //[COMPUTED PROPERTIES]
-  const groupsWeekNumbers = useMemo(() => {
-    //get week numbers of all groups
-    let weekNumbers = groups?.map((group) => group?.weekNumber)
-    //create array of unique values for filter select
-    weekNumbers = [...new Set(weekNumbers)]
-    return weekNumbers
-  }, [groups])
-
-  const numberOfPatients = _.range(1, 7)
-
-  const formatedDisorders = useMemo(() => {
-    let clinicDisorders = {}
-    //iterate by therapist therapistClinics and then iterate by all disorders
-    //to get disorder of current clinic
-    //and create object in format [clinicId]: [array of this clinic disorders]
-    clinics?.forEach(({ _id, name }) => {
-      clinicDisorders[name] = disorders?.filter(
-        ({ clinicId }) => clinicId === _id
-      )
-    })
-    return clinicDisorders
-  }, [disorders, clinics])
+    groupsWeekNumbers,
+    numberOfPatients,
+    formattedDisorders,
+    studies
+  } = useGroupFilterInitialData()
 
   //[CLEAN FUNCTIONS]
   const onDrawerClose = () => {
@@ -184,19 +109,22 @@ const GroupFilterDrawer = (props) => {
           <Col cw={12} mb={24}>
             <Form.Item name="disorderId">
               <Select placeholder={t('Select disorder')} allowClear>
-                {Object.keys(formatedDisorders)?.map((clinicName, index) => (
-                  <AntSelect.OptGroup
-                    key={index}
-                    label={`${clinicName} (${t('clinic')})`}>
-                    {formatedDisorders?.[clinicName]?.map((disorder) => (
-                      <AntSelect.Option
-                        key={disorder?._id}
-                        value={disorder?._id}>
-                        {disorder?.name}
-                      </AntSelect.Option>
-                    ))}
-                  </AntSelect.OptGroup>
-                ))}
+                {Object.keys(formattedDisorders)?.map(
+                  (clinicName, index) =>
+                    formattedDisorders?.[clinicName]?.length && (
+                      <AntSelect.OptGroup
+                        key={index}
+                        label={`${clinicName} (${t('clinic')})`}>
+                        {formattedDisorders?.[clinicName]?.map((disorder) => (
+                          <AntSelect.Option
+                            key={disorder?._id}
+                            value={disorder?._id}>
+                            {disorder?.name}
+                          </AntSelect.Option>
+                        ))}
+                      </AntSelect.OptGroup>
+                    )
+                )}
               </Select>
             </Form.Item>
           </Col>
