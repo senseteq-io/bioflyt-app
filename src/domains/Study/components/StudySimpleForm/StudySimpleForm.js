@@ -3,7 +3,10 @@ import { Button, Form, Input } from 'antd'
 import { Row, Col, Text } from '@qonsoll/react-design'
 import { useHistory } from 'react-router-dom'
 import { useTranslations } from '@qonsoll/translation'
-import { MAX_LENGTH_NAME_FIELD } from 'app/constants/maxLengthText'
+import {
+  MAX_LENGTH_NAME_FIELD,
+  validateLengthText
+} from 'app/constants/maxLengthText'
 
 function StudySimpleForm(props) {
   const { onSubmit, initialValues, submitBtnText, loading } = props
@@ -40,22 +43,10 @@ function StudySimpleForm(props) {
                 max: MAX_LENGTH_NAME_FIELD,
                 message: t('Your study name is too long')
               },
-              () => ({
-                validator(_, value) {
-                  if (value?.length === 0) {
-                    return Promise.reject(
-                      new Error(t('Please enter study name!'))
-                    )
-                  }
-                  if (value?.trim()?.length > 0) {
-                    return Promise.resolve()
-                  } else {
-                    return Promise.reject(
-                      new Error(t('Study name should not be empty'))
-                    )
-                  }
-                }
-              })
+              validateLengthText(
+                t('Please enter study name!'),
+                t('Study name should not be empty')
+              )
             ]}
             name="name">
             <Input
