@@ -24,7 +24,7 @@ function StudyCreate() {
     setLoading(true)
     await save({
       collection: STUDIES_MODEL_NAME,
-      data: { name },
+      data: { name: name?.trim() },
       withNotification: true
     })
     createActivity({
@@ -33,7 +33,7 @@ function StudyCreate() {
       additionalData: {
         adminDisplayName: `${firstName} ${lastName}`,
         adminEmail,
-        studyName: name
+        studyName: name?.trim()
       }
     })
 
