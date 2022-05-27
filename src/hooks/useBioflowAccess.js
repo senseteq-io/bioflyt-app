@@ -6,7 +6,7 @@ import { useUserContext } from 'app/domains/User/contexts'
 
 /**
  *
- * @returns {{isTherapist: boolean, isAdmin: boolean}}
+ * @returns {{isTherapist: boolean, isAdmin: boolean, isTherapistAdmin: boolean}}
  */
 const useBioflowAccess = () => {
   const { role, isBioflowTherapistAdmin } = useUserContext()

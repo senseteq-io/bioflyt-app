@@ -119,7 +119,9 @@ function PatientSimpleView(props) {
   const onSetThreeMonthDate = ({ threeMonthDay }) => {
     //set three month date visit to patient data in firebase timestamp format
     if (threeMonthDay && groupId) {
-      patients[patientId].threeMonthDay = firebase.firestore.Timestamp.fromDate(
+      patients[
+        patientId - 1
+      ].threeMonthDay = firebase.firestore.Timestamp.fromDate(
         new Date(threeMonthDay)
       )
 
@@ -134,10 +136,12 @@ function PatientSimpleView(props) {
         type: SET_THREE_MONTH_DATE,
         groupId: groupId || groupFullData?._id || null,
         additionalData: {
+          patientId,
           therapistDisplayName: `${firstName} ${lastName}`,
           therapistEmail,
-          therapistRole: _.capitalize(groupFullData?.therapists?.[therapistId]),
-          patientDisplayName: null,
+          therapistRole: _.capitalize(
+            groupFullData?.therapists?.[therapistId]
+          ).replace('_', ' '),
           groupName: weekNumber || null,
           groupStatus: groupFullData?.status || null,
           groupClinicName: groupFullData?.clinic?.name,
@@ -150,16 +154,19 @@ function PatientSimpleView(props) {
   }
 
   const onClickDeliverBio = () => {
-    onDeliverBio(props)
+    const deliverBioData = { ...props, patientId: patientId - 1 }
+    onDeliverBio(deliverBioData)
     createActivity({
       isTriggeredByAdmin: false,
       type: DELIVER_BIO,
       groupId: groupId || groupFullData?._id || null,
       additionalData: {
+        patientId,
         therapistDisplayName: `${firstName} ${lastName}`,
         therapistEmail,
-        therapistRole: _.capitalize(groupFullData?.therapists?.[therapistId]),
-        patientDisplayName: null,
+        therapistRole: _.capitalize(
+          groupFullData?.therapists?.[therapistId]
+        ).replace('_', ' '),
         groupName: weekNumber,
         groupStatus: groupFullData?.status || null,
         groupClinicName: groupFullData?.clinic?.name,

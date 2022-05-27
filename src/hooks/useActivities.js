@@ -108,6 +108,9 @@ const useActivities = () => {
     const triggeredByTextData = `${
       isTriggeredByAdmin ? t('Admin') : t('Therapist')
     }, ${data?.adminDisplayName || data?.therapistDisplayName}`
+    const patientDisplayName = `${data?.groupName} ${data?.groupClinicName} ${t(
+      'Patient'
+    )} ${data?.patientId}`
 
     const ACTIVITY_TEXT_BY_TYPE = {
       [CREATE_GROUP]: `${triggeredByTextData}, ${t('created group')}, ${t(
@@ -127,9 +130,11 @@ const useActivities = () => {
       )}, ${data?.invitedTherapistDisplayName}, ${t('to group')}, ${t(
         'Week'
       )} ${data?.groupName}`,
-      [ADD_PATIENT_TO_GROUP]: `${triggeredByTextData}, ${t('added patient')}, ${
-        data?.patientDisplayName
-      }, ${t('to group')}, ${t('Week')} ${data?.groupName}`,
+      [ADD_PATIENT_TO_GROUP]: `${triggeredByTextData}, ${t(
+        'added patient'
+      )}, ${patientDisplayName}, ${t('to group')}, ${t('Week')} ${
+        data?.groupName
+      }`,
       [REMOVE_THERAPIST_FROM_GROUP]: `${triggeredByTextData}, ${t(
         'removed therapist'
       )}, ${data?.removedTherapistDisplayName}, ${t('from group')}, ${t(
@@ -137,17 +142,17 @@ const useActivities = () => {
       )} ${data?.groupName}`,
       [REMOVE_PATIENT_FROM_GROUP]: `${triggeredByTextData}, ${t(
         'removed patient'
-      )}, ${data?.patientDisplayName}, ${t('from group')}, ${t('Week')} ${
+      )}, ${patientDisplayName}, ${t('from group')}, ${t('Week')} ${
         data?.groupName
       }`,
       [DELIVER_BIO]: `${triggeredByTextData}, ${t(
         'delivered bio for the patient'
-      )}, ${data?.patientDisplayName}, ${t('in group')}, ${t('Week')} ${
+      )}, ${patientDisplayName}, ${t('in group')}, ${t('Week')} ${
         data?.groupName
       }`,
       [SET_THREE_MONTH_DATE]: `${triggeredByTextData}, ${t(
         'set three month date for the patient'
-      )}, ${data?.patientDisplayName}, ${t('in group')}, ${t('Week')} ${
+      )}, ${patientDisplayName}, ${t('in group')}, ${t('Week')} ${
         data?.groupName
       }`,
       [CHANGE_CLINIC_BIOFLOW_ACCESS]: `${triggeredByTextData}, ${t(

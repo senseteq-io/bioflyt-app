@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useTranslations } from '@qonsoll/translation'
 import { GroupsList } from 'bioflow/domains/Group/components'
 import { FilterOutlined } from '@ant-design/icons'
+import { Badge } from 'antd'
 
 function GroupsAll(props) {
   const { inTab, isDrawerVisible, setIsDrawerVisible } = props
@@ -11,6 +12,30 @@ function GroupsAll(props) {
   const { t } = useTranslations()
 
   const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false)
+
+  const onOpenFilterDrawer = () => {
+    setIsFilterDrawerVisible(true)
+  }
+
+  const filterData = JSON.parse(localStorage.getItem('filterData'))?.length
+
+  const action = !!filterData ? (
+    <Badge count={filterData} offset={['-4', 3]}>
+      <Button
+        icon={<FilterOutlined />}
+        type="primary"
+        onClick={onOpenFilterDrawer}>
+        {t('Filter')}
+      </Button>
+    </Badge>
+  ) : (
+    <Button
+      icon={<FilterOutlined />}
+      type="primary"
+      onClick={onOpenFilterDrawer}>
+      {t('Filter')}
+    </Button>
+  )
 
   if (inTab) {
     return (
@@ -23,10 +48,6 @@ function GroupsAll(props) {
     )
   }
 
-  const onOpenFilterDrawer = () => {
-    setIsFilterDrawerVisible(true)
-  }
-
   return (
     <PageWrapper
       headingProps={{
@@ -35,14 +56,7 @@ function GroupsAll(props) {
         textAlign: 'left',
         marginBottom: 32
       }}
-      action={
-        <Button
-          icon={<FilterOutlined />}
-          type="primary"
-          onClick={onOpenFilterDrawer}>
-          {t('Filter')}
-        </Button>
-      }>
+      action={action}>
       <GroupsList
         isFilterDrawerVisible={isFilterDrawerVisible}
         setIsFilterDrawerVisible={setIsFilterDrawerVisible}
