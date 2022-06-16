@@ -1,8 +1,3 @@
-import { useNotificationActions } from 'bioflow/domains/Notification/hooks'
-import React, { useMemo } from 'react'
-import firebase from 'firebase'
-import { useTranslations } from '@qonsoll/translation'
-import { useDocumentData } from 'react-firebase-hooks/firestore'
 import {
   Badge,
   Button,
@@ -13,11 +8,17 @@ import {
   Text,
   Title
 } from '@qonsoll/react-design'
-import { useBioflowAccess } from 'bioflow/hooks'
-import { useUserContext } from 'app/domains/User/contexts'
+import React, { useMemo } from 'react'
+
 import { GROUPS_MODEL_NAME } from 'bioflow/constants/collections'
 import { NOTIFICATION_TYPES } from '../../constants'
 import _ from 'lodash'
+import firebase from 'firebase'
+import { useBioflowAccess } from 'bioflow/hooks'
+import { useDocumentData } from 'react-firebase-hooks/firestore'
+import { useNotificationActions } from 'bioflow/domains/Notification/hooks'
+import { useTranslations } from '@qonsoll/translation'
+import { useUserContext } from 'app/domains/User/contexts'
 
 const rolesTranslations = {
   GROUP_LEADER: 'Grouppeleader',
@@ -72,6 +73,8 @@ function NotificationSimpleView(props) {
     return type === NOTIFICATION_TYPES.INVITE ? ` ${t('as')} ${role}` : ``
   }, [type, groupData, language])
 
+  const cursor = isTherapist ? 'pointer' : 'auto'
+
   return (
     <Container>
       <Row
@@ -79,7 +82,7 @@ function NotificationSimpleView(props) {
         v="center"
         minHeight="var(--btn-height-base)"
         flexWrap="nowrap"
-        style={{ cursor: 'pointer' }}
+        style={{cursor: cursor}}
         onClick={onMarkAsSeen}>
         {isTherapist && (
           <Col cw="auto" mr={3}>
