@@ -1,8 +1,9 @@
 import { Button, Container, PageWrapper } from '@qonsoll/react-design'
 import React, { useState } from 'react'
-import { useTranslations } from '@qonsoll/translation'
-import { GroupsList } from 'bioflow/domains/Group/components'
+
 import { FilterOutlined } from '@ant-design/icons'
+import { GroupsList } from 'bioflow/domains/Group/components'
+import { useTranslations } from '@qonsoll/translation'
 
 function GroupsAll(props) {
   const { inTab, isDrawerVisible, setIsDrawerVisible } = props

@@ -1,10 +1,11 @@
-import React, { Fragment, useMemo, useState } from 'react'
-import moment from 'moment'
-import { useTranslations } from '@qonsoll/translation'
-import { Modal } from 'antd'
 import { Button, Col, NoData, Row, Text } from '@qonsoll/react-design'
-import { useActivities } from 'bioflow/hooks'
+import React, { Fragment, useMemo, useState } from 'react'
+
 import { ActivityAdvancedView } from '../'
+import { Modal } from 'antd'
+import moment from 'moment'
+import { useActivities } from 'bioflow/hooks'
+import { useTranslations } from '@qonsoll/translation'
 
 function ActivitySimpleView(props) {
   const { _createdAt, additionalData, type, isTriggeredByAdmin } = props

@@ -1,22 +1,23 @@
-import { useTranslations } from '@qonsoll/translation'
-import { ClearOutlined } from '@ant-design/icons'
+import { Select as AntSelect, Drawer, Form } from 'antd'
 import { Box, Button, Col, Row, Select, Text } from '@qonsoll/react-design'
-import { Form, Drawer, Select as AntSelect } from 'antd'
-import {
-  useCollectionData,
-  useDocumentData
-} from 'react-firebase-hooks/firestore'
-import firebase from 'firebase'
+import { CLINICS_MODEL_NAME, DISORDERS_MODEL_NAME } from 'app/constants/models'
 import {
   GROUPS_MODEL_NAME,
   STUDIES_MODEL_NAME,
   THERAPIST_PROFILES_MODEL_NAME
 } from 'bioflow/constants/collections'
-import { DISORDERS_MODEL_NAME, CLINICS_MODEL_NAME } from 'app/constants/models'
-import { useUserContext } from 'app/domains/User/contexts'
+import {
+  useCollectionData,
+  useDocumentData
+} from 'react-firebase-hooks/firestore'
+
+import { ClearOutlined } from '@ant-design/icons'
+import _ from 'lodash'
+import firebase from 'firebase'
 import { useBioflowAccess } from 'bioflow/hooks'
 import { useMemo } from 'react'
-import _ from 'lodash'
+import { useTranslations } from '@qonsoll/translation'
+import { useUserContext } from 'app/domains/User/contexts'
 
 const GroupFilterDrawer = (props) => {
   const {
@@ -217,13 +218,13 @@ const GroupFilterDrawer = (props) => {
           </Col>
         </Row>
         <Row h="right" noGutters>
-          <Col cw="auto" mr={3}>
+          <Col cw={12} my={12}>
             <Button size="middle" type="text" onClick={onDrawerClose}>
               {t('Cancel')}
             </Button>
           </Col>
 
-          <Col cw="auto">
+          <Col cw={12}>
             <Button size="middle" type="primary" onClick={form.submit}>
               {t('Apply')}
             </Button>
