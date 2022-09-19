@@ -1,27 +1,28 @@
-import React, { useMemo, useState } from 'react'
-import { Button, PageWrapper } from '@qonsoll/react-design'
-import { Tabs } from 'antd'
-import {
-  Route,
-  useHistory,
-  useLocation,
-  Redirect,
-  matchPath
-} from 'react-router-dom'
-import { useTranslations } from '@qonsoll/translation'
-import { AdminGroupRoutes } from '../Group'
-import { AdminActivityRoutes } from '../Activity'
-import { AdminSettingRoutes } from '../Settings'
-import { AdminStudyRoutes } from '../Study'
-import { AdminTherapistsRoutes } from '../Therapist'
 import {
   BIOFLOW_ADMIN_GLOBAL_ACTIVITIES_PATH,
   BIOFLOW_ADMIN_GROUPS_PATH,
-  BIOFLOW_ADMIN_SETTINGS_PATH,
-  BIOFLOW_ADMIN_PATH
+  BIOFLOW_ADMIN_PATH,
+  BIOFLOW_ADMIN_SETTINGS_PATH
 } from 'bioflow/constants/paths'
+import { Button, PageWrapper } from '@qonsoll/react-design'
+import React, { useMemo, useState } from 'react'
+import {
+  Redirect,
+  Route,
+  matchPath,
+  useHistory,
+  useLocation
+} from 'react-router-dom'
+
+import { AdminActivityRoutes } from '../Activity'
+import { AdminGroupRoutes } from '../Group'
+import { AdminSettingRoutes } from '../Settings'
+import { AdminStudyRoutes } from '../Study'
+import { AdminTherapistsRoutes } from '../Therapist'
 import { FilterOutlined } from '@ant-design/icons'
 import { GroupsAll } from 'bioflow/pages/Group'
+import { Tabs } from 'antd'
+import { useTranslations } from '@qonsoll/translation'
 
 const routesWithTabs = [
   ...AdminGroupRoutes.filter(({ name }) => name === 'GroupsAll'),
@@ -83,9 +84,10 @@ function Dashboard() {
       onBack={history.goBack}
       headingProps={{
         title: t('Bioflow'),
-        titleSize: 2,
+        titleSize: 3,
         textAlign: 'left',
-        marginBottom: '0px'
+        marginBottom: 32,
+        marginTop: 48,
       }}
       action={
         isFilterVisible && (
